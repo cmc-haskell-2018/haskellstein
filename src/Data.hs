@@ -32,6 +32,9 @@ data Enemy = Enemy
   , eAgro   :: Bool
   }
 
+data CellCond = Blocked | Free | Destructible
+
+type CellCoord = (Int, Int)
 type Tilemap = [[String]]
 
 type Scene = (Player, [Fireball], [Enemy], Tilemap)
