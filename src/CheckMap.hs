@@ -1,12 +1,12 @@
 module CheckMap where
 
 import Data
-import Prelude 
+import Prelude
 
 --specify step-on-cell perfomance
 specCellCond :: Tilemap -> CellCoord -> CellCond
-specCellCond tm (n,m) = spec (head (dropElements m 
-                                    (head (dropElements n tm)) ))
+specCellCond tm (n,m) = spec (head (dropElements m
+                                    (head (dropElements n tm))))
   where
     dropElements :: Int -> [a] -> [a]
     dropElements _ [] = []
@@ -16,5 +16,5 @@ specCellCond tm (n,m) = spec (head (dropElements m
     spec :: String -> CellCond
     spec c
         | head c == 'w' || head c == 'a' || head c == 'o' = Blocked
-        | head c == 'v' || head c == 'i' || head c == 'b' = Free 
+        | head c == 'v' || head c == 'i' || head c == 'b' = Free
         | otherwise = Destructible

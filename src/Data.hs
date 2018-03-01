@@ -6,7 +6,7 @@ data Player = Player
   , pRadian :: Float
   , pHp     :: Int
   , pSpeed  :: Float
-  , pBuff   :: Int
+  , pDamage  :: Int
   }
 
 data Fireball = Fireball
@@ -34,7 +34,8 @@ data Enemy = Enemy
 
 data CellCond = Blocked | Free | Destructible
 
-type CellCoord = (Int, Int)
+type CellCoord = (Int, Int) -- (y,x)
+
 type Tilemap = [[String]]
 
 type Scene = (Player, [Fireball], [Enemy], Tilemap)
