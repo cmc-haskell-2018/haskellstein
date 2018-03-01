@@ -51,7 +51,7 @@ removeDO tmap (y, x) = newmap
     mmm    = write (y + 1, x) mm
     mmmm   = write (y, x - 1) mmm
     newmap = write (y - 1, x) mmmm
- 
+
 --check fireballs for hearting enemies
 --damageFireballs :: [Fireball] -> [Enemy] -> ([Fireball], [Enemy])
 --damageFireballs [] e     = ([], e)
