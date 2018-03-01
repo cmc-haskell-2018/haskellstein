@@ -6,29 +6,29 @@ import CheckMap
 
 --move fireballs
 stepFireballs :: [Fireball] -> Tilemap -> ([Fireball], Tilemap)
-stepFireballs [] map     = ([], map)
-stepFireballs (f:fs) map = case newf of
-                             Nothing       -> (newfs, retmap)
-                             Just fireball -> (fireball : newfs, retmap)
+stepFireballs [] tmap      = ([], tmap)
+stepFireballs (f:fs) tmap  = case newf of
+                               Nothing       -> (newfs, retmap)
+                               Just fireball -> (fireball : newfs, retmap)
   where
-    (newf, newmap)  = stepFireball f map
+    (newf, newmap)  = stepFireball f tmap
     (newfs, retmap) = stepFireballs fs newmap
 
 
 --move fireball
 stepFireball :: Fireball -> Tilemap -> (Maybe Fireball, Tilemap)
-stepFireball f map = case cond of
-                       Free         -> (Just (Fireball
-                                                 newx
-                                                 newy
-                                                 a
-                                                 d
-                                                 r
-                                                 s
-                                                 m)
-                                       , map)
-                       Blocked      -> (Nothing, map)
-                       Destructible -> (Nothing, removeDO map newcoord)
+stepFireball f tmap = case cond of
+                        Free         -> (Just (Fireball
+                                                  newx
+                                                  newy
+                                                  a
+                                                  d
+                                                  r
+                                                  s
+                                                  m)
+                                        , tmap)
+                        Blocked      -> (Nothing, tmap)
+                        Destructible -> (Nothing, removeDO tmap newcoord)
   where
     x        = fPosX f
     y        = fPosY f
@@ -40,14 +40,53 @@ stepFireball f map = case cond of
     newx     = x + (s * cos a)
     newy     = y + (s * sin a)
     newcoord = (floor newy, floor newx)
-    cond     = specCellCond map newcoord
+    cond     = specCellCond tmap newcoord
 
 --remove near Destructible objects
 removeDO :: Tilemap -> CellCoord -> Tilemap
-removeDO map (y, x) = newmap
+removeDO tmap (y, x) = newmap
   where
-    m      = write (y, x) map
+    m      = write (y, x) tmap --write is not existing now need replace
     mm     = write (y, x + 1) m
     mmm    = write (y + 1, x) mm
     mmmm   = write (y, x - 1) mmm
     newmap = write (y - 1, x) mmmm
+ 
+--check fireballs for hearting enemies
+--damageFireballs :: [Fireball] -> [Enemy] -> ([Fireball], [Enemy])
+--damageFireballs [] e     = ([], e)
+--damageFireballs (f:fs) e =
+
+
+
+
+--check fireball for hearting enemies
+damageFireball :: Fireball -> [Enemy] -> (Maybe Fireball, [Enemy])
+damageFireball f []           = (Just f, [])
+damageFireball f (e:es)
+    | rx < r, ry < r, ehp > 0 = (Nothing, --hit
+                                Enemy
+                                    ex
+                                    ey
+                                    ehp
+                                    (eDamage e)
+                                    (eRange e)
+                                    (eSpeed e)
+                                    (eModel e)
+                                    (eTex e)
+                                    (eVision e)
+                                    True
+                                : es)
+    | rx < r, ry < r          = (Nothing, es) --kill
+    | otherwise               = (newf, e : enret) --miss
+  where
+    fx            = fPosX f
+    fy            = fPosY f
+    r             = fRadius f
+    fd            = fDamage f
+    ey            = ePosY e
+    ex            = ePosX e
+    ehp           = eHp e - fd
+    rx            = abs (fx - ex)
+    ry            = abs (fy - ey)
+    (newf, enret) = damageFireball f es

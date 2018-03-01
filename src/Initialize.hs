@@ -59,8 +59,8 @@ createFireball (y, x) a d = Fireball (fromIntegral x) -- fPosX
 splitString :: Char -> String -> (String, String)
 splitString _ [] = ([], [])
 splitString c (x:xs)
-    | x == c    = ([], xs)
-    | otherwise = (x : fst ret, snd ret)
+    | x == c     = ([], xs)
+    | otherwise  = (x : fst ret, snd ret)
       where
         ret = splitString c xs
 
@@ -82,7 +82,7 @@ findPlayer = findPlayer2 0
 
 --help function
 findPlayer2 :: Int -> Tilemap -> Player
-findPlayer2 _ [] = createPlayer (0, 0)
+findPlayer2 _ []   = createPlayer (0, 0)
 findPlayer2 y (str:rest)
     | findP == len = findPlayer2 (y + 1) rest
     | otherwise    = createPlayer (y, findP)
@@ -96,7 +96,7 @@ findEnemies = findEnemies2 0
 
 --help function
 findEnemies2 :: Int -> Tilemap -> [Enemy]
-findEnemies2 _ [] = []
+findEnemies2 _ []  = []
 findEnemies2 y (str:rest)
     | findE == len = findEnemies2 (y + 1) rest
     | otherwise    = createEnemy (y, findE) t :
