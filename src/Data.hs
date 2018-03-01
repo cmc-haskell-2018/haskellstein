@@ -6,7 +6,7 @@ data Player = Player
   , pRadian :: Float
   , pHp     :: Int
   , pSpeed  :: Float
-  , pDamage  :: Int
+  , pDamage :: Int
   }
 
 data Fireball = Fireball
