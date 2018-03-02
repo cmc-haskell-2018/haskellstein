@@ -4,6 +4,7 @@ import Prelude
 import System.Environment
 import Data
 import Initialize
+import Interactions 
 import CheckMap
 
 main :: IO ()
@@ -17,7 +18,7 @@ main = do
         let (player, _, enemies, edit) = scene
         putStrLn $ "Player x=" ++ show (pPosX player) ++ " y=" ++ show (pPosY player)
         printEnemies enemies
-        let {xcoord = 3; ycoord = 5}
+        let {xcoord = 2; ycoord = 2}
         putStrLn $ "edited map " ++ show edit
         putStr $ "Cell [" ++ show xcoord ++
                   ", " ++ show ycoord ++ "] is "
@@ -25,6 +26,9 @@ main = do
           Blocked -> putStrLn "Blocked cell"
           Free -> putStrLn "Free cell"
           Destructible -> putStrLn "Destructible cell"
+        putStrLn $ "\n Updated map: deleted DO near cell ["
+            ++ show xcoord ++ ", " ++ show ycoord ++ "]:\n"
+            ++ show (removeDO edit (xcoord,ycoord))
 
 printEnemies :: [Enemy] -> IO()
 printEnemies [] = putStrLn "end"

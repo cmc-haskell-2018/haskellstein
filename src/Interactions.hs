@@ -14,7 +14,6 @@ stepFireballs (f:fs) tmap  = case newf of
     (newf, newmap)  = stepFireball f tmap
     (newfs, retmap) = stepFireballs fs newmap
 
-
 --move fireball
 stepFireball :: Fireball -> Tilemap -> (Maybe Fireball, Tilemap)
 stepFireball f tmap = case cond of
@@ -46,19 +45,21 @@ stepFireball f tmap = case cond of
 removeDO :: Tilemap -> CellCoord -> Tilemap
 removeDO tmap (y, x) = newmap
   where
-    m      = write (y, x) tmap --write is not existing now need replace
-    mm     = write (y, x + 1) m
-    mmm    = write (y + 1, x) mm
-    mmmm   = write (y, x - 1) mmm
-    newmap = write (y - 1, x) mmmm
+    m      = writeEmpty tmap (y, x)
+    mm     = writeEmpty m (y, x + 1)
+    mmm    = writeEmpty mm (y + 1, x)
+    mmmm   = writeEmpty mmm (y, x - 1)
+    newmap = writeEmpty mmmm (y - 1, x)
 
 --check fireballs for hearting enemies
---damageFireballs :: [Fireball] -> [Enemy] -> ([Fireball], [Enemy])
---damageFireballs [] e     = ([], e)
---damageFireballs (f:fs) e =
-
-
-
+damageFireballs :: [Fireball] -> [Enemy] -> ([Fireball], [Enemy])
+damageFireballs [] e     = ([], e)
+damageFireballs (f:fs) e = case newf of
+                             Nothing       -> (retlf, enret)
+                             Just fireball -> (fireball : retlf, enret)
+  where
+    (newf, newe)   = damageFireball f e
+    (retlf, enret) = damageFireballs fs newe
 
 --check fireball for hearting enemies
 damageFireball :: Fireball -> [Enemy] -> (Maybe Fireball, [Enemy])

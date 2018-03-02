@@ -1,6 +1,7 @@
 module CheckMap where
 
 import Data
+import Data.List.Index
 import Prelude
 
 --specify step-on-cell perfomance
@@ -18,3 +19,16 @@ specCellCond tm (n,m) = spec (head (dropElements m
         | head c == 'w' || head c == 'a' || head c == 'o' = Blocked
         | head c == 'v' || head c == 'i' || head c == 'b' = Free
         | otherwise                                       = Destructible
+
+
+--change cell followed coordinates
+writeCondition :: Tilemap -> CellCoord -> String -> Tilemap
+writeCondition tm (n,m) str = modifyAt n (changeCell) tm
+    where 
+      changeCell :: [String] -> [String]
+      changeCell = modifyAt m (\_ -> str)
+
+writeEmpty :: Tilemap -> CellCoord -> Tilemap
+writeEmpty tm (n,m) = if head ((tm !! n) !! m) == 'd'
+                      then writeCondition tm (n,m) "v00"
+                      else tm
