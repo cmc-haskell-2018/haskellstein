@@ -1,6 +1,8 @@
 module Initialize where
 
 import Prelude
+import System.Exit
+--
 import Data
 
 createPlayer :: CellCoord -> Player
@@ -82,7 +84,7 @@ findPlayer = findPlayer2 0
 
 --help function
 findPlayer2 :: Int -> Tilemap -> Player
-findPlayer2 _ []   = createPlayer (0, 0)
+findPlayer2 _ []   = exitFailure
 findPlayer2 y (str:rest)
     | findP == len = findPlayer2 (y + 1) rest
     | otherwise    = createPlayer (y, findP)

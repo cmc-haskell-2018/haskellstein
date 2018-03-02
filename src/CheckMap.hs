@@ -1,8 +1,10 @@
 module CheckMap where
 
-import Data
 import Data.List.Index
 import Prelude
+import System.Exit
+--
+import Data
 
 --specify step-on-cell perfomance
 specCellCond :: Tilemap -> CellCoord -> CellCond
