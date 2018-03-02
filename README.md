@@ -17,6 +17,8 @@ stack build
 
 ```
 stack build && stack exec haskellstein tilemaps/testlvl.txt
+|
+make
 ```
 
 Запустить тесты можно при помощи команды
@@ -30,4 +32,3 @@ stack test
 ```
 stack ghci
 ```
-

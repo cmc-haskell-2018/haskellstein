@@ -29,6 +29,7 @@ executable haskellstein
   ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base
                      , haskellstein
+                     , ilist
   default-language:    Haskell2010
 
 test-suite haskellstein-test
@@ -40,4 +41,3 @@ test-suite haskellstein-test
                      , ilist
   ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010
-
