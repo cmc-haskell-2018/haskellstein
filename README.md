@@ -16,7 +16,7 @@ stack build
 Собрать и запустить проект можно при помощи команды
 
 ```
-stack build && stack exec haskellstein
+stack build && stack exec haskellstein tilemaps/testlvl.txt
 ```
 
 Запустить тесты можно при помощи команды
