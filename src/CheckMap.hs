@@ -12,7 +12,7 @@ specCellCond tm (n,m) = spec (head (dropElements m
                                     (head (dropElements n tm))))
   where
     dropElements :: Int -> [a] -> [a]
-    dropElements _ [] = []
+    dropElements _ [] = exitFailure
     dropElements count (x:xs)
         | count == 0  = (x:xs)
         | otherwise   = dropElements (count - 1) xs
