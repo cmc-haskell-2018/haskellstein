@@ -20,6 +20,7 @@ library
                      , CheckMap
                      , Interactions
   build-depends:       base >= 4.7 && < 5
+                     , ilist
   default-language:    Haskell2010
 
 executable haskellstein
@@ -36,6 +37,7 @@ test-suite haskellstein-test
   main-is:             Spec.hs
   build-depends:       base
                      , haskellstein
+                     , ilist
   ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010
 
