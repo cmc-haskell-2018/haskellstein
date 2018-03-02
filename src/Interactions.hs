@@ -46,11 +46,11 @@ stepFireball f tmap = case cond of
 removeDO :: Tilemap -> CellCoord -> Tilemap
 removeDO tmap (y, x) = newmap
   where
-    m      = write (y, x) tmap --write is not existing now need replace
-    mm     = write (y, x + 1) m
-    mmm    = write (y + 1, x) mm
-    mmmm   = write (y, x - 1) mmm
-    newmap = write (y - 1, x) mmmm
+    m      = writeEmpty tmap (y, x)
+    mm     = writeEmpty m (y, x + 1)
+    mmm    = writeEmpty mm (y + 1, x)
+    mmmm   = writeEmpty mmm (y, x - 1)
+    newmap = writeEmpty mmmm (y - 1, x)
 
 --check fireballs for hearting enemies
 --damageFireballs :: [Fireball] -> [Enemy] -> ([Fireball], [Enemy])
