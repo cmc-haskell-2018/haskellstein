@@ -1,8 +1,10 @@
 module CheckMap where
 
-import Data
 import Data.List.Index
 import Prelude
+import System.Exit
+--
+import Data
 
 --specify step-on-cell perfomance
 specCellCond :: Tilemap -> CellCoord -> CellCond
@@ -10,7 +12,7 @@ specCellCond tm (n,m) = spec (head (dropElements m
                                     (head (dropElements n tm))))
   where
     dropElements :: Int -> [a] -> [a]
-    dropElements _ [] = []
+    dropElements _ [] = exitFailure
     dropElements count (x:xs)
         | count == 0  = (x:xs)
         | otherwise   = dropElements (count - 1) xs
