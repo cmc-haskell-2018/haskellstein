@@ -21,10 +21,11 @@ stepFireball f tmap = case cond of
                                                   newx
                                                   newy
                                                   a
-                                                  d
-                                                  r
-                                                  s
-                                                  m)
+                                                  (fDamage f)
+                                                  (fRadius f)
+                                                  (fSpeed f)
+                                                  (fModel f)
+                                              )
                                         , tmap)
                         Blocked      -> (Nothing, tmap)
                         Destructible -> (Nothing, removeDO tmap newcoord)
@@ -32,12 +33,9 @@ stepFireball f tmap = case cond of
     x        = fPosX f
     y        = fPosY f
     a        = fRadian f
-    s        = fSpeed f
-    d        = fDamage f
-    m        = fModel f
-    r        = fRadius f
-    newx     = x + (s * cos a)
-    newy     = y + (s * sin a)
+    delta    = 1 --need to be timer dif
+    newx     = x + (delta * s * cos a)
+    newy     = y + (delta * s * sin a)
     newcoord = (floor newy, floor newx)
     cond     = specCellCond tmap newcoord
 
