@@ -96,11 +96,6 @@ damageFireball f (e:es)
 
 -------------------------------ENEMY_FUNCTIONS------------------------------
 
---enemies func
---stepEnemies :: Player -> [Enemy] -> (Player, [Enemy])
---stepEnemies p []     = (p, [])
---stepEnemies p (e:es) =
-
 --moves Enemy to Player
 moveEnemy :: Player -> Enemy -> Tilemap -> Enemy
 moveEnemy p e tmap = case cond of
@@ -233,3 +228,11 @@ stepEnemy p e tmap
   where
     isvision = isPInVision p e
     agro     = eAgro e
+
+--Enemies Perfect(NO) AI
+stepEnemies :: Player -> [Enemy] -> Tilemap -> (Player, [Enemy])
+stepEnemies p [] _        = (p, [])
+stepEnemies p (e:es) tmap = (retp, newe : rete)
+  where
+  (newp, newe) = stepEnemy p e tmap
+  (retp, rete) = stepEnemies newp es tmap
