@@ -48,7 +48,7 @@ createEnemy (y, x) _ = Enemy ((fromIntegral x) + 0.5) -- ePosX
                              3 -- eModel
                              1 -- eTex
                              0 -- eVision
-                             False -- eAgro
+                             True -- eAgro
 
 createFireball :: CellCoord -> Float -> Int -> Fireball
 createFireball (y, x) a d = Fireball (fromIntegral x) -- fPosX

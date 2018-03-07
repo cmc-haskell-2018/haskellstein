@@ -101,8 +101,6 @@ damageFireball f (e:es)
 --stepEnemies p []     = (p, [])
 --stepEnemies p (e:es) =
 
-
-
 --moves Enemy to Player
 moveEnemy :: Player -> Enemy -> Tilemap -> Enemy
 moveEnemy p e tmap = case cond of
@@ -136,6 +134,54 @@ moveEnemy p e tmap = case cond of
     newcoord = (floor newy, floor newx)
     cond     = specCellCond tmap newcoord
 
+--Enemy deal Damage
+damageEnemy :: Player -> Enemy -> (Player, Enemy)
+damageEnemy p e
+    | isrange, isaready = (
+                          Player
+                              (pPosX p)
+                              (pPosY p)
+                              (pRadian p)
+                              newhp --get damaged
+                              (pSpeed p)
+                              (pASpeed p)
+                              (pDamage p)
+                          ,
+                          Enemy
+                              (ePosX e)
+                              (ePosY e)
+                              (eHp e)
+                              (eDamage e)
+                              (eRange e)
+                              (eSpeed e)
+                              (cd, cd) --set attack cd
+                              (eModel e)
+                              (eTex e)
+                              (eVision e)
+                              (eAgro e)
+                          )
+    | otherwise         = (p,
+                          Enemy
+                              (ePosX e)
+                              (ePosY e)
+                              (eHp e)
+                              (eDamage e)
+                              (eRange e)
+                              (eSpeed e)
+                              (delay, cd) --change attack delay
+                              (eModel e)
+                              (eTex e)
+                              (eVision e)
+                              (eAgro e)
+                          )
+  where
+    isrange   = isPInRange p e
+    newhp     = (pHp p) - (eDamage e)
+    delta     = 1 --need to be timer diff
+    (tmp, cd) = eASpeed e
+    delay     = tmp - delta
+    isaready  = delay < 0
+
 --is player in vision
 isPInVision :: Player -> Enemy -> Bool
 isPInVision p e = result
@@ -162,11 +208,28 @@ isPInRange p e = result
     ry     = abs (py - ey)
     result = (rx < er) && (ry < er)
 
-stepEnemy :: Player -> Enemy -> (Player, Enemy)
-stepEnemy p e =
+--Enemy Perfet(NO) AI
+stepEnemy :: Player -> Enemy -> Tilemap -> (Player, Enemy)
+stepEnemy p e tmap
+    | agro      = damageEnemy p (moveEnemy p e tmap)
+    | isvision  = damageEnemy p (moveEnemy
+                                    p
+                                    (Enemy
+                                        (ePosX e)
+                                        (ePosY e)
+                                        (eHp e)
+                                        (eDamage e)
+                                        (eRange e)
+                                        (eSpeed e)
+                                        (eASpeed e)
+                                        (eModel e)
+                                        (eTex e)
+                                        (eVision e)
+                                        True --set agro
+                                    )
+                                    tmap
+                                )
+    | otherwise = (p, e)
   where
-    px = pPosX p
-    py = pPosY p
-    ph = pHp p
-    ex = ePosX e
-    ey = ePosY e
+    isvision = isPInVision p e
+    agro     = eAgro e
