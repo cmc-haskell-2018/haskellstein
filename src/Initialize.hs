@@ -7,8 +7,9 @@ createPlayer :: CellCoord -> Player
 createPlayer (y, x) = Player ((fromIntegral x) + 0.5) -- pPosX
                              ((fromIntegral y) + 0.5) -- pPosY
                              0 -- pRadian
-                             7 -- pHp
-                             0.5 -- pSpeed
+                             11 -- pHp
+                             1 -- pSpeed
+                             (1, 1) -- pASpeed
                              1 -- pDamage
 
 createEnemy :: CellCoord -> Int -> Enemy
@@ -18,7 +19,8 @@ createEnemy (y, x) 1 = Enemy ((fromIntegral x) + 0.5) -- ePosX
                              3 -- eHp
                              1 -- eDamage
                              1 -- eRange
-                             0.5 -- eSpeed
+                             1 -- eSpeed
+                             (2, 2) -- eASpeed
                              1 -- eModel
                              1 -- eTex
                              8 -- eVision
@@ -29,7 +31,8 @@ createEnemy (y, x) 2 = Enemy ((fromIntegral x) + 0.5) -- ePosX
                              2 -- eHp
                              1 -- eDamage
                              3 -- eRange
-                             0.4 -- eSpeed
+                             0.8 -- eSpeed
+                             (3, 3) -- eASpeed
                              2 -- eModel
                              1 -- eTex
                              8 -- eVision
@@ -41,10 +44,11 @@ createEnemy (y, x) _ = Enemy ((fromIntegral x) + 0.5) -- ePosX
                              1 -- eDamage
                              1 -- eRange
                              0 -- eSpeed
+                             (1, 1) -- eASpeed
                              3 -- eModel
                              1 -- eTex
                              0 -- eVision
-                             False -- eAgro
+                             True -- eAgro
 
 createFireball :: CellCoord -> Float -> Int -> Fireball
 createFireball (y, x) a d = Fireball (fromIntegral x) -- fPosX
@@ -52,7 +56,7 @@ createFireball (y, x) a d = Fireball (fromIntegral x) -- fPosX
                                      a -- fRadian
                                      d -- fDamage
                                      1 -- fRadius
-                                     0.7 -- fSpeed
+                                     1.0 -- fSpeed
                                      1 -- fModel
 
 --split string by symbol
