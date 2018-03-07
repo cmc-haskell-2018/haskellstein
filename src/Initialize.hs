@@ -28,11 +28,11 @@ createEnemy (y, x) 1 = Enemy ((fromIntegral x) + 0.5) -- ePosX
 --range
 createEnemy (y, x) 2 = Enemy ((fromIntegral x) + 0.5) -- ePosX
                              ((fromIntegral y) + 0.5) -- ePosY
-                             2 -- eHp
+                             1 -- eHp
                              1 -- eDamage
                              3 -- eRange
                              0.8 -- eSpeed
-                             (3, 3) -- eASpeed
+                             (2, 2) -- eASpeed
                              2 -- eModel
                              1 -- eTex
                              8 -- eVision
@@ -50,14 +50,14 @@ createEnemy (y, x) _ = Enemy ((fromIntegral x) + 0.5) -- ePosX
                              0 -- eVision
                              True -- eAgro
 
-createFireball :: CellCoord -> Float -> Int -> Fireball
-createFireball (y, x) a d = Fireball (fromIntegral x) -- fPosX
-                                     (fromIntegral y) -- fPosY
-                                     a -- fRadian
-                                     d -- fDamage
-                                     1 -- fRadius
-                                     1.0 -- fSpeed
-                                     1 -- fModel
+createFireball :: Float -> Float -> Float -> Int -> Fireball
+createFireball y x a d = Fireball (x + (0.3 * sin a)) -- fPosX
+                                  (y + (0.3 * sin a)) -- fPosY
+                                  a -- fRadian
+                                  d -- fDamage
+                                  1 -- fRadius
+                                  1.0 -- fSpeed
+                                  1 -- fModel
 
 --split string by symbol
 splitString :: Char -> String -> (String, String)
