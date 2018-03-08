@@ -30,6 +30,17 @@ sStepEnemies (p,f,e,tmap) = (newp, f, newe, tmap)
   where
     (newp, newe) = stepEnemies p e tmap
 
+--all actions of player
+doPlayer :: Scene -> Scene
+doPlayer scene = sControlPlayer scene
+
+sControlPlayer :: Scene -> Scene
+sControlPlayer (p,f,e,tmap) = case isfireball of
+                                Nothing -> (newp, f, e, tmap)
+                                Just fb -> (newp, fb : f, e, tmap)
+  where
+    (newp, isfireball) = controlPlayer p tmap
+
 ------------------------FIREBALL_FUNCTIONS----------------------------------
 
 --move fireballs
@@ -62,7 +73,7 @@ stepFireball f tmap = case cond of
     y        = fPosY f
     a        = fRadian f
     s        = fSpeed f
-    delta    = 1 --need to be timer dif
+    delta    = 0.1 --need to be timer dif
     newx     = x + (delta * s * cos a)
     newy     = y + (delta * s * sin a)
     newcoord = (floor newy, floor newx)
@@ -122,6 +133,11 @@ damageFireball f (e:es)
 
 -------------------------------ENEMY_FUNCTIONS------------------------------
 
+--fuck zero division
+myCos :: Float -> Float -> Float
+myCos _ 0 = 1
+myCos a b = a/b
+
 --moves Enemy to Player
 moveEnemy :: Player -> Enemy -> Tilemap -> Enemy
 moveEnemy p e tmap = case cond of
@@ -146,8 +162,8 @@ moveEnemy p e tmap = case cond of
     es       = eSpeed e
     rx       = (px - ex)
     ry       = (py - ey)
-    delta    = 1 --need to be timer dif
-    cosalpha = rx/(sqrt ((rx * rx) + (ry * ry)))
+    delta    = 0.1 --need to be timer dif
+    cosalpha = myCos rx (sqrt ((rx * rx) + (ry * ry))) --fuck zero division
     sinalpha = (sqrt (1 - (cosalpha * cosalpha))) * signum ry
     newx     = ex + (delta * es * cosalpha)
     newy     = ey + (delta * es * sinalpha)
@@ -197,7 +213,7 @@ damageEnemy p e
   where
     isrange   = isPInRange p e
     newhp     = (pHp p) - (eDamage e)
-    delta     = 1 --need to be timer diff
+    delta     = 0.1 --need to be timer diff
     (tmp, cd) = eASpeed e
     delay     = tmp - delta
     isaready  = delay < 0
@@ -322,7 +338,7 @@ controlPlayer p tmap
     pa        = pRadian p
     ps        = pSpeed p
     (tmp, cd) = pASpeed p
-    delta     = 1 --need timer
+    delta     = 0.1 --need timer
     delay     = tmp - delta
     isforward = 0 --pressed 'w'
     isback    = 0 --pressed 's'

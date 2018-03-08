@@ -17,13 +17,15 @@ main = do
         putStrLn . gameLoop $ scene
 
 gameLoop :: Scene -> String
+gameLoop (p,f,[],tmap) = "VICTORY"
 gameLoop (p,f,e,tmap)
     | isend     = "GAMEOVER"
     | otherwise = ret
   where
     isend        = (pHp p) < 0
-    (newp, newe) = stepEnemies p e tmap
-    ret          = gameLoop (newp, f, newe, tmap)
+    --ret          = gameLoop . doEnemies . doFireballs . doPlayer $ (p, f, e, tmap)
+    ret          = gameLoop . doEnemies . doFireballs . doPlayer $ (p, f, e, tmap)
+    --ret          = gameLoop . doFireballs . doPlayer $ (p, f, e, tmap)
 
 printEnemies :: [Enemy] -> IO()
 printEnemies [] = putStrLn "end"
