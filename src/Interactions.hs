@@ -3,6 +3,43 @@ module Interactions where
 import Prelude
 import Data
 import CheckMap
+import Initialize
+
+-------------------------SHELL_FUNCTIONS------------------------------------
+
+--all actions of fireballs
+doFireballs :: Scene -> Scene
+doFireballs scene = sStepFireballs . sDamageFireballs $ scene
+
+sStepFireballs :: Scene -> Scene
+sStepFireballs (p,f,e,tmap) = (p, newf, e, newtmap)
+  where
+    (newf, newtmap) = stepFireballs f tmap
+
+sDamageFireballs :: Scene -> Scene
+sDamageFireballs (p,f,e,tmap) = (p, newf, newe, tmap)
+  where
+    (newf, newe) = damageFireballs f e
+
+--all actions of enemies
+doEnemies :: Scene -> Scene
+doEnemies scene = sStepEnemies scene
+
+sStepEnemies :: Scene -> Scene
+sStepEnemies (p,f,e,tmap) = (newp, f, newe, tmap)
+  where
+    (newp, newe) = stepEnemies p e tmap
+
+--all actions of player
+doPlayer :: Scene -> Scene
+doPlayer scene = sControlPlayer scene
+
+sControlPlayer :: Scene -> Scene
+sControlPlayer (p,f,e,tmap) = case isfireball of
+                                Nothing -> (newp, f, e, tmap)
+                                Just fb -> (newp, fb : f, e, tmap)
+  where
+    (newp, isfireball) = controlPlayer p tmap
 
 ------------------------FIREBALL_FUNCTIONS----------------------------------
 
@@ -36,7 +73,7 @@ stepFireball f tmap = case cond of
     y        = fPosY f
     a        = fRadian f
     s        = fSpeed f
-    delta    = 1 --need to be timer dif
+    delta    = 0.1 --need to be timer dif
     newx     = x + (delta * s * cos a)
     newy     = y + (delta * s * sin a)
     newcoord = (floor newy, floor newx)
@@ -96,23 +133,27 @@ damageFireball f (e:es)
 
 -------------------------------ENEMY_FUNCTIONS------------------------------
 
+--fuck zero division
+myCos :: Float -> Float -> Float
+myCos _ 0 = 1
+myCos a b = a/b
+
 --moves Enemy to Player
 moveEnemy :: Player -> Enemy -> Tilemap -> Enemy
 moveEnemy p e tmap = case cond of
-                       Free         -> Enemy
-                                           newx
-                                           newy
-                                           (eHp e)
-                                           (eDamage e)
-                                           (eRange e)
-                                           (eSpeed e)
-                                           (eASpeed e)
-                                           (eModel e)
-                                           (eTex e)
-                                           (eVision e)
-                                           (eAgro e)
-                       Destructible -> e
-                       Blocked      -> e
+                       Free -> Enemy
+                                   newx
+                                   newy
+                                   (eHp e)
+                                   (eDamage e)
+                                   (eRange e)
+                                   (eSpeed e)
+                                   (eASpeed e)
+                                   (eModel e)
+                                   (eTex e)
+                                   (eVision e)
+                                   (eAgro e)
+                       _    -> e
   where
     px       = pPosX p
     py       = pPosY p
@@ -121,8 +162,8 @@ moveEnemy p e tmap = case cond of
     es       = eSpeed e
     rx       = (px - ex)
     ry       = (py - ey)
-    delta    = 1 --need to be timer dif
-    cosalpha = rx/(sqrt ((rx * rx) + (ry * ry)))
+    delta    = 0.1 --need to be timer dif
+    cosalpha = myCos rx (sqrt ((rx * rx) + (ry * ry))) --fuck zero division
     sinalpha = (sqrt (1 - (cosalpha * cosalpha))) * signum ry
     newx     = ex + (delta * es * cosalpha)
     newy     = ey + (delta * es * sinalpha)
@@ -172,7 +213,7 @@ damageEnemy p e
   where
     isrange   = isPInRange p e
     newhp     = (pHp p) - (eDamage e)
-    delta     = 1 --need to be timer diff
+    delta     = 0.1 --need to be timer diff
     (tmp, cd) = eASpeed e
     delay     = tmp - delta
     isaready  = delay < 0
@@ -236,3 +277,79 @@ stepEnemies p (e:es) tmap = (retp, newe : rete)
   where
   (newp, newe) = stepEnemy p e tmap
   (retp, rete) = stepEnemies newp es tmap
+
+-----------------------------PLAYER_FUNCTIONS-------------------------------
+
+--implements player control
+controlPlayer :: Player -> Tilemap -> (Player, Maybe Fireball)
+controlPlayer p tmap
+    | isattack    = case cond of
+                      Free -> (Player
+                                  newx
+                                  newy
+                                  newa
+                                  (pHp p)
+                                  ps
+                                  (cd, cd)
+                                  pd
+                              , Just (createFireball
+                                  newy
+                                  newx
+                                  newa
+                                  pd)
+                              )
+                      _    -> (Player
+                                  px
+                                  py
+                                  newa
+                                  (pHp p)
+                                  ps
+                                  (cd, cd)
+                                  pd
+                              , Just (createFireball
+                                  py
+                                  px
+                                  newa
+                                  pd)
+                              )
+    | otherwise   = case cond of
+                      Free -> (Player
+                                  newx
+                                  newy
+                                  newa
+                                  (pHp p)
+                                  ps
+                                  (delay, cd)
+                                  pd
+                              , Nothing)
+                      _    -> (Player
+                                  px
+                                  py
+                                  newa
+                                  (pHp p)
+                                  ps
+                                  (delay, cd)
+                                  pd
+                              , Nothing)
+  where
+    px        = pPosX p
+    py        = pPosY p
+    pd        = pDamage p
+    pa        = pRadian p
+    ps        = pSpeed p
+    (tmp, cd) = pASpeed p
+    delta     = 0.1 --need timer
+    delay     = tmp - delta
+    isforward = 0 --pressed 'w'
+    isback    = 0 --pressed 's'
+    isleft    = 0 --pressed 'a'
+    isright   = 0 --pressed 'd'
+    isspace   = 1 --pressed 'space'
+    isattack  = isspace > 0 && delay < 0
+    step      = isforward - isback
+    turn      = isright - isleft
+    newx      = px + (step * delta * ps * cos pa)
+    newy      = py + (step * delta * ps * sin pa)
+    newcoord  = (floor newy, floor newx)
+    cond      = specCellCond tmap newcoord
+    newa      = pa + (0.5 * turn)
