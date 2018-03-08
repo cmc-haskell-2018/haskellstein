@@ -89,7 +89,7 @@ removeDO tmap (y, x) = newmap
     mmmm   = writeEmpty mmm (y, x - 1)
     newmap = writeEmpty mmmm (y - 1, x)
 
---check fireballs for hearting enemies
+--check fireballs for hurting enemies
 damageFireballs :: [Fireball] -> [Enemy] -> ([Fireball], [Enemy])
 damageFireballs [] e     = ([], e)
 damageFireballs (f:fs) e = case newf of
@@ -99,7 +99,7 @@ damageFireballs (f:fs) e = case newf of
     (newf, newe)   = damageFireball f e
     (retlf, enret) = damageFireballs fs newe
 
---check fireball for hearting enemies
+--check fireball for hurting enemies
 damageFireball :: Fireball -> [Enemy] -> (Maybe Fireball, [Enemy])
 damageFireball f []           = (Just f, [])
 damageFireball f (e:es)
