@@ -16,17 +16,17 @@ main = do
         let scene  = createScene . createTilemap $ src
         putStrLn . gameLoop $ scene
 
+--seems like it
 gameLoop :: Scene -> String
-gameLoop (p,f,[],tmap) = "VICTORY"
+gameLoop (_,_,[],_) = "VICTORY"
 gameLoop (p,f,e,tmap)
-    | isend     = "GAMEOVER"
-    | otherwise = ret
+    | isend         = "GAMEOVER"
+    | otherwise     = ret
   where
-    isend        = (pHp p) < 0
-    --ret          = gameLoop . doEnemies . doFireballs . doPlayer $ (p, f, e, tmap)
-    ret          = gameLoop . doEnemies . doFireballs . doPlayer $ (p, f, e, tmap)
-    --ret          = gameLoop . doFireballs . doPlayer $ (p, f, e, tmap)
+    isend = (pHp p) < 0
+    ret   = gameLoop . doEnemies . doFireballs . doPlayer $ (p, f, e, tmap)
 
+--not used now
 printEnemies :: [Enemy] -> IO()
 printEnemies [] = putStrLn "end"
 printEnemies (e:es) = do

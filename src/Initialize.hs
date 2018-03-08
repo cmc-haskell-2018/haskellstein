@@ -51,8 +51,8 @@ createEnemy (y, x) _ = Enemy ((fromIntegral x) + 0.5) -- ePosX
                              True -- eAgro
 
 createFireball :: Float -> Float -> Float -> Int -> Fireball
-createFireball y x a d = Fireball (x + (0.3 * sin a)) -- fPosX
-                                  (y + (0.3 * sin a)) -- fPosY
+createFireball y x a d = Fireball (x + (0.6 * sin a)) -- fPosX
+                                  (y + (0.6 * sin a)) -- fPosY
                                   a -- fRadian
                                   d -- fDamage
                                   1 -- fRadius

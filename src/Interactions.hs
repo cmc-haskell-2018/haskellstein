@@ -352,4 +352,4 @@ controlPlayer p tmap
     newy      = py + (step * delta * ps * sin pa)
     newcoord  = (floor newy, floor newx)
     cond      = specCellCond tmap newcoord
-    newa      = pa + (0.5 * turn)
+    newa      = pa + (0.785 * delta * turn) --turn by pi/4 in one second
