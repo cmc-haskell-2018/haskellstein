@@ -3,8 +3,13 @@ module Interactions where
 import Prelude
 import Data
 import CheckMap
+import Initialize
 
 -------------------------SHELL_FUNCTIONS------------------------------------
+
+--all actions of fireballs
+doFireballs :: Scene -> Scene
+doFireballs scene = sStepFireballs . sDamageFireballs $ scene
 
 sStepFireballs :: Scene -> Scene
 sStepFireballs (p,f,e,tmap) = (p, newf, e, newtmap)
@@ -15,6 +20,10 @@ sDamageFireballs :: Scene -> Scene
 sDamageFireballs (p,f,e,tmap) = (p, newf, newe, tmap)
   where
     (newf, newe) = damageFireballs f e
+
+--all actions of enemies
+doEnemies :: Scene -> Scene
+doEnemies scene = sStepEnemies scene
 
 sStepEnemies :: Scene -> Scene
 sStepEnemies (p,f,e,tmap) = (newp, f, newe, tmap)
@@ -116,20 +125,19 @@ damageFireball f (e:es)
 --moves Enemy to Player
 moveEnemy :: Player -> Enemy -> Tilemap -> Enemy
 moveEnemy p e tmap = case cond of
-                       Free         -> Enemy
-                                           newx
-                                           newy
-                                           (eHp e)
-                                           (eDamage e)
-                                           (eRange e)
-                                           (eSpeed e)
-                                           (eASpeed e)
-                                           (eModel e)
-                                           (eTex e)
-                                           (eVision e)
-                                           (eAgro e)
-                       Destructible -> e
-                       Blocked      -> e
+                       Free -> Enemy
+                                   newx
+                                   newy
+                                   (eHp e)
+                                   (eDamage e)
+                                   (eRange e)
+                                   (eSpeed e)
+                                   (eASpeed e)
+                                   (eModel e)
+                                   (eTex e)
+                                   (eVision e)
+                                   (eAgro e)
+                       _    -> e
   where
     px       = pPosX p
     py       = pPosY p
@@ -256,8 +264,76 @@ stepEnemies p (e:es) tmap = (retp, newe : rete)
 
 -----------------------------PLAYER_FUNCTIONS-------------------------------
 
-
-
-
-
-
+--implements player control
+controlPlayer :: Player -> Tilemap -> (Player, Maybe Fireball)
+controlPlayer p tmap
+    | isattack    = case cond of
+                      Free -> (Player
+                                  newx
+                                  newy
+                                  newa
+                                  (pHp p)
+                                  ps
+                                  (cd, cd)
+                                  pd
+                              , Just (createFireball
+                                  newy
+                                  newx
+                                  newa
+                                  pd)
+                              )
+                      _    -> (Player
+                                  px
+                                  py
+                                  newa
+                                  (pHp p)
+                                  ps
+                                  (cd, cd)
+                                  pd
+                              , Just (createFireball
+                                  py
+                                  px
+                                  newa
+                                  pd)
+                              )
+    | otherwise   = case cond of
+                      Free -> (Player
+                                  newx
+                                  newy
+                                  newa
+                                  (pHp p)
+                                  ps
+                                  (delay, cd)
+                                  pd
+                              , Nothing)
+                      _    -> (Player
+                                  px
+                                  py
+                                  newa
+                                  (pHp p)
+                                  ps
+                                  (delay, cd)
+                                  pd
+                              , Nothing)
+  where
+    px        = pPosX p
+    py        = pPosY p
+    pd        = pDamage p
+    pa        = pRadian p
+    ps        = pSpeed p
+    (tmp, cd) = pASpeed p
+    delta     = 1 --need timer
+    delay     = tmp - delta
+    isforward = 0 --pressed 'w'
+    isback    = 0 --pressed 's'
+    isleft    = 0 --pressed 'a'
+    isright   = 0 --pressed 'd'
+    isspace   = 1 --pressed 'space'
+    isattack  = isspace > 0 && delay < 0
+    step      = isforward - isback
+    turn      = isright - isleft
+    newx      = px + (step * delta * ps * cos pa)
+    newy      = py + (step * delta * ps * sin pa)
+    newcoord  = (floor newy, floor newx)
+    cond      = specCellCond tmap newcoord
+    newa      = pa + (0.5 * turn)
