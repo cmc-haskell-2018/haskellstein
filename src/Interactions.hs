@@ -4,6 +4,23 @@ import Prelude
 import Data
 import CheckMap
 
+-------------------------SHELL_FUNCTIONS------------------------------------
+
+sStepFireballs :: Scene -> Scene
+sStepFireballs (p,f,e,tmap) = (p, newf, e, newtmap)
+  where
+    (newf, newtmap) = stepFireballs f tmap
+
+sDamageFireballs :: Scene -> Scene
+sDamageFireballs (p,f,e,tmap) = (p, newf, newe, tmap)
+  where
+    (newf, newe) = damageFireballs f e
+
+sStepEnemies :: Scene -> Scene
+sStepEnemies (p,f,e,tmap) = (newp, f, newe, tmap)
+  where
+    (newp, newe) = stepEnemies p e tmap
+
 ------------------------FIREBALL_FUNCTIONS----------------------------------
 
 --move fireballs
@@ -236,3 +253,11 @@ stepEnemies p (e:es) tmap = (retp, newe : rete)
   where
   (newp, newe) = stepEnemy p e tmap
   (retp, rete) = stepEnemies newp es tmap
+
+-----------------------------PLAYER_FUNCTIONS-------------------------------
+
+
+
+
+
+
