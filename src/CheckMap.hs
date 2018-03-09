@@ -19,7 +19,6 @@ specCellCond tm (n,m) = spec (head (dropElements m
         | head c == 'v' || head c == 'i' || head c == 'b' = Free
         | otherwise                                       = Destructible
 
-
 --change cell followed coordinates
 writeCondition :: Tilemap -> CellCoord -> String -> Tilemap
 writeCondition tm (n,m) str = modifyAt n (changeCell) tm
@@ -27,6 +26,7 @@ writeCondition tm (n,m) str = modifyAt n (changeCell) tm
       changeCell :: [String] -> [String]
       changeCell = modifyAt m (\_ -> str)
 
+--remove if destructible
 writeEmpty :: Tilemap -> CellCoord -> Tilemap
 writeEmpty tm (n,m) = if head ((tm !! n) !! m) == 'd'
                       then writeCondition tm (n,m) "v00"

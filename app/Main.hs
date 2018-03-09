@@ -5,7 +5,6 @@ import System.Environment
 import Data
 import Initialize
 import Interactions 
-import CheckMap
 
 main :: IO ()
 main = do
@@ -15,21 +14,19 @@ main = do
     else do
         src <- readFile . head $ args
         let scene  = createScene . createTilemap $ src
-        let (player, _, enemies, edit) = scene
-        putStrLn $ "Player x=" ++ show (pPosX player) ++ " y=" ++ show (pPosY player)
-        printEnemies enemies
-        let {xcoord = 2; ycoord = 2}
-        putStrLn $ "edited map " ++ show edit
-        putStr $ "Cell [" ++ show xcoord ++
-                  ", " ++ show ycoord ++ "] is "
-        case (specCellCond edit (xcoord,ycoord)) of 
-          Blocked -> putStrLn "Blocked cell"
-          Free -> putStrLn "Free cell"
-          Destructible -> putStrLn "Destructible cell"
-        putStrLn $ "\n Updated map: deleted DO near cell ["
-            ++ show xcoord ++ ", " ++ show ycoord ++ "]:\n"
-            ++ show (removeDO edit (xcoord,ycoord))
+        putStrLn . gameLoop $ scene
 
+--seems like it
+gameLoop :: Scene -> String
+gameLoop (_,_,[],_) = "VICTORY"
+gameLoop (p,f,e,tmap)
+    | isend         = "GAMEOVER"
+    | otherwise     = ret
+  where
+    isend = (pHp p) < 0
+    ret   = gameLoop . doEnemies . doFireballs . doPlayer $ (p, f, e, tmap)
+
+--not used now
 printEnemies :: [Enemy] -> IO()
 printEnemies [] = putStrLn "end"
 printEnemies (e:es) = do

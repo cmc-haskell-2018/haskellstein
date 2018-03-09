@@ -6,6 +6,7 @@ data Player = Player
   , pRadian :: Float
   , pHp     :: Int
   , pSpeed  :: Float
+  , pASpeed :: (Float, Float) --(current time, cooldown)
   , pDamage :: Int
   }
 
@@ -26,6 +27,7 @@ data Enemy = Enemy
   , eDamage :: Int
   , eRange  :: Float
   , eSpeed  :: Float
+  , eASpeed :: (Float, Float) --(current time, cooldown)
   , eModel  :: Int
   , eTex    :: Int
   , eVision :: Float
