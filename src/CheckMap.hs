@@ -1,6 +1,5 @@
 module CheckMap where
 
-import Data
 import Data.List.Index
 import Prelude
 
