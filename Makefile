@@ -13,7 +13,7 @@ build:
 create_maps: $(SECONDMAKEPOS)Makefile
 	$(SECONDMAKE) run
 
-clean: $(SECONDMALEPOS)Makefile
+clean: $(SECONDMALEPOS)Makefile $(MAPS)
 	stack clean
 	rm $(MAPS)
 	$(SECONDMAKE) clean
