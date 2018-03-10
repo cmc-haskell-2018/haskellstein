@@ -1,7 +1,19 @@
+MAPSLOC = ../../tilemaps/
+BUILDDIR = build/
+BINDIR = $(BUILDDIR)bin/
+EXE = $(BINDIR)genmap
+SRC = src/map.c
+COMPILER = gcc
+FLAGS = -Wall -g
+
 run: build
-	build/bin/genmap > ../../tilemaps/genmap1.txt
-build: src/map.c
-	mkdir -p build/bin
-	gcc -Wall -g src/map.c -o build/bin/genmap
+	$(EXE) > $(MAPSLOC)genmap1.txt
+	$(EXE) > $(MAPSLOC)genmap2.txt
+	$(EXE) > $(MAPSLOC)genmap3.txt
+
+build: $(SRC)
+	mkdir -p $(BINDIR)
+	$(COMPILER) $(FLAGS) $(SRC) -o $(EXE)
+
 clean:
-	rm -rf build
+	rm -rf $(BUILDDIR)

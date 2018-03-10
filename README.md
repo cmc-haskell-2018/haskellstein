@@ -8,6 +8,8 @@ Using [Stack utility](https://www.haskellstack.org)
 
 Using GNU MAKE
 
+Using GNU Compiler Collection
+
 Setup stack:
 
 ```

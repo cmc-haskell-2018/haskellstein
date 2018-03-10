@@ -73,7 +73,7 @@ stepFireball f tmap = case cond of
     y        = fPosY f
     a        = fRadian f
     s        = fSpeed f
-    delta    = 0.1 --need to be timer dif
+    delta    = 0.5 --need to be timer dif
     newx     = x + (delta * s * cos a)
     newy     = y + (delta * s * sin a)
     newcoord = (floor newy, floor newx)
@@ -168,7 +168,7 @@ moveEnemy2 p e tmap = case cond of
     es       = eSpeed e
     rx       = (px - ex)
     ry       = (py - ey)
-    delta    = 0.1 --need to be timer dif
+    delta    = 0.5 --need to be timer dif
     cosalpha = myCos rx (sqrt ((rx * rx) + (ry * ry))) --fuck zero division
     sinalpha = (sqrt (1 - (cosalpha * cosalpha))) * signum ry
     newx     = ex + (delta * es * cosalpha)
@@ -219,7 +219,7 @@ damageEnemy p e
   where
     isrange   = isPInRange p e
     newhp     = (pHp p) - (eDamage e)
-    delta     = 0.1 --need to be timer diff
+    delta     = 0.5 --need to be timer diff
     (tmp, cd) = eASpeed e
     delay     = tmp - delta
     isaready  = delay < 0
@@ -345,7 +345,7 @@ controlPlayer p tmap
     pa        = pRadian p
     ps        = pSpeed p
     (tmp, cd) = pASpeed p
-    delta     = 0.1 --need timer
+    delta     = 0.5 --need timer
     delay     = tmp - delta
     isforward = 0 --pressed 'w'
     isback    = 0 --pressed 's'
