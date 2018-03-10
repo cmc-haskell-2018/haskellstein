@@ -32,3 +32,7 @@ writeEmpty :: Tilemap -> CellCoord -> Tilemap
 writeEmpty tm (n,m) = if head ((tm !! n) !! m) == 'd'
                       then writeCondition tm (n,m) "v00"
                       else tm
+
+--take element
+takeCellStr :: Tilemap -> CellCoord -> String
+takeCellStr tmap (y,x) = (tmap !! y) !! x

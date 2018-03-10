@@ -1,3 +1,5 @@
 all:
 	stack build
-	stack exec haskellstein tilemaps/testlvl.txt
+	stack exec haskellstein tilemaps/genmap1.txt
+clean:
+	stack clean

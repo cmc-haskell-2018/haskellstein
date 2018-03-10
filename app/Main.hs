@@ -21,10 +21,10 @@ gameLoop :: Scene -> String
 gameLoop (_,_,[],_) = "VICTORY"
 gameLoop (p,f,e,tmap)
     | isend         = "GAMEOVER"
-    | otherwise     = ret
+    | otherwise     = gameLoop ret
   where
     isend = (pHp p) < 0
-    ret   = gameLoop . doEnemies . doFireballs . doPlayer $ (p, f, e, tmap)
+    ret   = doEnemies . doFireballs . doPlayer $ (p, f, e, tmap)
 
 --not used now
 printEnemies :: [Enemy] -> IO()

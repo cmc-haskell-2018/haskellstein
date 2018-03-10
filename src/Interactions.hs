@@ -138,9 +138,15 @@ myCos :: Float -> Float -> Float
 myCos _ 0 = 1
 myCos a b = a/b
 
---moves Enemy to Player
+--need to move closer?
 moveEnemy :: Player -> Enemy -> Tilemap -> Enemy
-moveEnemy p e tmap = case cond of
+moveEnemy p e tmap
+    | (isPInRange p e) = e
+    | otherwise        = moveEnemy2 p e tmap
+
+--moves Enemy to Player
+moveEnemy2 :: Player -> Enemy -> Tilemap -> Enemy
+moveEnemy2 p e tmap = case cond of
                        Free -> Enemy
                                    newx
                                    newy
@@ -245,6 +251,7 @@ isPInRange p e = result
     result = (rx < er) && (ry < er)
 
 --Enemy Perfet(NO) AI
+--action if Agro or in vision(set Agro)
 stepEnemy :: Player -> Enemy -> Tilemap -> (Player, Enemy)
 stepEnemy p e tmap
     | agro      = damageEnemy p (moveEnemy p e tmap)
