@@ -5,6 +5,7 @@
 First-person Shooter.
 
 Using [Stack utility](https://www.haskellstack.org)
+
 Using GNU MAKE
 
 Setup stack:
