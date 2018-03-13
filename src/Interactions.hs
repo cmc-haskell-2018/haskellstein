@@ -7,6 +7,10 @@ import Initialize
 
 -------------------------SHELL_FUNCTIONS------------------------------------
 
+--all interactions
+doInteractions :: Scene -> Scene
+doInteractions scene = doEnemies . doFireballs . doPlayer $ scene
+
 --all actions of fireballs
 doFireballs :: Scene -> Scene
 doFireballs scene = sStepFireballs . sDamageFireballs $ scene
@@ -73,7 +77,7 @@ stepFireball f tmap = case cond of
     y        = fPosY f
     a        = fRadian f
     s        = fSpeed f
-    delta    = 0.1 --need to be timer dif
+    delta    = 0.5 --need to be timer dif
     newx     = x + (delta * s * cos a)
     newy     = y + (delta * s * sin a)
     newcoord = (floor newy, floor newx)
@@ -138,9 +142,15 @@ myCos :: Float -> Float -> Float
 myCos _ 0 = 1
 myCos a b = a/b
 
---moves Enemy to Player
+--need to move closer?
 moveEnemy :: Player -> Enemy -> Tilemap -> Enemy
-moveEnemy p e tmap = case cond of
+moveEnemy p e tmap
+    | (isPInRange p e) = e
+    | otherwise        = moveEnemy2 p e tmap
+
+--moves Enemy to Player
+moveEnemy2 :: Player -> Enemy -> Tilemap -> Enemy
+moveEnemy2 p e tmap = case cond of
                        Free -> Enemy
                                    newx
                                    newy
@@ -162,7 +172,7 @@ moveEnemy p e tmap = case cond of
     es       = eSpeed e
     rx       = (px - ex)
     ry       = (py - ey)
-    delta    = 0.1 --need to be timer dif
+    delta    = 0.5 --need to be timer dif
     cosalpha = myCos rx (sqrt ((rx * rx) + (ry * ry))) --fuck zero division
     sinalpha = (sqrt (1 - (cosalpha * cosalpha))) * signum ry
     newx     = ex + (delta * es * cosalpha)
@@ -213,7 +223,7 @@ damageEnemy p e
   where
     isrange   = isPInRange p e
     newhp     = (pHp p) - (eDamage e)
-    delta     = 0.1 --need to be timer diff
+    delta     = 0.5 --need to be timer diff
     (tmp, cd) = eASpeed e
     delay     = tmp - delta
     isaready  = delay < 0
@@ -245,6 +255,7 @@ isPInRange p e = result
     result = (rx < er) && (ry < er)
 
 --Enemy Perfet(NO) AI
+--action if Agro or in vision(set Agro)
 stepEnemy :: Player -> Enemy -> Tilemap -> (Player, Enemy)
 stepEnemy p e tmap
     | agro      = damageEnemy p (moveEnemy p e tmap)
@@ -338,7 +349,7 @@ controlPlayer p tmap
     pa        = pRadian p
     ps        = pSpeed p
     (tmp, cd) = pASpeed p
-    delta     = 0.1 --need timer
+    delta     = 0.5 --need timer
     delay     = tmp - delta
     isforward = 0 --pressed 'w'
     isback    = 0 --pressed 's'

@@ -6,6 +6,10 @@ First-person Shooter.
 
 Using [Stack utility](https://www.haskellstack.org)
 
+Using GNU MAKE
+
+Using GNU Compiler Collection
+
 Setup stack:
 
 ```
@@ -17,8 +21,6 @@ stack setup
 To build and execute use:
 
 ```
-stack build && stack exec haskellstein tilemaps/testlvl.txt
-||
 make
 ```
 

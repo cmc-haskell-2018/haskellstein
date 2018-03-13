@@ -23,7 +23,7 @@ createEnemy (y, x) 1 = Enemy ((fromIntegral x) + 0.5) -- ePosX
                              (2, 2) -- eASpeed
                              1 -- eModel
                              1 -- eTex
-                             8 -- eVision
+                             32 -- eVision
                              False -- eAgro
 --range
 createEnemy (y, x) 2 = Enemy ((fromIntegral x) + 0.5) -- ePosX
@@ -35,7 +35,7 @@ createEnemy (y, x) 2 = Enemy ((fromIntegral x) + 0.5) -- ePosX
                              (2, 2) -- eASpeed
                              2 -- eModel
                              1 -- eTex
-                             8 -- eVision
+                             32 -- eVision
                              False -- eAgro
 --spike
 createEnemy (y, x) _ = Enemy ((fromIntegral x) + 0.5) -- ePosX
@@ -51,11 +51,11 @@ createEnemy (y, x) _ = Enemy ((fromIntegral x) + 0.5) -- ePosX
                              True -- eAgro
 
 createFireball :: Float -> Float -> Float -> Int -> Fireball
-createFireball y x a d = Fireball (x + (0.6 * sin a)) -- fPosX
+createFireball y x a d = Fireball (x + (0.6 * cos a)) -- fPosX
                                   (y + (0.6 * sin a)) -- fPosY
                                   a -- fRadian
                                   d -- fDamage
-                                  1 -- fRadius
+                                  0.6 -- fRadius
                                   1.0 -- fSpeed
                                   1 -- fModel
 

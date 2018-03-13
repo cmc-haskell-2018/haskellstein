@@ -1,3 +1,19 @@
-all:
+MAPSLOC = tilemaps/
+MAPS = $(MAPSLOC)genmap1.txt $(MAPSLOC)genmap2.txt $(MAPSLOC)genmap3.txt
+EXEC = stack exec haskellstein
+SECONDMAKEPOS = lib/libc/
+SECONDMAKE = cd $(SECONDMAKEPOS) && make -f Makefile
+
+run: create_maps build
+	$(EXEC) $(MAPS)
+
+build:
 	stack build
-	stack exec haskellstein tilemaps/testlvl.txt
+
+create_maps: $(SECONDMAKEPOS)Makefile
+	$(SECONDMAKE) run
+
+clean: $(SECONDMAKEPOS)Makefile $(MAPS)
+	stack clean
+	rm $(MAPS)
+	$(SECONDMAKE) clean
