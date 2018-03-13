@@ -2,6 +2,7 @@ module Main where
 
 import Prelude
 import System.Environment
+import System.IO.Unsafe
 import Data
 import Initialize
 import Interactions 
@@ -12,8 +13,8 @@ main = do
     if null args then do
         putStrLn "No file path"
     else do
-        src <- readFile . head $ args
-        let scene  = createScene . createTilemap $ src
+        let src = argsToMaps args
+        let scene  = createScene . createTilemap . head $ src
         putStrLn . gameLoop $ scene
 
 --seems like it
@@ -24,7 +25,14 @@ gameLoop (p,f,e,tmap)
     | otherwise     = gameLoop ret
   where
     isend = (pHp p) < 0
-    ret   = doEnemies . doFireballs . doPlayer $ (p, f, e, tmap)
+    ret   = doInteractions (p, f, e, tmap)
+
+--create map list
+argsToMaps :: [String] -> [String]
+argsToMaps []     = []
+argsToMaps (x:xs) = tmap : argsToMaps xs
+  where
+    tmap = unsafePerformIO . readFile $ x
 
 --not used now
 printEnemies :: [Enemy] -> IO()

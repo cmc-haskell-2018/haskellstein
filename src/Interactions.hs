@@ -7,6 +7,10 @@ import Initialize
 
 -------------------------SHELL_FUNCTIONS------------------------------------
 
+--all interactions
+doInteractions :: Scene -> Scene
+doInteractions scene = doEnemies . doFireballs . doPlayer $ scene
+
 --all actions of fireballs
 doFireballs :: Scene -> Scene
 doFireballs scene = sStepFireballs . sDamageFireballs $ scene
