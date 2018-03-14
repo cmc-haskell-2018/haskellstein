@@ -23,7 +23,7 @@ specCellCond tm (n,m) = spec (head (dropElements m
 --change cell followed coordinates
 writeCondition :: Tilemap -> CellCoord -> String -> Tilemap
 writeCondition tm (n,m) str = modifyAt n (changeCell) tm
-    where 
+    where
       changeCell :: [String] -> [String]
       changeCell = modifyAt m (\_ -> str)
 

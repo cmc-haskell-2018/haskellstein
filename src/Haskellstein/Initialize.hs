@@ -18,7 +18,7 @@ createEnemy :: CellCoord -> ObjectType -> Enemy
 --melee
 createEnemy (y, x) 1 =
     Enemy
-        (((fromIntegral x) + 0.5) 
+        (((fromIntegral x) + 0.5)
       , ((fromIntegral y) + 0.5)) -- ePos
         3 -- eHp
         1 -- eDamage
@@ -32,28 +32,28 @@ createEnemy (y, x) 1 =
 --range
 createEnemy (y, x) 2 =
     Enemy
-        (((fromIntegral x) + 0.5) 
+        (((fromIntegral x) + 0.5)
       , ((fromIntegral y) + 0.5)) -- ePos
         3 -- eHp
         1 -- eDamage
         1 -- eRange
         1 -- eSpeed
         (Just 2, 2) -- eASpeed
-        1 -- eModel
+        2 -- eModel
         1 -- eTex
         32 -- eVision
         False -- eAgro
 --spike
 createEnemy (y, x) _ =
     Enemy
-        (((fromIntegral x) + 0.5) 
+        (((fromIntegral x) + 0.5)
       , ((fromIntegral y) + 0.5)) -- ePos
         3 -- eHp
         1 -- eDamage
         1 -- eRange
         1 -- eSpeed
         (Just 2, 2) -- eASpeed
-        1 -- eModel
+        3 -- eModel
         1 -- eTex
         32 -- eVision
         False -- eAgro

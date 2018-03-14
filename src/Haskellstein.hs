@@ -5,7 +5,7 @@ import System.Environment
 import System.IO.Unsafe
 import Haskellstein.Data
 import Haskellstein.Initialize
-import Haskellstein.Interactions 
+import Haskellstein.Interactions
 
 start :: IO ()
 start = do
