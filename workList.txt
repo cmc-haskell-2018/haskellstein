@@ -1,6 +1,3 @@
-*   отдельная директория для наших модулей Haskellstein
-    и соотв подключать их как Haskellstein.<module_name>
- 
 *   main сделать вида 
     main :: IO ()
     main = defaultMain
