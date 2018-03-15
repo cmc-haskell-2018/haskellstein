@@ -49,4 +49,9 @@ type TilemapCell = String
 
 type Tilemap = [[TilemapCell]]
 
-type Scene = (Player, [Fireball], [Enemy], Tilemap)
+data Scene = Scene
+    { sPlayer   :: Player
+    , sFireball :: [Fireball]
+    , sEnemy    :: [Enemy]
+    , sTilemap  :: Tilemap
+    }

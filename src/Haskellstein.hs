@@ -18,13 +18,14 @@ start = do
 
 --seems like it
 gameLoop :: Scene -> (Player, Bool)
-gameLoop (p,_,[],_) = (p, True)
-gameLoop (p,f,e,tmap)
-    | isend         = (p, False)
-    | otherwise     = gameLoop ret
+gameLoop scene
+    | iswin     = (sPlayer scene, True)
+    | isend     = (sPlayer scene, False)
+    | otherwise = gameLoop ret
   where
-    isend = (pHp p) < 0
-    ret   = doInteractions (p, f, e, tmap)
+    iswin = length (sEnemy scene) == 0
+    isend = (pHp (sPlayer scene)) < 0
+    ret   = doInteractions scene
 
 --Map pipeling
 mapPipe :: [String] -> Maybe Player -> String
@@ -39,7 +40,8 @@ mapPipe (m:ms) (Just p)
     | victory         = mapPipe ms (Just player)
     | otherwise       = "GameOver"
   where
-    (tmpp,f,e,tmap)   = createScene . createTilemap $ m
+    scene             = createScene . createTilemap $ m
+    tmpp              = sPlayer scene
     newp              = Player
                             (pPos tmpp)
                             (pRadian tmpp)
@@ -47,7 +49,11 @@ mapPipe (m:ms) (Just p)
                             (pSpeed p)
                             (pASpeed p)
                             (pDamage p)
-    (player, victory) = gameLoop (newp, f, e, tmap)
+    (player, victory) = gameLoop (Scene
+                                     newp
+                                     (sFireball scene)
+                                     (sEnemy scene)
+                                     (sTilemap scene))
 
 --create map list
 argsToMaps :: [String] -> [String]

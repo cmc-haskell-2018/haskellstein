@@ -16,34 +16,62 @@ doFireballs :: Scene -> Scene
 doFireballs scene = sStepFireballs . sDamageFireballs $ scene
 
 sStepFireballs :: Scene -> Scene
-sStepFireballs (p,f,e,tmap) = (p, newf, e, newtmap)
+sStepFireballs scene =
+    Scene
+        (sPlayer scene)
+        newf
+        (sEnemy scene)
+        newtmap
   where
-    (newf, newtmap) = stepFireballs f tmap
+    (newf, newtmap) = stepFireballs (sFireball scene) (sTilemap scene)
 
 sDamageFireballs :: Scene -> Scene
-sDamageFireballs (p,f,e,tmap) = (p, newf, newe, tmap)
+sDamageFireballs scene =
+    Scene
+        (sPlayer scene)
+        newf
+        newe
+        (sTilemap scene)
   where
-    (newf, newe) = damageFireballs f e
+    (newf, newe) = damageFireballs (sFireball scene) (sEnemy scene)
 
 --all actions of enemies
 doEnemies :: Scene -> Scene
 doEnemies scene = sStepEnemies scene
 
 sStepEnemies :: Scene -> Scene
-sStepEnemies (p,f,e,tmap) = (newp, f, newe, tmap)
+sStepEnemies scene =
+    Scene
+        newp
+        (sFireball scene)
+        newe
+        (sTilemap scene)
   where
-    (newp, newe) = stepEnemies p e tmap
+    (newp, newe) = stepEnemies (sPlayer scene)
+                               (sEnemy scene)
+                               (sTilemap scene)
 
 --all actions of player
 doPlayer :: Scene -> Scene
 doPlayer scene = sControlPlayer scene
 
 sControlPlayer :: Scene -> Scene
-sControlPlayer (p,f,e,tmap) = case isfireball of
-    Nothing -> (newp, f, e, tmap)
-    Just fb -> (newp, fb : f, e, tmap)
+sControlPlayer scene = case isfireball of
+    Nothing ->
+        Scene
+            newp
+            (sFireball scene)
+            (sEnemy scene)
+            (sTilemap scene)
+    Just fb ->
+        Scene
+            newp
+            (fb : (sFireball scene))
+            (sEnemy scene)
+            (sTilemap scene)
   where
-    (newp, isfireball) = controlPlayer p tmap
+    (newp, isfireball) = controlPlayer (sPlayer scene)
+                                       (sTilemap scene)
 
 ------------------------FIREBALL_FUNCTIONS----------------------------------
 

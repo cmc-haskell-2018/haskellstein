@@ -133,7 +133,12 @@ findEnemies2 y (str:rest)
         findE = len - (length sr)
 
 createScene :: Tilemap -> Scene
-createScene tmap = (findPlayer tmap, [], findEnemies tmap, edit)
+createScene tmap =
+    Scene
+        (findPlayer tmap)
+        []
+        (findEnemies tmap)
+        edit
   where
     rewrite p
         | head p == 'e' = "v00"
