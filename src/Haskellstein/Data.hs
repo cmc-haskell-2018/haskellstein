@@ -4,7 +4,9 @@ type Position = (Float, Float) -- (x,y)
 
 type Cooldown = (Maybe Float, Float) --(current time, cooldown)
 
-type ObjectType = Int
+data EnemyType = Melee | Range | Mage
+
+data FireballType = Small | Huge
 
 type ObjectTexture = Int
 
@@ -23,7 +25,7 @@ data Fireball = Fireball
   , fDamage :: Int
   , fRadius :: Float
   , fSpeed  :: Float
-  , fModel  :: ObjectType
+  , fModel  :: FireballType
   }
 
 data Enemy = Enemy
@@ -33,7 +35,7 @@ data Enemy = Enemy
   , eRange  :: Float
   , eSpeed  :: Float
   , eASpeed :: Cooldown
-  , eModel  :: ObjectType
+  , eModel  :: EnemyType
   , eTex    :: ObjectTexture
   , eVision :: Float
   , eAgro   :: Bool

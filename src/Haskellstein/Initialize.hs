@@ -14,9 +14,9 @@ createPlayer (y, x) =
         (Just 1, 1) -- pASpeed
         1 -- pDamage
 
-createEnemy :: CellCoord -> ObjectType -> Enemy
+createEnemy :: CellCoord -> EnemyType -> Enemy
 --melee
-createEnemy (y, x) 1 =
+createEnemy (y, x) Melee =
     Enemy
         (((fromIntegral x) + 0.5)
       , ((fromIntegral y) + 0.5)) -- ePos
@@ -25,12 +25,12 @@ createEnemy (y, x) 1 =
         1 -- eRange
         1 -- eSpeed
         (Just 2, 2) -- eASpeed
-        1 -- eModel
+        Melee -- eModel
         1 -- eTex
         32 -- eVision
         False -- eAgro
 --range
-createEnemy (y, x) 2 =
+createEnemy (y, x) Range =
     Enemy
         (((fromIntegral x) + 0.5)
       , ((fromIntegral y) + 0.5)) -- ePos
@@ -39,12 +39,12 @@ createEnemy (y, x) 2 =
         1 -- eRange
         1 -- eSpeed
         (Just 2, 2) -- eASpeed
-        2 -- eModel
+        Range -- eModel
         1 -- eTex
         32 -- eVision
         False -- eAgro
 --spike
-createEnemy (y, x) _ =
+createEnemy (y, x) Mage =
     Enemy
         (((fromIntegral x) + 0.5)
       , ((fromIntegral y) + 0.5)) -- ePos
@@ -53,7 +53,7 @@ createEnemy (y, x) _ =
         1 -- eRange
         1 -- eSpeed
         (Just 2, 2) -- eASpeed
-        3 -- eModel
+        Mage -- eModel
         1 -- eTex
         32 -- eVision
         False -- eAgro
@@ -71,7 +71,7 @@ createFireball (x,y) a d =
         d -- fDamage
         0.7 -- fRadius
         1.0 -- fSpeed
-        1 -- fModel
+        Small -- fModel
 
 --split string by symbol
 splitString :: Char -> String -> (String, String)
@@ -112,12 +112,18 @@ findPlayer2 y (str:rest)
 findEnemies :: Tilemap -> [Enemy]
 findEnemies = findEnemies2 0
 
+--numberToObjectType
+genEnemy :: Int -> EnemyType
+genEnemy 1 = Melee
+genEnemy 2 = Range
+genEnemy _ = Mage
+
 --help function
 findEnemies2 :: Int -> Tilemap -> [Enemy]
 findEnemies2 _ []  = []
 findEnemies2 y (str:rest)
     | findE == len = findEnemies2 (y + 1) rest
-    | otherwise    = createEnemy (y, findE) t :
+    | otherwise    = createEnemy (y, findE) (genEnemy t) :
                      findEnemies2 y ((sl ++ ["v00"] ++ (tail sr)) : rest)
       where
         len   = length str
