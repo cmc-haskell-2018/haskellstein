@@ -1,10 +1,5 @@
-*   main сделать вида 
-    main :: IO ()
-    main = defaultMain
-    ну или типо того
- 
 *   сделать обертки через data для осмысленных параметров 
-    персонажа/врагов/файрбола
+	eVision + eAgro
  
 *   заменить unsafePerformIO той штукой с return
  
