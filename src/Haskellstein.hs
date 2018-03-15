@@ -2,7 +2,6 @@ module Haskellstein where
 
 import Prelude
 import System.Environment
-import System.IO.Unsafe
 import Haskellstein.Data
 import Haskellstein.Initialize
 import Haskellstein.Interactions
@@ -13,7 +12,7 @@ start = do
     if null args then do
         putStrLn "No file path"
     else do
-        let src = argsToMaps args
+        src <- argsToMaps args
         putStrLn $ mapPipe src Nothing
 
 --seems like it
@@ -56,8 +55,5 @@ mapPipe (m:ms) (Just p)
                                      (sTilemap scene))
 
 --create map list
-argsToMaps :: [String] -> [String]
-argsToMaps []     = []
-argsToMaps (x:xs) = tmap : argsToMaps xs
-  where
-    tmap = unsafePerformIO . readFile $ x
+argsToMaps :: [FilePath] -> IO [String]
+argsToMaps x = mapM (readFile) x
