@@ -49,9 +49,19 @@ type TilemapCell = String
 
 type Tilemap = [[TilemapCell]]
 
+data Control = Control
+    { cForward :: Bool
+    , cBack    :: Bool
+    , cLeft    :: Bool
+    , cRight   :: Bool
+    , cSpace   :: Bool
+    }
+
 data Scene = Scene
     { sPlayer   :: Player
     , sFireball :: [Fireball]
     , sEnemy    :: [Enemy]
     , sTilemap  :: Tilemap
+    , sControl  :: Control
+    , sDelta    :: Float
     }

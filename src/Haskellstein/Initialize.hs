@@ -8,7 +8,7 @@ createPlayer (y, x) =
     Player
         (((fromIntegral x) + 0.5)
       , ((fromIntegral y) + 0.5)) -- pPos
-        1.57 -- pRadian
+        0 -- pRadian
         11 -- pHp
         0.5 -- pSpeed
         (Just 1, 1) -- pASpeed
@@ -139,6 +139,8 @@ createScene tmap =
         []
         (findEnemies tmap)
         edit
+        (Control False False False False False)
+        0.05
   where
     rewrite p
         | head p == 'e' = "v00"
