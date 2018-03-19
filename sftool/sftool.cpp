@@ -62,10 +62,10 @@ void update_workspace()
 	delta_time = timer->getElapsedTime().asSeconds();
 	timer->restart();
 
-	//window->draw(*raycasting_scene);
+	raycasting_texture->display();
+	window->draw(*raycasting_scene);
 	window->display();
-	window->clear();
-	/*
+
 	//Ceiling
 	sf::RectangleShape rectangle(sf::Vector2f(0, 0));
 	rectangle.setFillColor(
@@ -77,7 +77,6 @@ void update_workspace()
 	rectangle.move(sf::Vector2f(0, window_height / 2));
 	rectangle.setFillColor(sf::Color(FLOOR_COLOR, FLOOR_COLOR, FLOOR_COLOR));
 	raycasting_texture->draw(rectangle);
-	*/
 }
 
 #define TEXTURE_SIZE 64
@@ -92,7 +91,7 @@ void draw_line(int chosen_line, int x, double height, int texture, int color)
 	vertices[chosen_line * VERTEX_COUNT].position.x = x + 1;
 	vertices[chosen_line * VERTEX_COUNT + 1].position.x = x + 1;
 	vertices[chosen_line * VERTEX_COUNT].position.y =
-
+	
 	(int)(window_height / 2 - int(height) / 2);
 	vertices[chosen_line * VERTEX_COUNT + 1].position.y =
 		(int)(window_height / 2 + int(height) / 2);
@@ -130,7 +129,7 @@ void push_draw_buffer(int count, int texture_type)
 			break;
 	}
 
-	window->draw(vertices, count * VERTEX_COUNT, sf::Lines,
+	raycasting_texture->draw(vertices, count * VERTEX_COUNT, sf::Lines,
 		sf::RenderStates(chosen_texture));
 }
 

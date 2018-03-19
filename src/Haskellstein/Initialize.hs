@@ -10,8 +10,8 @@ createPlayer (y, x) =
       , ((fromIntegral y) + 0.5)) -- pPos
         0 -- pRadian
         20 -- pHp
-        2 -- pSpeed
-        (Just 1, 1) -- pASpeed
+        2.2 -- pSpeed
+        (Just 0.7, 0.7) -- pASpeed
         1 -- pDamage
 
 createEnemy :: CellCoord -> EnemyType -> Enemy
@@ -23,25 +23,25 @@ createEnemy (y, x) Melee =
         2 -- eHp
         1 -- eDamage
         1 -- eRange
-        1.9 -- eSpeed
+        2 -- eSpeed
         (Just 2, 2) -- eASpeed
         Melee -- eModel
         0 -- eTex
-        5 -- eVision
+        6 -- eVision
         False -- eAgro
 --range
 createEnemy (y, x) Range =
     Enemy
         (((fromIntegral x) + 0.5)
       , ((fromIntegral y) + 0.5)) -- ePos
-        1 -- eHp
+        2 -- eHp
         2 -- eDamage
         2 -- eRange
-        2.1 -- eSpeed
+        2.4 -- eSpeed
         (Just 3, 3) -- eASpeed
         Range -- eModel
         1 -- eTex
-        5 -- eVision
+        6 -- eVision
         False -- eAgro
 --spike
 createEnemy (y, x) Mage =
