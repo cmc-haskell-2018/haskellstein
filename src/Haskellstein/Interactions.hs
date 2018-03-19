@@ -9,11 +9,11 @@ import Haskellstein.Initialize
 
 --all interactions
 doInteractions :: Scene -> Scene
-doInteractions scene = doEnemies . doFireballs . doPlayer $ scene
+doInteractions = doEnemies . doFireballs . doPlayer
 
 --all actions of fireballs
 doFireballs :: Scene -> Scene
-doFireballs scene = sStepFireballs . sDamageFireballs $ scene
+doFireballs = sStepFireballs . sDamageFireballs
 
 sStepFireballs :: Scene -> Scene
 sStepFireballs scene =
@@ -37,7 +37,7 @@ sDamageFireballs scene =
 
 --all actions of enemies
 doEnemies :: Scene -> Scene
-doEnemies scene = sStepEnemies scene
+doEnemies = sStepEnemies
 
 sStepEnemies :: Scene -> Scene
 sStepEnemies scene =
@@ -53,7 +53,7 @@ sStepEnemies scene =
 
 --all actions of player
 doPlayer :: Scene -> Scene
-doPlayer scene = sControlPlayer scene
+doPlayer = sControlPlayer
 
 sControlPlayer :: Scene -> Scene
 sControlPlayer scene = case isfireball of
@@ -102,9 +102,9 @@ stepFireball f tmap = case cond of
     (x,y)    = fPos f
     a        = fRadian f
     s        = fSpeed f
-    delta    = 0.1 --need to be timer dif
+    delta    = 0.01 --need to be timer dif
     newx     = x + (delta * s * cos a)
-    newy     = y + (delta * s * sin a)
+    newy     = y - (delta * s * sin a)
     newcoord = (floor newy, floor newx)
     cond     = specCellCond tmap newcoord
 
@@ -191,7 +191,7 @@ moveEnemy2 p e tmap = case cond of
     es       = eSpeed e
     rx       = (px - ex)
     ry       = (py - ey)
-    delta    = 0.1 --need to be timer dif
+    delta    = 0.01 --need to be timer dif
     cosalpha = myCos rx (sqrt ((rx * rx) + (ry * ry))) --fuck zero division
     sinalpha = (sqrt (1 - (cosalpha * cosalpha))) * signum ry
     newx     = ex + (delta * es * cosalpha)
@@ -237,7 +237,7 @@ damageEnemy p e
   where
     isrange   = isPInRange p e
     newhp     = (pHp p) - (eDamage e)
-    delta     = 0.1 --need to be timer diff
+    delta     = 0.01 --need to be timer diff
     (tmp, cd) = eASpeed e
     delay     = case tmp of
                 Nothing   -> Nothing
@@ -351,7 +351,7 @@ controlPlayer p tmap
     pa        = pRadian p
     ps        = pSpeed p
     (tmp, cd) = pASpeed p
-    delta     = 0.1 --need timer
+    delta     = 0.01 --need timer
     delay     = case tmp of
                 Nothing   -> Nothing
                 Just time -> Just (time - delta)
@@ -359,15 +359,15 @@ controlPlayer p tmap
     isback    = 0 --pressed 's'
     isleft    = 0 --pressed 'a'
     isright   = 0 --pressed 'd'
-    isspace   = 0 --pressed 'space'
+    isspace   = 1 --pressed 'space'
     isaready  = case delay of
                 Nothing   -> True
                 Just time -> if (time < 0) then True else False
     isattack  = (isspace == 1) && isaready
     step      = isforward - isback
-    turn      = isright - isleft
+    turn      = isleft - isright
     newx      = px + (step * delta * ps * cos pa)
-    newy      = py + (step * delta * ps * sin pa)
+    newy      = py - (step * delta * ps * sin pa)
     newcoord  = (floor newy, floor newx)
     cond      = specCellCond tmap newcoord
     newa      = pa + (0.785 * delta * turn) --turn by pi/4 in one second

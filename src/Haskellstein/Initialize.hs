@@ -10,7 +10,7 @@ createPlayer (y, x) =
       , ((fromIntegral y) + 0.5)) -- pPos
         1.57 -- pRadian
         11 -- pHp
-        0.1 -- pSpeed
+        0.5 -- pSpeed
         (Just 1, 1) -- pASpeed
         1 -- pDamage
 
@@ -36,7 +36,7 @@ createEnemy (y, x) Range =
       , ((fromIntegral y) + 0.5)) -- ePos
         2 -- eHp
         1 -- eDamage
-        2 -- eRange
+        1.2 -- eRange
         0.5 -- eSpeed
         (Just 2, 2) -- eASpeed
         Range -- eModel
