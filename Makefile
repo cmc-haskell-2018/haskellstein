@@ -7,8 +7,11 @@ TARGET_NAME = game
 OUTPUT_NAME = haskellstein
 
 # MODULES INFO
-MODULES_NAMES = Main Haskellstein/Raycasting Haskellstein/Data \
- Haskellstein/CheckMap Haskellstein/Initialize \
+MODULES_NAMES = Main Haskellstein \
+ Haskellstein/Raycasting \
+ Haskellstein/Data \
+ Haskellstein/CheckMap \
+ Haskellstein/Initialize \
  Haskellstein/Interactions
 MODULES_PATH = src
 MODULES = $(MODULES_NAMES:%=$(MODULES_PATH)/%.hs)
@@ -17,7 +20,8 @@ MODULES = $(MODULES_NAMES:%=$(MODULES_PATH)/%.hs)
 SFTOOL_NAME = sftool
 SFTOOL_PATH = sftool
 LIBS_PATH = lib
-LIBS = -l$(SFTOOL_NAME) -lsfml-graphics -lsfml-window -lsfml-system -lstdc++\
+LIBS = -l$(SFTOOL_NAME) -lsfml-graphics -lsfml-window \
+                        -lsfml-system -lstdc++
 
 #GAME_INPUT_FILES
 MAPSLOC = tilemaps/
