@@ -9,6 +9,7 @@ sf::Vertex *vertices;
 sf::Texture *wall_texture;
 sf::Texture *enemy_texture;
 sf::Texture *sprite_texture;
+sf::Clock *timer;
 
 #define VERTEX_COUNT 2
 
@@ -27,6 +28,7 @@ void init_workspace(int w_width, int w_height, char *w_title,
 	enemy_texture->loadFromFile(enemy_texture_path);
 	sprite_texture = new sf::Texture();
 	sprite_texture->loadFromFile(sprite_texture_path);
+	timer = new sf::Clock;
 
 	free(w_title);
 	free(wall_texture_path);
@@ -37,6 +39,10 @@ void init_workspace(int w_width, int w_height, char *w_title,
 
 void update_workspace()
 {
+	float time = timer->getElapsedTime().asSeconds();
+	timer->restart();
+	printf("%f\n", 1 / time);
+
 	sf::Event event;
 	while(window->pollEvent(event))
 	{
@@ -71,9 +77,9 @@ void draw_line(int chosen_line, int x, double height, int texture, int color)
 	vertices[chosen_line * VERTEX_COUNT].position.x = x + 1;
 	vertices[chosen_line * VERTEX_COUNT + 1].position.x = x + 1;
 	vertices[chosen_line * VERTEX_COUNT].position.y =
-		(int)((window_height - height) / 2);
+		(int)(window_height / 2 - int(height) / 2);
 	vertices[chosen_line * VERTEX_COUNT + 1].position.y =
-		(int)((window_height + height) / 2);
+		(int)(window_height / 2 + int(height) / 2);
 
 	//Texture coords
 	vertices[chosen_line * VERTEX_COUNT].texCoords.x = texture;
