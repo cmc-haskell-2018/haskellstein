@@ -8,9 +8,9 @@ createPlayer (y, x) =
     Player
         (((fromIntegral x) + 0.5)
       , ((fromIntegral y) + 0.5)) -- pPos
-        0 -- pRadian
+        1.57 -- pRadian
         11 -- pHp
-        1 -- pSpeed
+        0.1 -- pSpeed
         (Just 1, 1) -- pASpeed
         1 -- pDamage
 
@@ -22,26 +22,26 @@ createEnemy (y, x) Melee =
       , ((fromIntegral y) + 0.5)) -- ePos
         3 -- eHp
         1 -- eDamage
-        1 -- eRange
-        1 -- eSpeed
+        1.2 -- eRange
+        0.5 -- eSpeed
         (Just 2, 2) -- eASpeed
         Melee -- eModel
-        1 -- eTex
-        32 -- eVision
+        0 -- eTex
+        8 -- eVision
         False -- eAgro
 --range
 createEnemy (y, x) Range =
     Enemy
         (((fromIntegral x) + 0.5)
       , ((fromIntegral y) + 0.5)) -- ePos
-        3 -- eHp
+        2 -- eHp
         1 -- eDamage
-        1 -- eRange
-        1 -- eSpeed
+        2 -- eRange
+        0.5 -- eSpeed
         (Just 2, 2) -- eASpeed
         Range -- eModel
         1 -- eTex
-        32 -- eVision
+        8 -- eVision
         False -- eAgro
 --spike
 createEnemy (y, x) Mage =
@@ -50,7 +50,7 @@ createEnemy (y, x) Mage =
       , ((fromIntegral y) + 0.5)) -- ePos
         3 -- eHp
         1 -- eDamage
-        1 -- eRange
+        1.5 -- eRange
         1 -- eSpeed
         (Just 2, 2) -- eASpeed
         Mage -- eModel

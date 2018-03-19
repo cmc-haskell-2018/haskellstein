@@ -102,7 +102,7 @@ stepFireball f tmap = case cond of
     (x,y)    = fPos f
     a        = fRadian f
     s        = fSpeed f
-    delta    = 0.5 --need to be timer dif
+    delta    = 0.1 --need to be timer dif
     newx     = x + (delta * s * cos a)
     newy     = y + (delta * s * sin a)
     newcoord = (floor newy, floor newx)
@@ -191,7 +191,7 @@ moveEnemy2 p e tmap = case cond of
     es       = eSpeed e
     rx       = (px - ex)
     ry       = (py - ey)
-    delta    = 0.5 --need to be timer dif
+    delta    = 0.1 --need to be timer dif
     cosalpha = myCos rx (sqrt ((rx * rx) + (ry * ry))) --fuck zero division
     sinalpha = (sqrt (1 - (cosalpha * cosalpha))) * signum ry
     newx     = ex + (delta * es * cosalpha)
@@ -237,7 +237,7 @@ damageEnemy p e
   where
     isrange   = isPInRange p e
     newhp     = (pHp p) - (eDamage e)
-    delta     = 0.5 --need to be timer diff
+    delta     = 0.1 --need to be timer diff
     (tmp, cd) = eASpeed e
     delay     = case tmp of
                 Nothing   -> Nothing
@@ -351,19 +351,19 @@ controlPlayer p tmap
     pa        = pRadian p
     ps        = pSpeed p
     (tmp, cd) = pASpeed p
-    delta     = 0.5 --need timer
+    delta     = 0.1 --need timer
     delay     = case tmp of
                 Nothing   -> Nothing
                 Just time -> Just (time - delta)
-    isforward = 0 --pressed 'w'
+    isforward = 1 --pressed 'w'
     isback    = 0 --pressed 's'
     isleft    = 0 --pressed 'a'
     isright   = 0 --pressed 'd'
-    isspace   = 1 --pressed 'space'
+    isspace   = 0 --pressed 'space'
     isaready  = case delay of
                 Nothing   -> True
                 Just time -> if (time < 0) then True else False
-    isattack  = isspace > 0 && isaready
+    isattack  = (isspace == 1) && isaready
     step      = isforward - isback
     turn      = isright - isleft
     newx      = px + (step * delta * ps * cos pa)

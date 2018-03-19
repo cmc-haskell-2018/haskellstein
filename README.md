@@ -1,31 +1,33 @@
 # haskellstein
 
-[![Build Status](https://travis-ci.org/cmc-haskell-2018/haskellstein.svg?branch=master)](https://travis-ci.org/cmc-haskell-2018/haskellstein)
-
 First-person Shooter.
 
-Using [Stack utility](https://www.haskellstack.org)
+Using [SFML](https://www.sfml-dev.org/download/sfml/2.4.2/)
 
 Using GNU MAKE
 
 Using GNU Compiler Collection
 
-Setup stack:
+## Build
+
+To build use:
 
 ```
-stack setup
+make force
 ```
 
-## Build && Execute
+## Execute
 
-To build and execute use:
-
-```
-make
-```
-
-Ghci usage with project modules:
+To execute use:
 
 ```
-stack ghci
+make run
+```
+
+## Clean
+
+To clean use:
+
+```
+make clean
 ```
