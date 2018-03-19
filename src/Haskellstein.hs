@@ -1,19 +1,20 @@
 module Haskellstein where
 
+import System.Environment
 import Foreign.C.Types
 import Foreign.C.String
 import Haskellstein.Initialize
 import Haskellstein.Raycasting
 import Haskellstein.Data
 import Haskellstein.Interactions
-import System.Environment
 
 --Initing GUI workspace
-foreign import ccall "_Z14init_workspaceiiPciS_S_S_" cInitWorkspace ::
+foreign import ccall "_Z14init_workspaceiiPciiS_S_S_" cInitWorkspace ::
   CInt --Window width
   -> CInt --Window height
   -> CString --Window title
   -> CInt --Window frame rate limit
+  -> CInt --Scale factor
   -> CString --Wall texture path
   -> CString --Enemy texture path
   -> CString --Sprite texture path
@@ -22,12 +23,58 @@ foreign import ccall "_Z14init_workspaceiiPciS_S_S_" cInitWorkspace ::
 --Updating GUI workspace
 foreign import ccall "_Z16update_workspacev" cUpdateWorkspace :: IO()
 
+--Get delta time
+foreign import ccall "_Z14get_delta_timev" cGetDeltaTime :: IO(CFloat)
+
+--Key constans
+cKeyW :: CInt
+cKeyW = 0
+
+cKeyA :: CInt
+cKeyA = 1
+
+cKeyS :: CInt
+cKeyS = 2
+
+cKeyD :: CInt
+cKeyD = 3
+
+cKeyI :: CInt
+cKeyI = 4
+
+cKeySpace :: CInt
+cKeySpace = 5
+
+--Get key pressed
+foreign import ccall "_Z15get_key_pressedi" cGetKeyPressed :: CInt -> IO(Int)
+
 greatCycle :: Scene -> IO()
 greatCycle scene = do
 
   drawScene scene
   cUpdateWorkspace
-  greatCycle . doInteractions $ scene
+  deltaTime     <- cGetDeltaTime
+  keyWState     <- cGetKeyPressed cKeyW
+  keySState     <- cGetKeyPressed cKeyS
+  keyDState     <- cGetKeyPressed cKeyD
+  keyAState     <- cGetKeyPressed cKeyA
+  keySpaceState <- cGetKeyPressed cKeySpace
+  let tmpDelta  = realToFrac deltaTime
+  let delta     = if (tmpDelta > 0.2) then 0.2 else tmpDelta
+--update scene condition
+  let newScene = Scene
+          (sPlayer scene)
+          (sFireball scene)
+          (sEnemy scene)
+          (sTilemap scene)
+          (Control
+              (keyWState /= 0)
+              (keyAState /= 0)
+              (keySState /= 0)
+              (keyDState /= 0)
+              (keySpaceState /= 0))
+          delta
+  greatCycle . doInteractions $ newScene
 
 start :: IO()
 start = do
@@ -40,6 +87,7 @@ start = do
           windowHeight = 600
           windowName = "Haskellstein"
           windowFramerateLimit = 100
+          scaleFactor = 1
           wallTextureName = "data/textures/wall.png"
           enemyTextureName = "data/textures/enemy.png"
           spriteTextureName = "data/textures/sprite.png"
@@ -50,5 +98,5 @@ start = do
         enemyTexturePath <- newCString enemyTextureName
         spriteTexturePath <- newCString spriteTextureName
         cInitWorkspace windowWidth windowHeight windowTitle windowFramerateLimit
-          wallTexturePath enemyTexturePath spriteTexturePath
+          scaleFactor wallTexturePath enemyTexturePath spriteTexturePath
         greatCycle . createScene . createTilemap $ tilemap

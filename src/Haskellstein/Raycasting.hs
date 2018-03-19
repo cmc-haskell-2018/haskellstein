@@ -16,8 +16,9 @@ foreign import ccall "_Z16push_draw_bufferii" cPushDrawBuffer ::
   CInt --Lines count
   -> CInt --Texture type
   -> IO()
-foreign import ccall "_Z16get_window_widthv" cGetWindowWidth :: CInt
+foreign import ccall "_Z15get_lines_countv" cGetLinesCount :: CInt
 foreign import ccall "_Z17get_window_heightv" cGetWindowHeight :: CInt
+foreign import ccall "_Z16get_scale_factorv" cGetScaleFactor :: CInt
 
 constPi :: Double
 constPi = 3.141592
@@ -61,11 +62,14 @@ drawScene scene = do
     spriteTexOffset :: Double
     spriteTexOffset = 0.0015
 
-    windowWidth :: Int
-    windowWidth = fromIntegral cGetWindowWidth
+    linesCount :: Int
+    linesCount = fromIntegral cGetLinesCount
 
     windowHeight :: Int
     windowHeight = fromIntegral cGetWindowHeight
+
+    scaleFactor :: Int
+    scaleFactor = fromIntegral cGetScaleFactor
 
     invalidBox :: Int
     invalidBox = -1
@@ -92,7 +96,7 @@ drawScene scene = do
     rayCast :: Camera -> [[Int]] -> IO([Double])
     rayCast cameraStats levelMap = do
       zBuffer <- traceRay 0 cameraStats levelMap []
-      cPushDrawBuffer (fromIntegral windowWidth) wallTexture
+      cPushDrawBuffer (fromIntegral linesCount) wallTexture
       return zBuffer
 
     fst3 :: (a, a, a) -> a
@@ -111,7 +115,7 @@ drawScene scene = do
     getMapElem lvlMap x y = head $ drop x $ head $ drop y lvlMap
 
     traceRay :: Int -> Camera -> [[Int]] -> [Double] -> IO([Double])
-    traceRay chosenX _ _ zBuffer | chosenX >= windowWidth = do
+    traceRay chosenX _ _ zBuffer | chosenX >= linesCount = do
       return zBuffer
     traceRay chosenX (cameraX, cameraY, cameraAngle) lvlMap zBuffer = do
       cDrawLine (fromIntegral chosenX)
@@ -126,7 +130,7 @@ drawScene scene = do
         --Step by step calcs
         viewX :: Double
         viewX = (2.0 * fromIntegral chosenX)
-            / (fromIntegral windowWidth) - 1
+            / (fromIntegral linesCount) - 1
         extraAngle = cameraAngle - constPi * 0.5
         rayDirX = (cos cameraAngle) + (cos extraAngle) * constHalfRatio
             * viewX
@@ -215,7 +219,7 @@ drawScene scene = do
             spriteCameraY = spriteY - cameraY
             angle = cameraAngle
             offset = (spriteCameraX * (sin angle)
-              + spriteCameraY * (cos angle)) / constHalfRatio
+              + spriteCameraY * (cos angle))
             distance = spriteCameraX * (cos angle)
               + spriteCameraY * (-(sin angle))
           in (spriteX, spriteY, texture, spriteType, offset, distance)
@@ -233,7 +237,7 @@ drawScene scene = do
             (getDistance sprite) < (getDistance spriteHead)]
 
         minDistance :: Double
-        minDistance = 0.3
+        minDistance = 0.35
 
         deleteSprites :: [Sprite] -> [Sprite]
         deleteSprites [] = []
@@ -256,16 +260,18 @@ drawScene scene = do
               where
 
                 spriteScreenX :: Double
-                spriteScreenX = ((fromIntegral windowWidth) / 2)
+                spriteScreenX = ((fromIntegral linesCount) / 2)
                   * (1.0 + offset / distance)
-                spriteSize :: Double
-                spriteSize = abs $ (fromIntegral windowHeight) / distance
-                halfSpriteSize :: Double
-                halfSpriteSize = spriteSize / 2
+                spriteHeight :: Double
+                spriteHeight = abs $ (fromIntegral windowHeight) / distance
+                spriteWidth :: Double
+                spriteWidth = spriteHeight / (realToFrac scaleFactor)
+                halfSpriteWidth :: Double
+                halfSpriteWidth = spriteWidth / 2
                 spriteStartX :: Int
-                spriteStartX = floor (-halfSpriteSize + spriteScreenX)
+                spriteStartX = floor (-halfSpriteWidth + spriteScreenX)
                 spriteEndX :: Int
-                spriteEndX = floor (halfSpriteSize + spriteScreenX)
+                spriteEndX = floor (halfSpriteWidth + spriteScreenX)
 
                 drawSpriteStripe :: Int -> Int -> IO(Int)
                 drawSpriteStripe spriteX stripeCount
@@ -278,10 +284,10 @@ drawScene scene = do
                   where
 
                     localStripe :: Double
-                    localStripe = (fromIntegral spriteX) - (-halfSpriteSize
+                    localStripe = (fromIntegral spriteX) - (-halfSpriteWidth
                       + spriteScreenX)
                     spriteTexX :: Double
-                    spriteTexX = (localStripe / spriteSize
+                    spriteTexX = (localStripe / spriteWidth
                       + spriteTexOffset) * (fromIntegral texSize)
                     sprTexX :: Int
                     sprTexX | spriteTexX >= (fromIntegral texSize) =
@@ -292,10 +298,10 @@ drawScene scene = do
                     endSpriteStripe :: Int -> IO(Int)
                     endSpriteStripe stripeId | distance > 0
                       && spriteX >= 0
-                      && spriteX < windowWidth
+                      && spriteX < linesCount
                       && (getZBufferValue spriteX) >= distance = do
                         cDrawLine (fromIntegral stripeId)
-                          (fromIntegral spriteX) (realToFrac spriteSize)
+                          (fromIntegral spriteX) (realToFrac spriteHeight)
                           (fromIntegral (texture * texSize + sprTexX))
                           (fromIntegral maxColor)
                         return 1
@@ -303,4 +309,4 @@ drawScene scene = do
                         where
                           getZBufferValue :: Int -> Double
                           getZBufferValue chosenLine = head $ drop
-                            (windowWidth - chosenLine - 1) zBuffer
+                            (linesCount - chosenLine - 1) zBuffer

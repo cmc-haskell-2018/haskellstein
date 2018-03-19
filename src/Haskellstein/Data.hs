@@ -51,8 +51,8 @@ type Tilemap = [[TilemapCell]]
 
 data Control = Control
     { cForward :: Bool
-    , cBack    :: Bool
     , cLeft    :: Bool
+    , cBack    :: Bool
     , cRight   :: Bool
     , cSpace   :: Bool
     }

@@ -9,8 +9,8 @@ createPlayer (y, x) =
         (((fromIntegral x) + 0.5)
       , ((fromIntegral y) + 0.5)) -- pPos
         0 -- pRadian
-        11 -- pHp
-        0.5 -- pSpeed
+        20 -- pHp
+        2 -- pSpeed
         (Just 1, 1) -- pASpeed
         1 -- pDamage
 
@@ -20,28 +20,28 @@ createEnemy (y, x) Melee =
     Enemy
         (((fromIntegral x) + 0.5)
       , ((fromIntegral y) + 0.5)) -- ePos
-        3 -- eHp
+        2 -- eHp
         1 -- eDamage
         1 -- eRange
-        0.4 -- eSpeed
+        1.9 -- eSpeed
         (Just 2, 2) -- eASpeed
         Melee -- eModel
         0 -- eTex
-        8 -- eVision
+        5 -- eVision
         False -- eAgro
 --range
 createEnemy (y, x) Range =
     Enemy
         (((fromIntegral x) + 0.5)
       , ((fromIntegral y) + 0.5)) -- ePos
-        2 -- eHp
-        1 -- eDamage
+        1 -- eHp
+        2 -- eDamage
         2 -- eRange
-        0.4 -- eSpeed
-        (Just 2, 2) -- eASpeed
+        2.1 -- eSpeed
+        (Just 3, 3) -- eASpeed
         Range -- eModel
         1 -- eTex
-        8 -- eVision
+        5 -- eVision
         False -- eAgro
 --spike
 createEnemy (y, x) Mage =
@@ -51,7 +51,7 @@ createEnemy (y, x) Mage =
         3 -- eHp
         1 -- eDamage
         1.5 -- eRange
-        1 -- eSpeed
+        0.8 -- eSpeed
         (Just 2, 2) -- eASpeed
         Mage -- eModel
         1 -- eTex
@@ -70,7 +70,7 @@ createFireball (x,y) a d =
         a -- fRadian
         d -- fDamage
         0.5 -- fRadius
-        1.0 -- fSpeed
+        5.0 -- fSpeed
         Small -- fModel
 
 --split string by symbol
@@ -140,7 +140,7 @@ createScene tmap =
         (findEnemies tmap)
         edit
         (Control False False False False False)
-        0.05
+        0.00
   where
     rewrite p
         | head p == 'e' = "v00"

@@ -2,32 +2,45 @@
 #include <stdlib.h>
 #include <SFML/Graphics.hpp>
 
+int lines_count;
+float delta_time;
 int window_width;
 int window_height;
+int scale_factor;
 sf::RenderWindow *window;
 sf::Vertex *vertices;
 sf::Texture *wall_texture;
 sf::Texture *enemy_texture;
 sf::Texture *sprite_texture;
+sf::RenderTexture *raycasting_texture;
+sf::Sprite *raycasting_scene;
 sf::Clock *timer;
 
 #define VERTEX_COUNT 2
 
 void init_workspace(int w_width, int w_height, char *w_title,
-	int w_framerate_limit, char *wall_texture_path, char *enemy_texture_path,
-	char *sprite_texture_path)
+	int w_framerate_limit, int s_factor, char *wall_texture_path,
+	char *enemy_texture_path, char *sprite_texture_path)
 {
+	lines_count = w_width / s_factor;
 	window_width = w_width;
 	window_height = w_height;
+	scale_factor = s_factor;
 	window = new sf::RenderWindow(sf::VideoMode(w_width, w_height), w_title);
 	window->setFramerateLimit(w_framerate_limit);
-	vertices = new sf::Vertex[window_width * VERTEX_COUNT];
+	vertices = new sf::Vertex[lines_count * VERTEX_COUNT];
 	wall_texture = new sf::Texture();
 	wall_texture->loadFromFile(wall_texture_path);
 	enemy_texture = new sf::Texture();
 	enemy_texture->loadFromFile(enemy_texture_path);
 	sprite_texture = new sf::Texture();
 	sprite_texture->loadFromFile(sprite_texture_path);
+	raycasting_texture = new sf::RenderTexture();
+	raycasting_texture->create(lines_count, w_height);
+	raycasting_texture->display();
+	raycasting_scene = new sf::Sprite();
+	raycasting_scene->setTexture(raycasting_texture->getTexture());
+	raycasting_scene->scale(scale_factor, 1);
 	timer = new sf::Clock;
 
 	free(w_title);
@@ -39,10 +52,6 @@ void init_workspace(int w_width, int w_height, char *w_title,
 
 void update_workspace()
 {
-	float time = timer->getElapsedTime().asSeconds();
-	timer->restart();
-	printf("%f\n", 1 / time);
-
 	sf::Event event;
 	while(window->pollEvent(event))
 	{
@@ -50,19 +59,25 @@ void update_workspace()
 			window->close();
 	}
 
-	window->display();
+	delta_time = timer->getElapsedTime().asSeconds();
+	timer->restart();
 
+	//window->draw(*raycasting_scene);
+	window->display();
+	window->clear();
+	/*
 	//Ceiling
 	sf::RectangleShape rectangle(sf::Vector2f(0, 0));
 	rectangle.setFillColor(
 		sf::Color(CEILING_COLOR, CEILING_COLOR, CEILING_COLOR));
-	rectangle.setSize(sf::Vector2f(window_width, window_height / 2));
-	window->draw(rectangle);
+	rectangle.setSize(sf::Vector2f(lines_count, window_height / 2));
+	raycasting_texture->draw(rectangle);
 
 	//Floor
 	rectangle.move(sf::Vector2f(0, window_height / 2));
 	rectangle.setFillColor(sf::Color(FLOOR_COLOR, FLOOR_COLOR, FLOOR_COLOR));
-	window->draw(rectangle);
+	raycasting_texture->draw(rectangle);
+	*/
 }
 
 #define TEXTURE_SIZE 64
@@ -77,7 +92,8 @@ void draw_line(int chosen_line, int x, double height, int texture, int color)
 	vertices[chosen_line * VERTEX_COUNT].position.x = x + 1;
 	vertices[chosen_line * VERTEX_COUNT + 1].position.x = x + 1;
 	vertices[chosen_line * VERTEX_COUNT].position.y =
-		(int)(window_height / 2 - int(height) / 2);
+
+	(int)(window_height / 2 - int(height) / 2);
 	vertices[chosen_line * VERTEX_COUNT + 1].position.y =
 		(int)(window_height / 2 + int(height) / 2);
 
@@ -98,7 +114,7 @@ void draw_line(int chosen_line, int x, double height, int texture, int color)
 #define TEXTURE_TYPE_ENEMY 1
 #define TEXTURE_TYPE_SPRITE 2
 
-void push_draw_buffer(int lines_count, int texture_type)
+void push_draw_buffer(int count, int texture_type)
 {
 	sf::Texture *chosen_texture = 0;
 	switch(texture_type)
@@ -114,8 +130,13 @@ void push_draw_buffer(int lines_count, int texture_type)
 			break;
 	}
 
-	window->draw(vertices, lines_count * VERTEX_COUNT, sf::Lines,
+	window->draw(vertices, count * VERTEX_COUNT, sf::Lines,
 		sf::RenderStates(chosen_texture));
+}
+
+int get_lines_count()
+{
+	return lines_count;
 }
 
 int get_window_width()
@@ -126,4 +147,41 @@ int get_window_width()
 int get_window_height()
 {
 	return window_height;
+}
+
+int get_scale_factor()
+{
+	return scale_factor;
+}
+
+float get_delta_time()
+{
+	return delta_time;
+}
+
+#define KEY_W 0
+#define KEY_A 1
+#define KEY_S 2
+#define KEY_D 3
+#define KEY_I 4
+#define KEY_SPACE 5
+
+int get_key_pressed(int key_code)
+{
+	switch(key_code)
+	{
+		case KEY_W:
+			return sf::Keyboard::isKeyPressed(sf::Keyboard::W);
+		case KEY_A:
+			return sf::Keyboard::isKeyPressed(sf::Keyboard::A);
+		case KEY_S:
+			return sf::Keyboard::isKeyPressed(sf::Keyboard::S);
+		case KEY_D:
+			return sf::Keyboard::isKeyPressed(sf::Keyboard::D);
+		case KEY_I:
+			return sf::Keyboard::isKeyPressed(sf::Keyboard::I);
+		case KEY_SPACE:
+			return sf::Keyboard::isKeyPressed(sf::Keyboard::Space);
+	}
+	return 0;
 }
