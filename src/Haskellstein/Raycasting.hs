@@ -22,7 +22,7 @@ foreign import ccall "_Z17get_window_heightv" cGetWindowHeight :: CInt
 constPi :: Double
 constPi = 3.141592
 constHalfRatio :: Double
-constHalfRatio = 0.66666
+constHalfRatio = 0.66666666
 
 --x, y, angle
 type Camera = (Double, Double, Double)
@@ -204,7 +204,8 @@ drawScene scene = do
       let
         newList = map (calcSpriteDistance) spriteList
         sortList = sortSprites newList
-      drawSprites sortList
+        endList = deleteSprites sortList
+      drawSprites endList
       where
 
         calcSpriteDistance :: Sprite -> Sprite
@@ -219,6 +220,9 @@ drawScene scene = do
               + spriteCameraY * (-(sin angle))
           in (spriteX, spriteY, texture, spriteType, offset, distance)
 
+        getDistance :: Sprite -> Double
+        getDistance (_, _, _, _, _, distance) = distance
+
         sortSprites :: [Sprite] -> [Sprite]
         sortSprites [] = []
         sortSprites (spriteHead : spriteTail) =
@@ -227,10 +231,15 @@ drawScene scene = do
           [spriteHead] ++
           sortSprites [sprite | sprite <- spriteTail,
             (getDistance sprite) < (getDistance spriteHead)]
-          where
 
-          getDistance :: Sprite -> Double
-          getDistance (_, _, _, _, _, distance) = distance
+        minDistance :: Double
+        minDistance = 0.3
+
+        deleteSprites :: [Sprite] -> [Sprite]
+        deleteSprites [] = []
+        deleteSprites (spriteHead : spriteTail)
+          | (getDistance spriteHead) < minDistance = deleteSprites spriteTail
+          | otherwise = spriteHead : (deleteSprites spriteTail)
 
         drawSprites :: [Sprite] -> IO()
         drawSprites [] = do
