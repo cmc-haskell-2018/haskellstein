@@ -86,12 +86,13 @@ sControlPlayer scene = case isfireball of
     (newp, isfireball) = controlPlayer (sPlayer scene)
                                        (sTilemap scene)
                                        (sDelta scene)
+                                       (sControl scene)
 
 ------------------------FIREBALL_FUNCTIONS----------------------------------
 
 --move fireballs
 stepFireballs :: [Fireball] -> Tilemap -> Float -> ([Fireball], Tilemap)
-stepFireballs [] tmap delta     = ([], tmap)
+stepFireballs [] tmap _         = ([], tmap)
 stepFireballs (f:fs) tmap delta = case newf of
     Nothing       -> (newfs, retmap)
     Just fireball -> (fireball : newfs, retmap)
@@ -320,8 +321,9 @@ controlPlayer ::
   Player
   -> Tilemap
   -> Float
+  -> Control
   -> (Player, Maybe Fireball)
-controlPlayer p tmap delta
+controlPlayer p tmap delta control
     | isattack    = case cond of
                       Free -> (Player
                                   (newx, newy)
@@ -371,15 +373,22 @@ controlPlayer p tmap delta
     delay     = case tmp of
                 Nothing   -> Nothing
                 Just time -> Just (time - delta)
-    isforward = 0 --pressed 'w'
-    isback    = 0 --pressed 's'
-    isleft    = 0 --pressed 'a'
-    isright   = 0 --pressed 'd'
-    isspace   = 0 --pressed 'space'
+    isforward = case (cForward control) of
+                False -> 0
+                True  -> 1
+    isback    = case (cBack control) of
+                False -> 0
+                True  -> 1
+    isleft    = case (cLeft control) of
+                False -> 0
+                True  -> 1
+    isright   = case (cRight control) of
+                False -> 0
+                True  -> 1
     isaready  = case delay of
                 Nothing   -> True
                 Just time -> if (time < 0) then True else False
-    isattack  = (isspace == 1) && isaready
+    isattack  = (cSpace control) && isaready
     step      = isforward - isback
     turn      = isleft - isright
     newx      = px + (step * delta * ps * cos pa)
