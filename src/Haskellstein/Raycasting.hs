@@ -219,7 +219,7 @@ drawScene scene = do
             spriteCameraY = spriteY - cameraY
             angle = cameraAngle
             offset = (spriteCameraX * (sin angle)
-              + spriteCameraY * (cos angle))
+              + spriteCameraY * (cos angle)) / constHalfRatio
             distance = spriteCameraX * (cos angle)
               + spriteCameraY * (-(sin angle))
           in (spriteX, spriteY, texture, spriteType, offset, distance)
