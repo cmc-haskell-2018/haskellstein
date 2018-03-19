@@ -22,8 +22,8 @@ createEnemy (y, x) Melee =
       , ((fromIntegral y) + 0.5)) -- ePos
         3 -- eHp
         1 -- eDamage
-        1.2 -- eRange
-        0.5 -- eSpeed
+        1 -- eRange
+        0.4 -- eSpeed
         (Just 2, 2) -- eASpeed
         Melee -- eModel
         0 -- eTex
@@ -36,8 +36,8 @@ createEnemy (y, x) Range =
       , ((fromIntegral y) + 0.5)) -- ePos
         2 -- eHp
         1 -- eDamage
-        1.2 -- eRange
-        0.5 -- eSpeed
+        2 -- eRange
+        0.4 -- eSpeed
         (Just 2, 2) -- eASpeed
         Range -- eModel
         1 -- eTex
@@ -65,11 +65,11 @@ createFireball ::
   -> Fireball
 createFireball (x,y) a d =
     Fireball
-        ((x + (0.7 * cos a))
-      , (y + (0.7 * sin a))) -- fPos
+        ((x + (0.5 * cos a))
+      , (y - (0.5 * sin a))) -- fPos
         a -- fRadian
         d -- fDamage
-        0.7 -- fRadius
+        0.5 -- fRadius
         1.0 -- fSpeed
         Small -- fModel
 

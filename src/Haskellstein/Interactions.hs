@@ -316,7 +316,11 @@ stepEnemies p (e:es) tmap delta = (retp, newe : rete)
 -----------------------------PLAYER_FUNCTIONS-------------------------------
 
 --implements player control
-controlPlayer :: Player -> Tilemap -> Float -> (Player, Maybe Fireball)
+controlPlayer ::
+  Player
+  -> Tilemap
+  -> Float
+  -> (Player, Maybe Fireball)
 controlPlayer p tmap delta
     | isattack    = case cond of
                       Free -> (Player
@@ -367,11 +371,11 @@ controlPlayer p tmap delta
     delay     = case tmp of
                 Nothing   -> Nothing
                 Just time -> Just (time - delta)
-    isforward = 1 --pressed 'w'
+    isforward = 0 --pressed 'w'
     isback    = 0 --pressed 's'
     isleft    = 0 --pressed 'a'
     isright   = 0 --pressed 'd'
-    isspace   = 1 --pressed 'space'
+    isspace   = 0 --pressed 'space'
     isaready  = case delay of
                 Nothing   -> True
                 Just time -> if (time < 0) then True else False
