@@ -127,7 +127,7 @@ drawScene scene = do
         viewX :: Double
         viewX = (2.0 * fromIntegral chosenX)
             / (fromIntegral windowWidth) - 1
-        extraAngle = cameraAngle + constPi * 0.5
+        extraAngle = cameraAngle - constPi * 0.5
         rayDirX = (cos cameraAngle) + (cos extraAngle) * constHalfRatio
             * viewX
         rayDirY = -(sin cameraAngle) - (sin extraAngle) * constHalfRatio
