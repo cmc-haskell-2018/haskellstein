@@ -60,7 +60,7 @@ greatCycle scene = do
   keyAState     <- cGetKeyPressed cKeyA
   keySpaceState <- cGetKeyPressed cKeySpace
   let tmpDelta  = realToFrac deltaTime
-  let delta     = if (tmpDelta > 0.2) then 0.2 else tmpDelta
+  let delta     = if (tmpDelta > 0.1) then 0.1 else tmpDelta
 --update scene condition
   let newScene = Scene
           (sPlayer scene)
@@ -74,7 +74,9 @@ greatCycle scene = do
               (keyDState /= 0)
               (keySpaceState /= 0))
           delta
-  greatCycle . doInteractions $ newScene
+  if ((pHp . sPlayer $ scene) >0)
+      then greatCycle . doInteractions $ newScene
+      else putStrLn "GameOver"
 
 start :: IO()
 start = do

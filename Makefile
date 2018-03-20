@@ -49,4 +49,8 @@ force:
 
 run:
 	make all
+	./$(OUTPUT_NAME) $(MAPSLOC)first_map.txt
+
+run_random:
+	make all
 	./$(OUTPUT_NAME) $(MAPSLOC)genmap*

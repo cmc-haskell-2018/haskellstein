@@ -1,6 +1,5 @@
 module Haskellstein.CheckMap where
 
-import Data.List.Index
 import Prelude
 import Haskellstein.Data
 
@@ -19,6 +18,16 @@ specCellCond tm (n,m) = spec (head (dropElements m
         | head c == 'w' || head c == 'a' || head c == 'o' = Blocked
         | head c == 'v' || head c == 'i' || head c == 'b' = Free
         | otherwise                                       = Destructible
+
+modifyAt :: Int -> (a -> a) -> [a] -> [a]
+modifyAt i f ls
+  | i < 0 = ls
+  | otherwise = go i ls
+  where
+    go 0 (x:xs) = f x : xs
+    go n (x:xs) = x : go (n-1) xs
+    go _ [] = []
+{-# INLINE modifyAt #-}
 
 --change cell followed coordinates
 writeCondition :: Tilemap -> CellCoord -> String -> Tilemap
