@@ -21,12 +21,12 @@ specCellCond tm (n,m) = spec (head (dropElements m
 
 modifyAt :: Int -> (a -> a) -> [a] -> [a]
 modifyAt i f ls
-  | i < 0 = ls
+  | i < 0     = ls
   | otherwise = go i ls
   where
     go 0 (x:xs) = f x : xs
     go n (x:xs) = x : go (n-1) xs
-    go _ [] = []
+    go _ []     = []
 {-# INLINE modifyAt #-}
 
 --change cell followed coordinates
@@ -39,8 +39,8 @@ writeCondition tm (n,m) str = modifyAt n (changeCell) tm
 --remove if destructible
 writeEmpty :: Tilemap -> CellCoord -> Tilemap
 writeEmpty tm (n,m) = if head ((tm !! n) !! m) == 'd'
-                      then writeCondition tm (n,m) "v00"
-                      else tm
+                          then writeCondition tm (n,m) "v00"
+                          else tm
 
 --take element
 takeCellStr :: Tilemap -> CellCoord -> String

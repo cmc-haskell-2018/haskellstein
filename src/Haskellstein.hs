@@ -62,7 +62,8 @@ greatCycle scene = do
   let tmpDelta  = realToFrac deltaTime
   let delta     = if (tmpDelta > 0.1) then 0.1 else tmpDelta
 --update scene condition
-  let newScene = Scene
+  let newScene  =
+        Scene
           (sPlayer scene)
           (sFireball scene)
           (sEnemy scene)
@@ -85,20 +86,25 @@ start = do
         putStrLn "No file path"
     else do
         let
-          windowWidth = 800
-          windowHeight = 600
-          windowName = "Haskellstein"
+          windowWidth          = 800
+          windowHeight         = 600
+          windowName           = "Haskellstein"
           windowFramerateLimit = 100
-          scaleFactor = 1
-          wallTextureName = "data/textures/wall.png"
-          enemyTextureName = "data/textures/enemy.png"
-          spriteTextureName = "data/textures/sprite.png"
-
-        tilemap <- readFile . head $ args
-        windowTitle <- newCString windowName
-        wallTexturePath <- newCString wallTextureName
-        enemyTexturePath <- newCString enemyTextureName
-        spriteTexturePath <- newCString spriteTextureName
-        cInitWorkspace windowWidth windowHeight windowTitle windowFramerateLimit
-          scaleFactor wallTexturePath enemyTexturePath spriteTexturePath
+          scaleFactor          = 1
+          wallTextureName      = "data/textures/wall.png"
+          enemyTextureName     = "data/textures/enemy.png"
+          spriteTextureName    = "data/textures/sprite.png"
+        tilemap                  <- readFile . head $ args
+        windowTitle              <- newCString windowName
+        wallTexturePath          <- newCString wallTextureName
+        enemyTexturePath         <- newCString enemyTextureName
+        spriteTexturePath        <- newCString spriteTextureName
+        cInitWorkspace windowWidth
+                       windowHeight
+                       windowTitle
+                       windowFramerateLimit
+                       scaleFactor
+                       wallTexturePath
+                       enemyTexturePath
+                       spriteTexturePath
         greatCycle . createScene . createTilemap $ tilemap

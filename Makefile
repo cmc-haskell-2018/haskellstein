@@ -49,8 +49,16 @@ force:
 
 run:
 	make all
-	./$(OUTPUT_NAME) $(MAPSLOC)first_map.txt
+	LD_LIBRARY_PATH=lib ./$(OUTPUT_NAME) $(MAPSLOC)first_map.txt
 
 run_random:
+	make all
+	LD_LIBRARY_PATH=lib ./$(OUTPUT_NAME) $(MAPSLOC)genmap*
+
+run_max:
+	make all
+	./$(OUTPUT_NAME) $(MAPSLOC)first_map.txt
+
+run_random_max:
 	make all
 	./$(OUTPUT_NAME) $(MAPSLOC)genmap*
