@@ -50,7 +50,6 @@ foreign import ccall "_Z15get_key_pressedi" cGetKeyPressed :: CInt -> IO(Int)
 
 greatCycle :: Scene -> IO()
 greatCycle scene = do
-
   drawScene scene
   cUpdateWorkspace
   deltaTime     <- cGetDeltaTime
@@ -94,11 +93,11 @@ start = do
           wallTextureName      = "data/textures/wall.png"
           enemyTextureName     = "data/textures/enemy.png"
           spriteTextureName    = "data/textures/sprite.png"
-        tilemap                  <- readFile . head $ args
-        windowTitle              <- newCString windowName
-        wallTexturePath          <- newCString wallTextureName
-        enemyTexturePath         <- newCString enemyTextureName
-        spriteTexturePath        <- newCString spriteTextureName
+        tilemap                <- readFile . head $ args
+        windowTitle            <- newCString windowName
+        wallTexturePath        <- newCString wallTextureName
+        enemyTexturePath       <- newCString enemyTextureName
+        spriteTexturePath      <- newCString spriteTextureName
         cInitWorkspace windowWidth
                        windowHeight
                        windowTitle
