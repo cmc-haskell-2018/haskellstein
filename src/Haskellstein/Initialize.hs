@@ -9,9 +9,9 @@ createPlayer (y, x) =
         (((fromIntegral x) + 0.5)
       , ((fromIntegral y) + 0.5)) -- pPos
         0 -- pRadian
-        11 -- pHp
-        1 -- pSpeed
-        (Just 1, 1) -- pASpeed
+        10 -- pHp
+        2.2 -- pSpeed
+        (Just 0.7, 0.7) -- pASpeed
         1 -- pDamage
 
 createEnemy :: CellCoord -> EnemyType -> Enemy
@@ -21,27 +21,27 @@ createEnemy (y, x) Melee =
         (((fromIntegral x) + 0.5)
       , ((fromIntegral y) + 0.5)) -- ePos
         3 -- eHp
-        1 -- eDamage
+        2 -- eDamage
         1 -- eRange
-        1 -- eSpeed
+        2 -- eSpeed
         (Just 2, 2) -- eASpeed
         Melee -- eModel
-        1 -- eTex
-        32 -- eVision
+        0 -- eTex
+        7 -- eVision
         False -- eAgro
 --range
 createEnemy (y, x) Range =
     Enemy
         (((fromIntegral x) + 0.5)
       , ((fromIntegral y) + 0.5)) -- ePos
-        3 -- eHp
-        1 -- eDamage
-        1 -- eRange
-        1 -- eSpeed
-        (Just 2, 2) -- eASpeed
+        7 -- eHp
+        3 -- eDamage
+        2 -- eRange
+        3 -- eSpeed
+        (Just 3, 3) -- eASpeed
         Range -- eModel
         1 -- eTex
-        32 -- eVision
+        0.5 -- eVision
         False -- eAgro
 --spike
 createEnemy (y, x) Mage =
@@ -50,8 +50,8 @@ createEnemy (y, x) Mage =
       , ((fromIntegral y) + 0.5)) -- ePos
         3 -- eHp
         1 -- eDamage
-        1 -- eRange
-        1 -- eSpeed
+        1.5 -- eRange
+        0.8 -- eSpeed
         (Just 2, 2) -- eASpeed
         Mage -- eModel
         1 -- eTex
@@ -65,12 +65,12 @@ createFireball ::
   -> Fireball
 createFireball (x,y) a d =
     Fireball
-        ((x + (0.7 * cos a))
-      , (y + (0.7 * sin a))) -- fPos
+        ((x + (0.4 * cos a))
+      , (y - (0.4 * sin a))) -- fPos
         a -- fRadian
         d -- fDamage
-        0.7 -- fRadius
-        1.0 -- fSpeed
+        0.4 -- fRadius
+        7.0 -- fSpeed
         Small -- fModel
 
 --split string by symbol
@@ -139,6 +139,8 @@ createScene tmap =
         []
         (findEnemies tmap)
         edit
+        (Control False False False False False)
+        0.00
   where
     rewrite p
         | head p == 'e' = "v00"
