@@ -4,6 +4,8 @@ First-person Shooter.
 
 Using [SFML](https://www.sfml-dev.org/download/sfml/2.4.2/)
 
+Using Glasgow Haskell Compiler
+
 Using GNU MAKE
 
 Using GNU Compiler Collection
