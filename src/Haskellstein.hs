@@ -74,9 +74,9 @@ greatCycle scene = do
               (keyDState /= 0)
               (keySpaceState /= 0))
           delta
-  if ((pHp . sPlayer $ scene) >0)
-      then greatCycle . doInteractions $ newScene
-      else putStrLn "GameOver"
+  if (((pHp . sPlayer $ scene) <= 0) || (null . sEnemy $ scene))
+      then putStrLn "GameOver"
+      else greatCycle . doInteractions $ newScene
 
 start :: IO()
 start = do
