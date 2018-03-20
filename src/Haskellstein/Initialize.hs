@@ -9,7 +9,7 @@ createPlayer (y, x) =
         (((fromIntegral x) + 0.5)
       , ((fromIntegral y) + 0.5)) -- pPos
         0 -- pRadian
-        20 -- pHp
+        10 -- pHp
         2.2 -- pSpeed
         (Just 0.7, 0.7) -- pASpeed
         1 -- pDamage
@@ -20,28 +20,28 @@ createEnemy (y, x) Melee =
     Enemy
         (((fromIntegral x) + 0.5)
       , ((fromIntegral y) + 0.5)) -- ePos
-        2 -- eHp
-        1 -- eDamage
+        3 -- eHp
+        2 -- eDamage
         1 -- eRange
         2 -- eSpeed
         (Just 2, 2) -- eASpeed
         Melee -- eModel
         0 -- eTex
-        6 -- eVision
+        7 -- eVision
         False -- eAgro
 --range
 createEnemy (y, x) Range =
     Enemy
         (((fromIntegral x) + 0.5)
       , ((fromIntegral y) + 0.5)) -- ePos
-        2 -- eHp
-        2 -- eDamage
+        7 -- eHp
+        3 -- eDamage
         2 -- eRange
-        2.4 -- eSpeed
+        3 -- eSpeed
         (Just 3, 3) -- eASpeed
         Range -- eModel
         1 -- eTex
-        6 -- eVision
+        0.5 -- eVision
         False -- eAgro
 --spike
 createEnemy (y, x) Mage =
@@ -65,12 +65,12 @@ createFireball ::
   -> Fireball
 createFireball (x,y) a d =
     Fireball
-        ((x + (0.5 * cos a))
-      , (y - (0.5 * sin a))) -- fPos
+        ((x + (0.4 * cos a))
+      , (y - (0.4 * sin a))) -- fPos
         a -- fRadian
         d -- fDamage
-        0.5 -- fRadius
-        5.0 -- fSpeed
+        0.4 -- fRadius
+        7.0 -- fSpeed
         Small -- fModel
 
 --split string by symbol
