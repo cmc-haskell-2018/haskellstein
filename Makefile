@@ -48,5 +48,6 @@ force:
 	make all
 
 run:
+	LD_LIBRARY_PATH=lib ./haskellstein
 	make all
 	./$(OUTPUT_NAME) $(MAPSLOC)genmap*
