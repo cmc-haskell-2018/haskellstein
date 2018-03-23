@@ -19,13 +19,13 @@ sStepFireballs :: Scene -> Scene
 sStepFireballs scene =
     Scene
         (sPlayer scene)
-        newf
+        newF
         (sEnemy scene)
-        newtmap
+        newTmap
         (sControl scene)
         (sDelta scene)
   where
-    (newf, newtmap) = stepFireballs (sFireball scene)
+    (newF, newTmap) = stepFireballs (sFireball scene)
                                     (sTilemap scene)
                                     (sDelta scene)
 
@@ -33,13 +33,13 @@ sDamageFireballs :: Scene -> Scene
 sDamageFireballs scene =
     Scene
         (sPlayer scene)
-        newf
-        newe
+        newF
+        newE
         (sTilemap scene)
         (sControl scene)
         (sDelta scene)
   where
-    (newf, newe) = damageFireballs (sFireball scene) (sEnemy scene)
+    (newF, newE) = damageFireballs (sFireball scene) (sEnemy scene)
 
 --all actions of enemies
 doEnemies :: Scene -> Scene
@@ -48,14 +48,14 @@ doEnemies = sStepEnemies
 sStepEnemies :: Scene -> Scene
 sStepEnemies scene =
     Scene
-        newp
+        newP
         (sFireball scene)
-        newe
+        newE
         (sTilemap scene)
         (sControl scene)
         (sDelta scene)
   where
-    (newp, newe) = stepEnemies (sPlayer scene)
+    (newP, newE) = stepEnemies (sPlayer scene)
                                (sEnemy scene)
                                (sTilemap scene)
                                (sDelta scene)
@@ -65,10 +65,10 @@ doPlayer :: Scene -> Scene
 doPlayer = sControlPlayer
 
 sControlPlayer :: Scene -> Scene
-sControlPlayer scene = case isfireball of
+sControlPlayer scene = case isFireball of
     Nothing ->
         Scene
-            newp
+            newP
             (sFireball scene)
             (sEnemy scene)
             (sTilemap scene)
@@ -76,14 +76,14 @@ sControlPlayer scene = case isfireball of
             (sDelta scene)
     Just fb ->
         Scene
-            newp
+            newP
             (fb : (sFireball scene))
             (sEnemy scene)
             (sTilemap scene)
             (sControl scene)
             (sDelta scene)
   where
-    (newp, isfireball) = controlPlayer (sPlayer scene)
+    (newP, isFireball) = controlPlayer (sPlayer scene)
                                        (sTilemap scene)
                                        (sDelta scene)
                                        (sControl scene)
@@ -93,18 +93,18 @@ sControlPlayer scene = case isfireball of
 --move fireballs
 stepFireballs :: [Fireball] -> Tilemap -> Float -> ([Fireball], Tilemap)
 stepFireballs [] tmap _         = ([], tmap)
-stepFireballs (f:fs) tmap delta = case newf of
-    Nothing       -> (newfs, retmap)
-    Just fireball -> (fireball : newfs, retmap)
+stepFireballs (f:fs) tmap delta = case newF of
+    Nothing       -> (newFs, retTmap)
+    Just fireball -> (fireball : newFs, retTmap)
   where
-    (newf, newmap)  = stepFireball f tmap delta
-    (newfs, retmap) = stepFireballs fs newmap delta
+    (newF, newTmap)  = stepFireball f tmap delta
+    (newFs, retTmap) = stepFireballs fs newTmap delta
 
 --move fireball
 stepFireball :: Fireball -> Tilemap -> Float -> (Maybe Fireball, Tilemap)
 stepFireball f tmap delta = case cond of
     Free         -> (Just (Fireball
-                              (newx, newy)
+                              (newX, newY)
                               a
                               (fDamage f)
                               (fRadius f)
@@ -112,35 +112,35 @@ stepFireball f tmap delta = case cond of
                               (fModel f))
                   , tmap)
     Blocked      -> (Nothing, tmap)
-    Destructible -> (Nothing, removeDO tmap newcoord)
+    Destructible -> (Nothing, removeDO tmap newCoord)
   where
     (x,y)    = fPos f
     a        = fRadian f
     s        = fSpeed f
-    newx     = x + (delta * s * cos a)
-    newy     = y - (delta * s * sin a)
-    newcoord = (floor newy, floor newx)
-    cond     = specCellCond tmap newcoord
+    newX     = x + (delta * s * cos a)
+    newY     = y - (delta * s * sin a)
+    newCoord = (floor newY, floor newX)
+    cond     = specCellCond tmap newCoord
 
 --remove near Destructible objects
 removeDO :: Tilemap -> CellCoord -> Tilemap
-removeDO tmap (y, x) = newmap
+removeDO tmap (y, x) = newTmap
   where
-    m      = writeEmpty tmap (y, x)
-    mm     = writeEmpty m (y, x + 1)
-    mmm    = writeEmpty mm (y + 1, x)
-    mmmm   = writeEmpty mmm (y, x - 1)
-    newmap = writeEmpty mmmm (y - 1, x)
+    m1      = writeEmpty tmap (y, x)
+    m2      = writeEmpty m1 (y, x + 1)
+    m3      = writeEmpty m2 (y + 1, x)
+    m4      = writeEmpty m3 (y, x - 1)
+    newTmap = writeEmpty m4 (y - 1, x)
 
 --check fireballs for hurting enemies
 damageFireballs :: [Fireball] -> [Enemy] -> ([Fireball], [Enemy])
 damageFireballs [] e     = ([], e)
-damageFireballs (f:fs) e = case newf of
-    Nothing       -> (retlf, enret)
-    Just fireball -> (fireball : retlf, enret)
+damageFireballs (f:fs) e = case newF of
+    Nothing       -> (retLF, retE)
+    Just fireball -> (fireball : retLF, retE)
   where
-    (newf, newe)   = damageFireball f e
-    (retlf, enret) = damageFireballs fs newe
+    (newF, newE)   = damageFireball f e
+    (retLF, retE)  = damageFireballs fs newE
 
 --check fireball for hurting enemies
 damageFireball :: Fireball -> [Enemy] -> (Maybe Fireball, [Enemy])
@@ -160,7 +160,7 @@ damageFireball f (e:es)
                                     True
                                 : es)
     | rx < r, ry < r          = (Nothing, es) --kill
-    | otherwise               = (newf, e : enret) --miss
+    | otherwise               = (newF, e : retE) --miss
   where
     (fx,fy)       = fPos f
     r             = fRadius f
@@ -169,11 +169,10 @@ damageFireball f (e:es)
     ehp           = eHp e - fd
     rx            = abs (fx - ex)
     ry            = abs (fy - ey)
-    (newf, enret) = damageFireball f es
+    (newF, retE)  = damageFireball f es
 
 -------------------------------ENEMY_FUNCTIONS------------------------------
 
---fuck zero division
 myCos :: Float -> Float -> Float
 myCos _ 0 = 1
 myCos a b = a/b
@@ -188,7 +187,7 @@ moveEnemy p e tmap delta
 moveEnemy2 :: Player -> Enemy -> Tilemap -> Float -> Enemy
 moveEnemy2 p e tmap delta = case cond of
     Free -> Enemy
-                (newx, newy)
+                (newX, newY)
                 (eHp e)
                 (eDamage e)
                 (eRange e)
@@ -205,21 +204,21 @@ moveEnemy2 p e tmap delta = case cond of
     es       = eSpeed e
     rx       = (px - ex)
     ry       = (py - ey)
-    cosalpha = myCos rx (sqrt ((rx * rx) + (ry * ry))) --fuck zero division
-    sinalpha = (sqrt (1 - (cosalpha * cosalpha))) * signum ry
-    newx     = ex + (delta * es * cosalpha)
-    newy     = ey + (delta * es * sinalpha)
-    newcoord = (floor newy, floor newx)
-    cond     = specCellCond tmap newcoord
+    cosAlpha = myCos rx (sqrt ((rx * rx) + (ry * ry)))
+    sinAlpha = (sqrt (1 - (cosAlpha * cosAlpha))) * signum ry
+    newX     = ex + (delta * es * cosAlpha)
+    newY     = ey + (delta * es * sinAlpha)
+    newCoord = (floor newY, floor newX)
+    cond     = specCellCond tmap newCoord
 
 --Enemy deal Damage
 damageEnemy :: Player -> Enemy -> Float -> (Player, Enemy)
 damageEnemy p e delta
-    | isrange, isaready =
+    | isRange, isAReady =
         (Player
             (pPos p)
             (pRadian p)
-            newhp --get damaged
+            newHp --get damaged
             (pSpeed p)
             (pASpeed p)
             (pDamage p)
@@ -248,13 +247,13 @@ damageEnemy p e delta
             (eVision e)
             (eAgro e))
   where
-    isrange   = isPInRange p e
-    newhp     = (pHp p) - (eDamage e)
+    isRange   = isPInRange p e
+    newHp     = (pHp p) - (eDamage e)
     (tmp, cd) = eASpeed e
     delay     = case tmp of
                 Nothing   -> Nothing
                 Just time -> Just (time - delta)
-    isaready  = case delay of
+    isAReady  = case delay of
                 Nothing   -> True
                 Just time -> if (time < 0) then True else False
 
@@ -285,7 +284,7 @@ isPInRange p e = result
 stepEnemy :: Player -> Enemy -> Tilemap -> Float -> (Player, Enemy)
 stepEnemy p e tmap delta
     | agro      = damageEnemy p (moveEnemy p e tmap delta) delta
-    | isvision  = damageEnemy p (moveEnemy
+    | isVision  = damageEnemy p (moveEnemy
                                     p
                                     (Enemy
                                         (ePos e)
@@ -303,54 +302,54 @@ stepEnemy p e tmap delta
                                     delta
     | otherwise = (p, e)
   where
-    isvision = isPInVision p e
+    isVision = isPInVision p e
     agro     = eAgro e
 
 --Enemies Perfect(NO) AI
 stepEnemies :: Player -> [Enemy] -> Tilemap -> Float -> (Player, [Enemy])
 stepEnemies p [] _ _            = (p, [])
-stepEnemies p (e:es) tmap delta = (retp, newe : rete)
+stepEnemies p (e:es) tmap delta = (retP, newE : retE)
   where
-  (newp, newe) = stepEnemy p e tmap delta
-  (retp, rete) = stepEnemies newp es tmap delta
+  (newP, newE) = stepEnemy p e tmap delta
+  (retP, retE) = stepEnemies newP es tmap delta
 
 -----------------------------PLAYER_FUNCTIONS-------------------------------
 
 --implements player control
-controlPlayer ::
-  Player
+controlPlayer
+  ::Player
   -> Tilemap
   -> Float
   -> Control
   -> (Player, Maybe Fireball)
 controlPlayer p tmap delta control
-    | isattack    = case cond of
+    | isAttack    = case cond of
                       Free -> (Player
-                                  (newx, newy)
-                                  newa
+                                  (newX, newY)
+                                  newA
                                   (pHp p)
                                   ps
                                   (Just cd, cd)
                                   pd
                             , Just (createFireball
-                                  (newx, newy)
-                                  newa
+                                  (newX, newY)
+                                  newA
                                   pd))
                       _    -> (Player
                                   (px, py)
-                                  newa
+                                  newA
                                   (pHp p)
                                   ps
                                   (Just cd, cd)
                                   pd
                             , Just (createFireball
                                   (px, py)
-                                  newa
+                                  newA
                                   pd))
     | otherwise   = case cond of
                       Free -> (Player
-                                  (newx, newy)
-                                  newa
+                                  (newX, newY)
+                                  newA
                                   (pHp p)
                                   ps
                                   (delay, cd)
@@ -358,7 +357,7 @@ controlPlayer p tmap delta control
                             , Nothing)
                       _    -> (Player
                                   (px, py)
-                                  newa
+                                  newA
                                   (pHp p)
                                   ps
                                   (delay, cd)
@@ -373,26 +372,26 @@ controlPlayer p tmap delta control
     delay     = case tmp of
                 Nothing   -> Nothing
                 Just time -> Just (time - delta)
-    isforward = case (cForward control) of
+    isForward = case (cForward control) of
                 False -> 0
                 True  -> 1
-    isback    = case (cBack control) of
+    isBack    = case (cBack control) of
                 False -> 0
                 True  -> 1
-    isleft    = case (cLeft control) of
+    isLeft    = case (cLeft control) of
                 False -> 0
                 True  -> 1
-    isright   = case (cRight control) of
+    isRight   = case (cRight control) of
                 False -> 0
                 True  -> 1
-    isaready  = case delay of
+    isAready  = case delay of
                 Nothing   -> True
                 Just time -> if (time < 0) then True else False
-    isattack  = (cSpace control) && isaready
-    step      = isforward - isback
-    turn      = isleft - isright
-    newx      = px + (step * delta * ps * cos pa)
-    newy      = py - (step * delta * ps * sin pa)
-    newcoord  = (floor newy, floor newx)
-    cond      = specCellCond tmap newcoord
-    newa      = pa + (1.2 * delta * turn)
+    isAttack  = (cSpace control) && isAready
+    step      = isForward - isBack
+    turn      = isLeft - isRight
+    newX      = px + (step * delta * ps * cos pa)
+    newY      = py - (step * delta * ps * sin pa)
+    newCoord  = (floor newY, floor newX)
+    cond      = specCellCond tmap newCoord
+    newA      = pa + (1.2 * delta * turn)

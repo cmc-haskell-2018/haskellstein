@@ -58,8 +58,8 @@ createEnemy (y, x) Mage =
         32 -- eVision
         False -- eAgro
 
-createFireball ::
-  Position
+createFireball
+  :: Position
   -> Float -- player angle
   -> Int -- damage
   -> Fireball
