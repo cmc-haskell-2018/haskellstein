@@ -63,7 +63,7 @@ void update_workspace()
 	while(window->pollEvent(event))
 	{
 		if(event.type == sf::Event::Closed)
-			window->close();
+			exit(0);
 		if(event.type == sf::Event::KeyPressed)
 			if(event.key.code == sf::Keyboard::Escape)
 				exit(0);
