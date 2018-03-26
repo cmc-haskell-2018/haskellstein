@@ -45,3 +45,15 @@ writeEmpty tm (n,m) = if head ((tm !! n) !! m) == 'd'
 --take element
 takeCellStr :: Tilemap -> CellCoord -> String
 takeCellStr tmap (y,x) = (tmap !! y) !! x
+
+--return move coords
+getNewCoord :: Position -> Position -> Tilemap -> Position
+getNewCoord (px,py) (newX,newY) tmap =
+    if (ifXY == Free) then (newX, newY)
+    else if (ifX == Free) then (newX, py)
+         else if (ifY == Free) then (px, newY)
+              else (px, py)
+  where
+    ifX  = specCellCond tmap (floor py, floor newX)
+    ifY  = specCellCond tmap (floor newY, floor px)
+    ifXY = specCellCond tmap (floor newY, floor newX)
