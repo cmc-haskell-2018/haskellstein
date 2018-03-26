@@ -202,19 +202,18 @@ moveEnemy p e tmap delta
 
 --moves Enemy to Player
 moveEnemy2 :: Player -> Enemy -> Tilemap -> Float -> Enemy
-moveEnemy2 p e tmap delta = case cond of
-    Free -> Enemy
-                (newX, newY)
-                (eHp e)
-                (eDamage e)
-                (eRange e)
-                (eSpeed e)
-                (eASpeed e)
-                (eModel e)
-                (eTex e)
-                (eVision e)
-                (eAgro e)
-    _    -> e
+moveEnemy2 p e tmap delta =
+    Enemy
+        newCoord
+        (eHp e)
+        (eDamage e)
+        (eRange e)
+        (eSpeed e)
+        (eASpeed e)
+        (eModel e)
+        (eTex e)
+        (eVision e)
+        (eAgro e)
   where
     (px, py) = pPos p
     (ex, ey) = ePos e
@@ -225,8 +224,7 @@ moveEnemy2 p e tmap delta = case cond of
     sinAlpha = (sqrt (1 - (cosAlpha * cosAlpha))) * signum ry
     newX     = ex + (delta * es * cosAlpha)
     newY     = ey + (delta * es * sinAlpha)
-    newCoord = (floor newY, floor newX)
-    cond     = specCellCond tmap newCoord
+    newCoord = getNewCoord (ex, ey) (newX, newY) tmap
 
 --Enemy deal Damage
 damageEnemy :: Player -> Enemy -> Float -> (Player, Enemy)
