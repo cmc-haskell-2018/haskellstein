@@ -13,9 +13,9 @@ initWorkspace :: WindowStats -> TexturePaths -> IO()
 initWorkspace
   (windowWidth, windowHeight, windowTitle, windowFrameLimit, windowScale)
   (wallTexturePath, enemyTexturePath, spriteTexturePath) = do
-  cWindowTitle <- newCString windowTitle
-  cWallTexturePath <- newCString wallTexturePath
-  cEnemyTexturePath <- newCString enemyTexturePath
+  cWindowTitle       <- newCString windowTitle
+  cWallTexturePath   <- newCString wallTexturePath
+  cEnemyTexturePath  <- newCString enemyTexturePath
   cSpriteTexturePath <- newCString spriteTexturePath
   cInitWorkspace
     (fromIntegral windowWidth)

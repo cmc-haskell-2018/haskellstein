@@ -1,6 +1,5 @@
 add gifka github
-add control esc, q, e
+add control q, e
 move player, enemy in 2 steps (x ,y)
 exit when game window closed
 2 end screens (Victory, Lose)
-code refacrot
