@@ -378,10 +378,16 @@ controlPlayer p tmap delta control
     isBack    = case (cBack control) of
                 False -> 0
                 True  -> 1
-    isLeft    = case (cLeft control) of
+    isLeftT   = case (cLeftT control) of
                 False -> 0
                 True  -> 1
-    isRight   = case (cRight control) of
+    isRightT  = case (cRightT control) of
+                False -> 0
+                True  -> 1
+    isLeftM   = case (cLeftM control) of
+                False -> 0
+                True  -> 1
+    isRightM  = case (cRightM control) of
                 False -> 0
                 True  -> 1
     isAready  = case delay of
@@ -389,9 +395,10 @@ controlPlayer p tmap delta control
                 Just time -> if (time < 0) then True else False
     isAttack  = (cSpace control) && isAready
     step      = isForward - isBack
-    turn      = isRight - isLeft
-    newX      = px + (step * delta * ps * cos pa)
-    newY      = py + (step * delta * ps * sin pa)
+    stepH     = isLeftM - isRightM
+    turn      = isRightT - isLeftT
+    newX      = px + (step * delta * ps * cos pa) + (stepH * delta * ps * cos (pa - 1.57))
+    newY      = py + (step * delta * ps * sin pa) + (stepH * delta * ps * sin (pa - 1.57))
     newCoord  = (floor newY, floor newX)
     cond      = specCellCond tmap newCoord
     newA      = pa + (1.2 * delta * turn)
