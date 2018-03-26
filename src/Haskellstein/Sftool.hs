@@ -81,11 +81,17 @@ keyS = 2
 keyD :: Int
 keyD = 3
 
+keyQ :: Int
+keyQ = 4
+
+keyE :: Int
+keyE = 5
+
 keyI :: Int
-keyI = 4
+keyI = 6
 
 keySpace :: Int
-keySpace = 5
+keySpace = 7
 
 ----FFI calls
 
