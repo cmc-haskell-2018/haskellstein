@@ -8,7 +8,11 @@ OUTPUT_NAME = haskellstein
 
 # MODULES INFO
 MODULES_NAMES = Main Haskellstein \
- Haskellstein/Raycasting \
+ Haskellstein/Sftool \
+ Haskellstein/Raycaster \
+ Haskellstein/Raycasting/Wallcaster \
+ Haskellstein/Raycasting/Spritecaster \
+ Haskellstein/Raycasting/Rayconsts \
  Haskellstein/Data \
  Haskellstein/CheckMap \
  Haskellstein/Initialize \
@@ -37,6 +41,7 @@ clean:
 	rm -f $(OUTPUT_NAME)
 	rm -f $(MODULES_PATH)/*.o $(MODULES_PATH)/*.hi
 	rm -f $(MODULES_PATH)/Haskellstein/*.o $(MODULES_PATH)/Haskellstein/*.hi
+	rm -f $(MODULES_PATH)/Haskellstein/Raycasting/*.o $(MODULES_PATH)/Haskellstein/Raycasting/*.hi
 	rm -f $(MAPSLOC)genmap*
 	cd sftool; make clean
 	cd genmaps; make clean

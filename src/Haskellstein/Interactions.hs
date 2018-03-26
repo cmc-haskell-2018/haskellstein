@@ -118,7 +118,7 @@ stepFireball f tmap delta = case cond of
     a        = fRadian f
     s        = fSpeed f
     newX     = x + (delta * s * cos a)
-    newY     = y - (delta * s * sin a)
+    newY     = y + (delta * s * sin a)
     newCoord = (floor newY, floor newX)
     cond     = specCellCond tmap newCoord
 
@@ -389,9 +389,9 @@ controlPlayer p tmap delta control
                 Just time -> if (time < 0) then True else False
     isAttack  = (cSpace control) && isAready
     step      = isForward - isBack
-    turn      = isLeft - isRight
+    turn      = isRight - isLeft
     newX      = px + (step * delta * ps * cos pa)
-    newY      = py - (step * delta * ps * sin pa)
+    newY      = py + (step * delta * ps * sin pa)
     newCoord  = (floor newY, floor newX)
     cond      = specCellCond tmap newCoord
     newA      = pa + (1.2 * delta * turn)
