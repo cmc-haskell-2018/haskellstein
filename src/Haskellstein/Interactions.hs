@@ -5,6 +5,9 @@ import Haskellstein.Data
 import Haskellstein.CheckMap
 import Haskellstein.Initialize
 
+constPiF :: Float
+constPiF = 3.141592
+
 -------------------------SHELL_FUNCTIONS------------------------------------
 
 --all interactions
@@ -62,10 +65,25 @@ sStepEnemies scene =
 
 --all actions of player
 doPlayer :: Scene -> Scene
-doPlayer = sControlPlayer
+doPlayer = sCastPlayer . sMovePlayer
 
-sControlPlayer :: Scene -> Scene
-sControlPlayer scene = case isFireball of
+sMovePlayer :: Scene -> Scene
+sMovePlayer scene =
+    Scene
+        newP
+        (sFireball scene)
+        (sEnemy scene)
+        (sTilemap scene)
+        (sControl scene)
+        (sDelta scene)
+  where
+    newP = movePlayer (sPlayer scene)
+                      (sTilemap scene)
+                      (sDelta scene)
+                      (sControl scene)
+
+sCastPlayer :: Scene -> Scene
+sCastPlayer scene = case isFireball of
     Nothing ->
         Scene
             newP
@@ -83,10 +101,9 @@ sControlPlayer scene = case isFireball of
             (sControl scene)
             (sDelta scene)
   where
-    (newP, isFireball) = controlPlayer (sPlayer scene)
-                                       (sTilemap scene)
-                                       (sDelta scene)
-                                       (sControl scene)
+    (newP, isFireball) = castPlayer (sPlayer scene)
+                                    (sDelta scene)
+                                    (sControl scene)
 
 ------------------------FIREBALL_FUNCTIONS----------------------------------
 
@@ -185,19 +202,18 @@ moveEnemy p e tmap delta
 
 --moves Enemy to Player
 moveEnemy2 :: Player -> Enemy -> Tilemap -> Float -> Enemy
-moveEnemy2 p e tmap delta = case cond of
-    Free -> Enemy
-                (newX, newY)
-                (eHp e)
-                (eDamage e)
-                (eRange e)
-                (eSpeed e)
-                (eASpeed e)
-                (eModel e)
-                (eTex e)
-                (eVision e)
-                (eAgro e)
-    _    -> e
+moveEnemy2 p e tmap delta =
+    Enemy
+        newCoord
+        (eHp e)
+        (eDamage e)
+        (eRange e)
+        (eSpeed e)
+        (eASpeed e)
+        (eModel e)
+        (eTex e)
+        (eVision e)
+        (eAgro e)
   where
     (px, py) = pPos p
     (ex, ey) = ePos e
@@ -208,8 +224,7 @@ moveEnemy2 p e tmap delta = case cond of
     sinAlpha = (sqrt (1 - (cosAlpha * cosAlpha))) * signum ry
     newX     = ex + (delta * es * cosAlpha)
     newY     = ey + (delta * es * sinAlpha)
-    newCoord = (floor newY, floor newX)
-    cond     = specCellCond tmap newCoord
+    newCoord = getNewCoord (ex, ey) (newX, newY) tmap
 
 --Enemy deal Damage
 damageEnemy :: Player -> Enemy -> Float -> (Player, Enemy)
@@ -315,83 +330,89 @@ stepEnemies p (e:es) tmap delta = (retP, newE : retE)
 
 -----------------------------PLAYER_FUNCTIONS-------------------------------
 
---implements player control
-controlPlayer
-  ::Player
+--move player
+movePlayer
+  :: Player
   -> Tilemap
   -> Float
   -> Control
-  -> (Player, Maybe Fireball)
-controlPlayer p tmap delta control
-    | isAttack    = case cond of
-                      Free -> (Player
-                                  (newX, newY)
-                                  newA
-                                  (pHp p)
-                                  ps
-                                  (Just cd, cd)
-                                  pd
-                            , Just (createFireball
-                                  (newX, newY)
-                                  newA
-                                  pd))
-                      _    -> (Player
-                                  (px, py)
-                                  newA
-                                  (pHp p)
-                                  ps
-                                  (Just cd, cd)
-                                  pd
-                            , Just (createFireball
-                                  (px, py)
-                                  newA
-                                  pd))
-    | otherwise   = case cond of
-                      Free -> (Player
-                                  (newX, newY)
-                                  newA
-                                  (pHp p)
-                                  ps
-                                  (delay, cd)
-                                  pd
-                            , Nothing)
-                      _    -> (Player
-                                  (px, py)
-                                  newA
-                                  (pHp p)
-                                  ps
-                                  (delay, cd)
-                                  pd
-                            , Nothing)
+  -> Player
+movePlayer p tmap delta control
+  = Player
+        newCoord
+        newA
+        (pHp p)
+        ps
+        (pASpeed p)
+        pd
   where
     (px, py)  = pPos p
     pd        = pDamage p
     pa        = pRadian p
     ps        = pSpeed p
-    (tmp, cd) = pASpeed p
-    delay     = case tmp of
-                Nothing   -> Nothing
-                Just time -> Just (time - delta)
     isForward = case (cForward control) of
                 False -> 0
                 True  -> 1
     isBack    = case (cBack control) of
                 False -> 0
                 True  -> 1
-    isLeft    = case (cLeft control) of
+    isLeftT   = case (cLeftT control) of
                 False -> 0
                 True  -> 1
-    isRight   = case (cRight control) of
+    isRightT  = case (cRightT control) of
                 False -> 0
                 True  -> 1
+    isLeftM   = case (cLeftM control) of
+                False -> 0
+                True  -> 1
+    isRightM  = case (cRightM control) of
+                False -> 0
+                True  -> 1
+    step      = isForward - isBack
+    stepH     = isLeftM - isRightM
+    turn      = isRightT - isLeftT
+    tmpX      = px + (step * delta * ps * cos pa)
+                   + (stepH * delta * ps * cos (pa - constPiF / 2))
+    tmpY      = py + (step * delta * ps * sin pa)
+                   + (stepH * delta * ps * sin (pa - constPiF / 2))
+    newCoord  = getNewCoord (px, py) (tmpX, tmpY) tmap
+    newA      = pa + (constPiF / 3 * delta * turn)
+
+--implements player control
+castPlayer
+  :: Player
+  -> Float
+  -> Control
+  -> (Player, Maybe Fireball)
+castPlayer p delta control
+    | isAttack    = (Player
+                        (px, py)
+                        pa
+                        (pHp p)
+                        (pSpeed p)
+                        (Just cd, cd)
+                        pd
+                  , Just (createFireball
+                             (px, py)
+                             pa
+                             pd))
+    | otherwise   = (Player
+                        (px, py)
+                        pa
+                        (pHp p)
+                        (pSpeed p)
+                        (delay, cd)
+                        pd
+                  , Nothing)
+  where
+    (px, py)  = pPos p
+    pd        = pDamage p
+    pa        = pRadian p
+    (tmp, cd) = pASpeed p
+    delay     = case tmp of
+                Nothing   -> Nothing
+                Just time -> Just (time - delta)
     isAready  = case delay of
                 Nothing   -> True
                 Just time -> if (time < 0) then True else False
     isAttack  = (cSpace control) && isAready
-    step      = isForward - isBack
-    turn      = isRight - isLeft
-    newX      = px + (step * delta * ps * cos pa)
-    newY      = py + (step * delta * ps * sin pa)
-    newCoord  = (floor newY, floor newX)
-    cond      = specCellCond tmap newCoord
-    newA      = pa + (1.2 * delta * turn)

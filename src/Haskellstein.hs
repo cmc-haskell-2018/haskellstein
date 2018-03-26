@@ -57,9 +57,11 @@ updateScene :: Scene -> IO(Scene)
 updateScene scene = do
   deltaTime     <- getDeltaTime
   keyWState     <- getKeyPressed keyW
+  keyAState     <- getKeyPressed keyA
   keySState     <- getKeyPressed keyS
   keyDState     <- getKeyPressed keyD
-  keyAState     <- getKeyPressed keyA
+  keyQState     <- getKeyPressed keyQ
+  keyEState     <- getKeyPressed keyE
   keySpaceState <- getKeyPressed keySpace
   let delta     = if (deltaTime > 0.1) then 0.1 else deltaTime
   let newScene  = Scene
@@ -72,6 +74,8 @@ updateScene scene = do
                           (keyAState /= 0)
                           (keySState /= 0)
                           (keyDState /= 0)
+                          (keyQState /= 0)
+                          (keyEState /= 0)
                           (keySpaceState /= 0))
                       delta
   return newScene

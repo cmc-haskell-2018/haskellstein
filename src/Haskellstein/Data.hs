@@ -42,6 +42,7 @@ data Enemy = Enemy
   }
 
 data CellCond = Blocked | Free | Destructible
+    deriving (Eq)
 
 type CellCoord = (Int, Int) -- (y,x)
 
@@ -51,9 +52,11 @@ type Tilemap = [[TilemapCell]]
 
 data Control = Control
     { cForward :: Bool
-    , cLeft    :: Bool
+    , cLeftT   :: Bool
     , cBack    :: Bool
-    , cRight   :: Bool
+    , cRightT  :: Bool
+    , cLeftM   :: Bool
+    , cRightM  :: Bool
     , cSpace   :: Bool
     }
 
