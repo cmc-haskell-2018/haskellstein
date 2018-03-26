@@ -52,8 +52,8 @@ void init_workspace(int w_width, int w_height, char *w_title,
 
 #define CEILING_COLOR 64
 #define FLOOR_COLOR 96
-#define HEALTH_BAR_X 16
-#define HEALTH_BAR_Y 16
+#define HEALTH_BAR_X 15
+#define HEALTH_BAR_Y 15
 #define HEALTH_BAR_KOEF_X 8
 #define HEALTH_BAR_SIZE_Y 16
 
