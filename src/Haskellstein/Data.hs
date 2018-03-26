@@ -42,6 +42,7 @@ data Enemy = Enemy
   }
 
 data CellCond = Blocked | Free | Destructible
+    deriving (Eq)
 
 type CellCoord = (Int, Int) -- (y,x)
 
