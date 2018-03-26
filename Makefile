@@ -48,7 +48,6 @@ force:
 	make all
 
 run:
-	LD_LIBRARY_PATH=lib ./haskellstein
 	make all
 	LD_LIBRARY_PATH=lib ./$(OUTPUT_NAME) $(MAPSLOC)first_map.txt
 
