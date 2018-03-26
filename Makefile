@@ -39,9 +39,12 @@ $(TARGET_NAME):
 
 clean:
 	rm -f $(OUTPUT_NAME)
-	rm -f $(MODULES_PATH)/*.o $(MODULES_PATH)/*.hi
-	rm -f $(MODULES_PATH)/Haskellstein/*.o $(MODULES_PATH)/Haskellstein/*.hi
-	rm -f $(MODULES_PATH)/Haskellstein/Raycasting/*.o $(MODULES_PATH)/Haskellstein/Raycasting/*.hi
+	rm -f $(MODULES_PATH)/*.o
+	rm -f $(MODULES_PATH)/*.hi
+	rm -f $(MODULES_PATH)/Haskellstein/*.o
+	rm -f $(MODULES_PATH)/Haskellstein/*.hi
+	rm -f $(MODULES_PATH)/Haskellstein/Raycasting/*.o
+	rm -f $(MODULES_PATH)/Haskellstein/Raycasting/*.hi
 	rm -f $(MAPSLOC)genmap*
 	cd sftool; make clean
 	cd genmaps; make clean
@@ -59,11 +62,3 @@ run:
 run_random:
 	make all
 	LD_LIBRARY_PATH=lib ./$(OUTPUT_NAME) $(MAPSLOC)genmap*
-
-run_max:
-	make all
-	./$(OUTPUT_NAME) $(MAPSLOC)first_map.txt
-
-run_random_max:
-	make all
-	./$(OUTPUT_NAME) $(MAPSLOC)genmap*

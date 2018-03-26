@@ -274,10 +274,10 @@ isPInRange p e = result
   where
     (px,py) = pPos p
     (ex,ey) = ePos e
-    er     = eRange e
-    rx     = abs (px - ex)
-    ry     = abs (py - ey)
-    result = (rx < er) && (ry < er)
+    er      = eRange e
+    rx      = abs (px - ex)
+    ry      = abs (py - ey)
+    result  = (rx < er) && (ry < er)
 
 --Enemy Perfet(NO) AI
 --action if Agro or in vision(set Agro)
