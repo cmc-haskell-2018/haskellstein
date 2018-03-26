@@ -66,7 +66,7 @@ createFireball
 createFireball (x,y) a d =
     Fireball
         ((x + (0.4 * cos a))
-      , (y - (0.4 * sin a))) -- fPos
+      , (y + (0.4 * sin a))) -- fPos
         a -- fRadian
         d -- fDamage
         0.4 -- fRadius
