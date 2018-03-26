@@ -23,7 +23,6 @@ MODULES = $(MODULES_NAMES:%=$(MODULES_PATH)/%.hs)
 # LIBS INFO
 SFTOOL_NAME = sftool
 SFTOOL_PATH = sftool
-LIBS_PATH = lib
 LIBS = -l$(SFTOOL_NAME) -lsfml-graphics -lsfml-window \
                         -lsfml-system -lstdc++
 
@@ -34,7 +33,7 @@ MAPSLOC = tilemaps/
 all: $(TARGET_NAME)
 
 $(TARGET_NAME):
-	$(GHC) $(GHC_FLAGS) $(MODULES) -L$(SFTOOL_PATH) -L$(LIBS_PATH) $(LIBS) \
+	$(GHC) $(GHC_FLAGS) $(MODULES) -L$(SFTOOL_PATH) $(LIBS) \
 	 -o $(OUTPUT_NAME)
 
 clean:

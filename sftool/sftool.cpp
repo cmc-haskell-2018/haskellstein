@@ -63,7 +63,7 @@ void update_workspace()
 	while(window->pollEvent(event))
 	{
 		if(event.type == sf::Event::Closed)
-			window->close();
+			exit(0);
 		if(event.type == sf::Event::KeyPressed)
 			if(event.key.code == sf::Keyboard::Escape)
 				exit(0);
@@ -71,6 +71,9 @@ void update_workspace()
 
 	delta_time = timer->getElapsedTime().asSeconds();
 	timer->restart();
+
+	raycasting_texture->display();
+	window->draw(*raycasting_scene);
 
 	//HealthBar
 	sf::RectangleShape health_shape(sf::Vector2f(0, 0));
@@ -80,10 +83,8 @@ void update_workspace()
 		HEALTH_BAR_SIZE_Y));
 	health_shape.move(sf::Vector2f(HEALTH_BAR_X / scale_factor,
 		HEALTH_BAR_Y));
-	raycasting_texture->draw(health_shape);
+	window->draw(health_shape);
 
-	raycasting_texture->display();
-	window->draw(*raycasting_scene);
 	window->display();
 
 	//Ceiling
@@ -187,8 +188,10 @@ void set_health_bar_size(int size)
 #define KEY_A 1
 #define KEY_S 2
 #define KEY_D 3
-#define KEY_I 4
-#define KEY_SPACE 5
+#define KEY_Q 4
+#define KEY_E 5
+#define KEY_I 6
+#define KEY_SPACE 7
 
 int get_key_pressed(int key_code)
 {
@@ -202,6 +205,10 @@ int get_key_pressed(int key_code)
 			return sf::Keyboard::isKeyPressed(sf::Keyboard::S);
 		case KEY_D:
 			return sf::Keyboard::isKeyPressed(sf::Keyboard::D);
+		case KEY_Q:
+			return sf::Keyboard::isKeyPressed(sf::Keyboard::Q);
+		case KEY_E:
+			return sf::Keyboard::isKeyPressed(sf::Keyboard::E);
 		case KEY_I:
 			return sf::Keyboard::isKeyPressed(sf::Keyboard::I);
 		case KEY_SPACE:
