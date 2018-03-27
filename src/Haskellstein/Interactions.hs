@@ -268,10 +268,11 @@ damageEnemy p e delta
     (tmp, cd) = eASpeed e
     delay     = case tmp of
                 Nothing   -> Nothing
-                Just time -> Just (time - delta)
-    isAReady  = case delay of
-                Nothing   -> True
-                Just time -> if (time < 0) then True else False
+                Just time -> if (time - delta < 0) then Nothing
+                             else Just (time - delta)
+    isAready  = case delay of
+                Nothing -> True
+                _       -> False
 
 --is player in vision
 isPInVision :: Player -> Enemy -> Bool
