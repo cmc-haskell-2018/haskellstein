@@ -270,7 +270,7 @@ damageEnemy p e delta
                 Nothing   -> Nothing
                 Just time -> if (time - delta < 0) then Nothing
                              else Just (time - delta)
-    isAready  = case delay of
+    isAReady  = case delay of
                 Nothing -> True
                 _       -> False
 
@@ -415,7 +415,7 @@ castPlayer p delta control
                 Nothing   -> Nothing
                 Just time -> if (time - delta < 0) then Nothing
                              else Just (time - delta)
-    isAready  = case delay of
+    isAReady  = case delay of
                 Nothing -> True
                 _       -> False
-    isAttack  = (cSpace control) && isAready
+    isAttack  = (cSpace control) && isAReady
