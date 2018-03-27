@@ -42,7 +42,8 @@ sDamageFireballs scene =
         (sControl scene)
         (sDelta scene)
   where
-    (newF, newE) = damageFireballs (sFireball scene) (sEnemy scene)
+    (newF, newE) = damageFireballs (sFireball scene)
+                                   (sEnemy scene)
 
 --all actions of enemies
 doEnemies :: Scene -> Scene
@@ -411,8 +412,9 @@ castPlayer p delta control
     (tmp, cd) = pASpeed p
     delay     = case tmp of
                 Nothing   -> Nothing
-                Just time -> Just (time - delta)
+                Just time -> if (time - delta < 0) then Nothing
+                             else Just (time - delta)
     isAready  = case delay of
-                Nothing   -> True
-                Just time -> if (time < 0) then True else False
+                Nothing -> True
+                _       -> False
     isAttack  = (cSpace control) && isAready

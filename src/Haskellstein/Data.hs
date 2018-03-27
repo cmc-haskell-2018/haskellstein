@@ -5,8 +5,10 @@ type Position = (Float, Float) -- (x,y)
 type Cooldown = (Maybe Float, Float) --(current time, cooldown)
 
 data EnemyType = Melee | Range | Mage
+    deriving (Eq)
 
 data FireballType = Small | Huge
+    deriving (Eq)
 
 type ObjectTexture = Int
 
