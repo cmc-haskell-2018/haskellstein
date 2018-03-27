@@ -11,12 +11,13 @@ data FireballType = Small | Huge
 type ObjectTexture = Int
 
 data Player = Player
-  { pPos    :: Position
-  , pRadian :: Float
-  , pHp     :: Int
-  , pSpeed  :: Float
-  , pASpeed :: Cooldown
-  , pDamage :: Int
+  { pPos            :: Position
+  , pRadian         :: Float
+  , pHp             :: Int
+  , pSpeed          :: Float
+  , pASpeed         :: Cooldown
+  , pDamage         :: Int
+  , pTurnAroundCond :: Maybe Float
   }
 
 data Fireball = Fireball
@@ -51,13 +52,14 @@ type TilemapCell = String
 type Tilemap = [[TilemapCell]]
 
 data Control = Control
-    { cForward :: Bool
-    , cLeftT   :: Bool
-    , cBack    :: Bool
-    , cRightT  :: Bool
-    , cLeftM   :: Bool
-    , cRightM  :: Bool
-    , cSpace   :: Bool
+    { cForward    :: Bool
+    , cLeftT      :: Bool
+    , cBack       :: Bool
+    , cRightT     :: Bool
+    , cLeftM      :: Bool
+    , cRightM     :: Bool
+    , cSpace      :: Bool
+    , cTurnAround :: Bool
     }
 
 data Scene = Scene

@@ -4,4 +4,5 @@ S - Move backwards
 D - Turn right
 E - Move right
 Q - Move left
+I - Fast Turn Around
 Spacebar - Cast fireball

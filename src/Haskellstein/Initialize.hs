@@ -9,10 +9,11 @@ createPlayer (y, x) =
         (((fromIntegral x) + 0.5)
       , ((fromIntegral y) + 0.5)) -- pPos
         0 -- pRadian
-        10 -- pHp
+        30 -- pHp
         2.2 -- pSpeed
         (Just 0.7, 0.7) -- pASpeed
         1 -- pDamage
+        Nothing
 
 createEnemy :: CellCoord -> EnemyType -> Enemy
 --melee
@@ -139,7 +140,7 @@ createScene tmap =
         []
         (findEnemies tmap)
         edit
-        (Control False False False False False False False)
+        (Control False False False False False False False False)
         0.00
   where
     rewrite p
