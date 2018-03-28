@@ -55,31 +55,26 @@ displayScene scene = do
 --includeInput
 updateScene :: Scene -> IO(Scene)
 updateScene scene = do
-  deltaTime     <- getDeltaTime
-  keyWState     <- getKeyPressed keyW
-  keyAState     <- getKeyPressed keyA
-  keySState     <- getKeyPressed keyS
-  keyDState     <- getKeyPressed keyD
-  keyQState     <- getKeyPressed keyQ
-  keyEState     <- getKeyPressed keyE
-  keySpaceState <- getKeyPressed keySpace
-  keyTurn       <- getKeyPressed keyI
-  let delta     = if (deltaTime > 0.1) then 0.1 else deltaTime
-  let newScene  = Scene
-                      (sPlayer scene)
-                      (sFireball scene)
-                      (sEnemy scene)
-                      (sTilemap scene)
-                      (Control
-                          (keyWState /= 0)
-                          (keyAState /= 0)
-                          (keySState /= 0)
-                          (keyDState /= 0)
-                          (keyQState /= 0)
-                          (keyEState /= 0)
-                          (keySpaceState /= 0)
-                          (keyTurn /= 0))
-                      delta
+  deltaTime      <- getDeltaTime
+  keyWState      <- getKeyPressed keyW
+  keyAState      <- getKeyPressed keyA
+  keySState      <- getKeyPressed keyS
+  keyDState      <- getKeyPressed keyD
+  keyQState      <- getKeyPressed keyQ
+  keyEState      <- getKeyPressed keyE
+  keySpaceState  <- getKeyPressed keySpace
+  keyTurn        <- getKeyPressed keyI
+  let delta      = if (deltaTime > 0.1) then 0.1 else deltaTime
+  let newControl = Control
+                       (keyWState /= 0)
+                       (keyAState /= 0)
+                       (keySState /= 0)
+                       (keyDState /= 0)
+                       (keyQState /= 0)
+                       (keyEState /= 0)
+                       (keySpaceState /= 0)
+                       (keyTurn /= 0)
+  let newScene   = scene {sControl = newControl, sDelta = delta}
   return newScene
 
 --makeInteractions

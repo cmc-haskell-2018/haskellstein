@@ -223,6 +223,36 @@ stepEnemies p (e:es) tmap delta = (retP, newE : retE)
 
 -----------------------------PLAYER_FUNCTIONS-------------------------------
 
+pMoveDir :: Control -> Float
+pMoveDir control = isForward - isBack
+  where
+    isForward = case (cForward control) of
+                False -> 0
+                True  -> 1
+    isBack    = case (cBack control) of
+                False -> 0
+                True  -> 1
+
+pMoveDirH :: Control -> Float
+pMoveDirH control = isLeft - isRight
+  where
+    isLeft  = case (cLeftM control) of
+                False -> 0
+                True  -> 1
+    isRight = case (cRightM control) of
+                False -> 0
+                True  -> 1
+
+pTurnDir :: Control -> Float
+pTurnDir control = isRight - isLeft
+  where
+    isLeft  = case (cLeftT control) of
+                False -> 0
+                True  -> 1
+    isRight = case (cRightT control) of
+                False -> 0
+                True  -> 1
+
 movePlayer
   :: Player
   -> Tilemap
@@ -240,41 +270,23 @@ movePlayerControl
   -> Control
   -> Player
 movePlayerControl p tmap delta control =
-    p {pPos = newCoord, pRadian = newA, pTurnAround = isTurn}
+    p {pPos = newCoord, pRadian = newA, pTurnAround = isTurnA}
   where
-    (px, py)  = pPos p
-    pa        = pRadian p
-    ps        = pSpeed p
-    isForward = case (cForward control) of
-                False -> 0
-                True  -> 1
-    isBack    = case (cBack control) of
-                False -> 0
-                True  -> 1
-    isLeftT   = case (cLeftT control) of
-                False -> 0
-                True  -> 1
-    isRightT  = case (cRightT control) of
-                False -> 0
-                True  -> 1
-    isLeftM   = case (cLeftM control) of
-                False -> 0
-                True  -> 1
-    isRightM  = case (cRightM control) of
-                False -> 0
-                True  -> 1
-    isTurn    = case (cTurnAround control) of
-                False -> Nothing
-                True  -> Just constPiF
-    step      = isForward - isBack
-    stepH     = isLeftM - isRightM
-    turn      = isRightT - isLeftT
-    tmpX      = px + (step * delta * ps * cos pa)
-                   + (stepH * delta * ps * cos (pa - constPiF / 2))
-    tmpY      = py + (step * delta * ps * sin pa)
-                   + (stepH * delta * ps * sin (pa - constPiF / 2))
-    newCoord  = getNewCoord (px, py) (tmpX, tmpY) tmap
-    newA      = pa + (constPiF / 3 * delta * turn)
+    (px, py) = pPos p
+    pa       = pRadian p
+    ps       = pSpeed p
+    isTurnA  = case (cTurnAround control) of
+               False -> Nothing
+               True  -> Just constPiF
+    step     = pMoveDir control
+    stepH    = pMoveDirH control
+    turn     = pTurnDir control
+    tmpX     = px + (step * delta * ps * cos pa)
+                  + (stepH * delta * ps * cos (pa - constPiF / 2))
+    tmpY     = py + (step * delta * ps * sin pa)
+                  + (stepH * delta * ps * sin (pa - constPiF / 2))
+    newCoord = getNewCoord (px, py) (tmpX, tmpY) tmap
+    newA     = pa + (constPiF / 3 * delta * turn)
 
 --move player 180
 movePlayerTurn
@@ -286,12 +298,12 @@ movePlayerTurn
 movePlayerTurn p _ delta _ = 
     p {pRadian = newA, pTurnAround = resA (pTurnAround p)}
   where
-    turnA           = delta * constPiF / turnTime
     turnTime        = 0.3
+    turnA           = delta * constPiF / turnTime
     newA            = (pRadian p) - turnA
     resA Nothing    = Nothing -- unreal case, made to avoid warnings
     resA (Just val) = case ((val - turnA) <= 0) of  
-                          True -> Nothing
+                          True  -> Nothing
                           False -> Just (val - turnA)
 
 castPlayer
