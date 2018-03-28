@@ -63,6 +63,7 @@ updateScene scene = do
   keyQState     <- getKeyPressed keyQ
   keyEState     <- getKeyPressed keyE
   keySpaceState <- getKeyPressed keySpace
+  keyTurn       <- getKeyPressed keyI
   let delta     = if (deltaTime > 0.1) then 0.1 else deltaTime
   let newScene  = Scene
                       (sPlayer scene)
@@ -76,7 +77,8 @@ updateScene scene = do
                           (keyDState /= 0)
                           (keyQState /= 0)
                           (keyEState /= 0)
-                          (keySpaceState /= 0))
+                          (keySpaceState /= 0)
+                          (keyTurn /= 0))
                       delta
   return newScene
 

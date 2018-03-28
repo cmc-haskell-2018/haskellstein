@@ -78,7 +78,7 @@ sMovePlayer scene =
         (sControl scene)
         (sDelta scene)
   where
-    newP = movePlayer (sPlayer scene)
+    newP = movePlayerWay (sPlayer scene)
                       (sTilemap scene)
                       (sDelta scene)
                       (sControl scene)
@@ -238,6 +238,7 @@ damageEnemy p e delta
             (pSpeed p)
             (pASpeed p)
             (pDamage p)
+            (pTurnAroundCond p)
       , Enemy
             (ePos e)
             (eHp e)
@@ -332,14 +333,25 @@ stepEnemies p (e:es) tmap delta = (retP, newE : retE)
 
 -----------------------------PLAYER_FUNCTIONS-------------------------------
 
---move player
-movePlayer
+
+movePlayerWay
   :: Player
   -> Tilemap
   -> Float
   -> Control
   -> Player
-movePlayer p tmap delta control
+movePlayerWay p tm delta cont
+  | pTurnAroundCond p == Nothing = movePlayer1 p tm delta cont 
+  | otherwise = movePlayer2 p tm delta cont
+
+--move player
+movePlayer1
+  :: Player
+  -> Tilemap
+  -> Float
+  -> Control
+  -> Player
+movePlayer1 p tmap delta control
   = Player
         newCoord
         newA
@@ -347,6 +359,7 @@ movePlayer p tmap delta control
         ps
         (pASpeed p)
         pd
+        isTurnAround 
   where
     (px, py)  = pPos p
     pd        = pDamage p
@@ -370,6 +383,9 @@ movePlayer p tmap delta control
     isRightM  = case (cRightM control) of
                 False -> 0
                 True  -> 1
+    isTurnAround = case (cTurnAround control) of
+                False -> Nothing
+                True  -> Just constPiF
     step      = isForward - isBack
     stepH     = isLeftM - isRightM
     turn      = isRightT - isLeftT
@@ -379,6 +395,31 @@ movePlayer p tmap delta control
                    + (stepH * delta * ps * sin (pa - constPiF / 2))
     newCoord  = getNewCoord (px, py) (tmpX, tmpY) tmap
     newA      = pa + (constPiF / 3 * delta * turn)
+
+movePlayer2
+  :: Player
+  -> Tilemap
+  -> Float
+  -> Control
+  -> Player
+movePlayer2 p _ delta _ = 
+  Player
+        (pPos p)
+        newA
+        (pHp p)
+        (pSpeed p)
+        (pASpeed p)
+        (pDamage p)
+        (resA (pTurnAroundCond p))
+  where
+    turnA = delta * constPiF / turnTime
+    turnTime = 0.3
+    newA = (pRadian p) - turnA
+
+    resA Nothing = Nothing -- unreal case, made to avoid warnings
+    resA (Just val) = case ((val - turnA) <= 0) of  
+                          True -> Nothing
+                          False -> Just (val - turnA)
 
 --implements player control
 castPlayer
@@ -394,6 +435,7 @@ castPlayer p delta control
                         (pSpeed p)
                         (Just cd, cd)
                         pd
+                        (pTurnAroundCond p)
                   , Just (createFireball
                              (px, py)
                              pa
@@ -405,6 +447,7 @@ castPlayer p delta control
                         (pSpeed p)
                         (delay, cd)
                         pd
+                        (pTurnAroundCond p)
                   , Nothing)
   where
     (px, py)  = pPos p
