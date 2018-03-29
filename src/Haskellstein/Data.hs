@@ -72,3 +72,6 @@ data Scene = Scene
     , sControl  :: Control
     , sDelta    :: Float
     }
+
+data GameEnd = Victory | Defeat | Continue
+    deriving (Eq)

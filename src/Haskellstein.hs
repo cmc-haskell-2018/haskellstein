@@ -27,23 +27,29 @@ start = do
           (windowWidth, windowHeight, windowTitle,
             windowFrameLimit, scaleFactor)
           (wallTexturePath, enemyTexturePath, spriteTexturePath)
-        greatCycle (Just (createScene . createTilemap $ tilemap))
+        greatCycle (createScene . createTilemap $ tilemap)
                    stepScene
                    updateScene
+                   endCheck
                    displayScene
 
 --GameLoop
 greatCycle
-  :: Maybe a --object
-  -> (a -> Maybe a) --stepObject
-  -> (a -> IO(a)) --updateObject
+  :: a --object
+  -> (a -> a) --stepObject
+  -> (a -> Control -> Float -> a) --getControlAndDelta
+  -> (a -> GameEnd) --checkEndCondition
   -> (a -> IO()) --drawObject
   -> IO()
-greatCycle Nothing _ _ _                 = putStrLn "GameOver"
-greatCycle (Just scene) step update draw = do
-  draw scene
-  updatedScene <- update scene
-  greatCycle (step updatedScene) step update draw
+greatCycle scene step update end draw =
+  if ((end scene) == Victory) then putStrLn "Victory"
+  else if ((end scene) == Defeat) then putStrLn "Defeat"
+  else do
+      draw scene
+      control      <- getControl
+      delta        <- getDelta
+      let newScene = step $ update scene control delta
+      greatCycle newScene step update end draw
 
 --visualizeScene
 displayScene :: Scene -> IO()
@@ -52,10 +58,9 @@ displayScene scene = do
   drawScene scene
   updateWorkspace
 
---includeInput
-updateScene :: Scene -> IO(Scene)
-updateScene scene = do
-  deltaTime      <- getDeltaTime
+--read pushed keys
+getControl :: IO(Control)
+getControl = do
   keyWState      <- getKeyPressed keyW
   keyAState      <- getKeyPressed keyA
   keySState      <- getKeyPressed keyS
@@ -64,7 +69,6 @@ updateScene scene = do
   keyEState      <- getKeyPressed keyE
   keySpaceState  <- getKeyPressed keySpace
   keyTurn        <- getKeyPressed keyI
-  let delta      = if (deltaTime > 0.1) then 0.1 else deltaTime
   let newControl = Control
                        (keyWState /= 0)
                        (keyAState /= 0)
@@ -74,14 +78,26 @@ updateScene scene = do
                        (keyEState /= 0)
                        (keySpaceState /= 0)
                        (keyTurn /= 0)
-  let newScene   = scene {sControl = newControl, sDelta = delta}
-  return newScene
+  return newControl
+
+--get delta time
+getDelta :: IO(Float)
+getDelta = do
+  deltaTime <- getDeltaTime
+  let delta = if (deltaTime > 0.1) then 0.1 else deltaTime
+  return delta
+
+--addExternalData
+updateScene :: Scene -> Control -> Float -> Scene
+updateScene scene control delta = scene {sControl = control, sDelta = delta}
 
 --makeInteractions
-stepScene :: Scene -> Maybe Scene
-stepScene scene =
-  if (((pHp . sPlayer $ scene) <= 0) || (null . sEnemy $ scene))
-      then
-        Nothing
-      else
-        Just (doInteractions scene)
+endCheck :: Scene -> GameEnd
+endCheck scene =
+  if ((pHp . sPlayer $ scene) <= 0) then Defeat
+  else if (null . sEnemy $ scene) then Victory
+       else Continue
+
+--makeInteractions
+stepScene :: Scene -> Scene
+stepScene scene = doInteractions scene
