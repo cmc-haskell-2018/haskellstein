@@ -7,7 +7,7 @@ type Cooldown = (Maybe Float, Float) --(current time, cooldown)
 data EnemyType = Melee | Range | Mage
     deriving (Eq)
 
-data FireballType = Small | Huge
+data FireballType = Small | Frost
     deriving (Eq)
 
 type ObjectTexture = Int
@@ -29,6 +29,8 @@ data Fireball = Fireball
   , fRadius :: Float
   , fSpeed  :: Float
   , fModel  :: FireballType
+  , fTex    :: ObjectTexture
+  , fAnim   :: Cooldown
   }
 
 data Enemy = Enemy

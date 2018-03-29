@@ -43,4 +43,4 @@ getSpriteFromEnemy enemy =
 getSpriteFromFireball :: Fireball -> Sprite
 getSpriteFromFireball fireball =
   (realToFrac $ fst $ fPos fireball, realToFrac $ snd $fPos fireball,
-    0, spriteTexture, 0, 0)
+    fTex fireball, spriteTexture, 0, 0)

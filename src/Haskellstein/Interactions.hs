@@ -16,7 +16,14 @@ doInteractions = doEnemies . doFireballs . doPlayer
 
 --all actions of fireballs
 doFireballs :: Scene -> Scene
-doFireballs = sMoveFireballs . sDamageFireballs
+doFireballs = sAnimationFireballs . sMoveFireballs . sDamageFireballs
+
+--shell
+sAnimationFireballs :: Scene -> Scene
+sAnimationFireballs scene = scene {sFireball = retF}
+  where
+    retF = animationFireballs (sFireball scene)
+                              (sDelta scene)
 
 --shell
 sMoveFireballs :: Scene -> Scene
@@ -148,6 +155,31 @@ damageFireball f (e:es)
     rx            = abs (fx - ex)
     ry            = abs (fy - ey)
     (newF, retE)  = damageFireball f es
+
+--Animation of fireballs
+animationFireballs :: [Fireball] -> Float -> [Fireball]
+animationFireballs [] _         = []
+animationFireballs (f:fs) delta = newF : retF
+  where
+    newF = animationFireball f delta
+    retF = animationFireballs fs delta
+
+--Animation of fireball
+animationFireball :: Fireball -> Float -> Fireball
+animationFireball f delta
+    | delay == Nothing = f {fAnim = (Just cd, cd), fTex = (swapFT $ fTex f)}
+    | otherwise        = f {fAnim = (delay, cd)}
+  where
+    (tmp, cd) = fAnim f
+    delay     = case tmp of
+                Nothing   -> Nothing
+                Just time -> if (time - delta < 0) then Nothing
+                             else Just (time - delta)
+
+--swapFireballTexture
+swapFT :: ObjectTexture -> ObjectTexture
+swapFT 2 = 3
+swapFT _ = 2
 
 -------------------------------ENEMY_FUNCTIONS------------------------------
 
