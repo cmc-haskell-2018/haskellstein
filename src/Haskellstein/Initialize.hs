@@ -73,6 +73,8 @@ createFireball (x,y) a d =
         0.4 -- fRadius
         7.0 -- fSpeed
         Small -- fModel
+        2
+        (Just 0.1, 0.1)
 
 --split string by symbol
 splitString :: Char -> String -> (String, String)

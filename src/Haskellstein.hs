@@ -22,7 +22,7 @@ start = do
           scaleFactor       = 1
           wallTexturePath   = "data/textures/wall.png"
           enemyTexturePath  = "data/textures/enemy.png"
-          spriteTexturePath = "data/textures/sprite.png"
+          spriteTexturePath = "data/textures/sprite1.png"
         tilemap             <- readFile . head $ args
         initWorkspace
           (windowWidth, windowHeight, windowTitle,
