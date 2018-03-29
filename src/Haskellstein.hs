@@ -5,6 +5,7 @@ import Haskellstein.Sftool
 import Haskellstein.Raycaster
 import Haskellstein.Initialize
 import Haskellstein.Data
+import Haskellstein.Picture
 import Haskellstein.Interactions
 
 start :: IO()
@@ -31,7 +32,7 @@ start = do
                    stepScene
                    updateScene
                    endCheck
-                   displayScene
+                   makePicture
 
 --GameLoop
 greatCycle
@@ -39,23 +40,23 @@ greatCycle
   -> (a -> a) --stepObject
   -> (a -> Control -> Float -> a) --getControlAndDelta
   -> (a -> GameEnd) --checkEndCondition
-  -> (a -> IO()) --drawObject
+  -> (a -> Picture) --drawObject
   -> IO()
-greatCycle scene step update end draw =
+greatCycle scene step update end picture =
   if ((end scene) == Victory) then putStrLn "Victory"
   else if ((end scene) == Defeat) then putStrLn "Defeat"
   else do
-      draw scene
+      displayPicture $ picture $ scene
       control      <- getControl
       delta        <- getDelta
       let newScene = step $ update scene control delta
-      greatCycle newScene step update end draw
+      greatCycle newScene step update end picture
 
 --visualizeScene
-displayScene :: Scene -> IO()
-displayScene scene = do
-  setHealthBarSize $ pHp $ sPlayer scene
-  drawScene scene
+displayPicture :: Picture -> IO()
+displayPicture picture = do
+  setHealthBarSize (piHp picture)
+  drawScene picture
   updateWorkspace
 
 --read pushed keys

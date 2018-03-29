@@ -14,6 +14,7 @@ MODULES_NAMES = Main Haskellstein \
  Haskellstein/Raycasting/Spritecaster \
  Haskellstein/Raycasting/Rayconsts \
  Haskellstein/Data \
+ Haskellstein/Picture \
  Haskellstein/CheckMap \
  Haskellstein/Initialize \
  Haskellstein/Interactions
