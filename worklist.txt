@@ -1,5 +1,1 @@
 2 end screens (Victory, Lose)
-Data
-Checkmap
-Initialize
-Interactions

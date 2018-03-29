@@ -16,16 +16,18 @@ doInteractions = doEnemies . doFireballs . doPlayer
 
 --all actions of fireballs
 doFireballs :: Scene -> Scene
-doFireballs = sStepFireballs . sDamageFireballs
+doFireballs = sMoveFireballs . sDamageFireballs
 
-sStepFireballs :: Scene -> Scene
-sStepFireballs scene =
+--shell
+sMoveFireballs :: Scene -> Scene
+sMoveFireballs scene =
     scene {sFireball = newF, sTilemap = newTmap}
   where
-    (newF, newTmap) = stepFireballs (sFireball scene)
+    (newF, newTmap) = moveFireballs (sFireball scene)
                                     (sTilemap scene)
                                     (sDelta scene)
 
+--shell
 sDamageFireballs :: Scene -> Scene
 sDamageFireballs scene =
     scene {sFireball = newF, sEnemy = newE}
@@ -35,21 +37,32 @@ sDamageFireballs scene =
 
 --all actions of enemies
 doEnemies :: Scene -> Scene
-doEnemies = sStepEnemies
+doEnemies = sDamageEnemies . sMoveEnemies
 
-sStepEnemies :: Scene -> Scene
-sStepEnemies scene =
+--shell
+sMoveEnemies :: Scene -> Scene
+sMoveEnemies scene =
+    scene {sEnemy = newE}
+  where
+    newE = moveEnemies (sPlayer scene)
+                       (sEnemy scene)
+                       (sTilemap scene)
+                       (sDelta scene)
+
+--shell
+sDamageEnemies :: Scene -> Scene
+sDamageEnemies scene =
     scene {sPlayer = newP, sEnemy = newE}
   where
-    (newP, newE) = stepEnemies (sPlayer scene)
-                               (sEnemy scene)
-                               (sTilemap scene)
-                               (sDelta scene)
+    (newP, newE) = damageEnemies (sPlayer scene)
+                                 (sEnemy scene)
+                                 (sDelta scene)
 
 --all actions of player
 doPlayer :: Scene -> Scene
 doPlayer = sCastPlayer . sMovePlayer
 
+--shell
 sMovePlayer :: Scene -> Scene
 sMovePlayer scene =
     scene {sPlayer = newP}
@@ -59,6 +72,7 @@ sMovePlayer scene =
                       (sDelta scene)
                       (sControl scene)
 
+--shell
 sCastPlayer :: Scene -> Scene
 sCastPlayer scene = case isFireball of
     Nothing ->
@@ -73,18 +87,18 @@ sCastPlayer scene = case isFireball of
 ------------------------FIREBALL_FUNCTIONS----------------------------------
 
 --move fireballs
-stepFireballs :: [Fireball] -> Tilemap -> Float -> ([Fireball], Tilemap)
-stepFireballs [] tmap _         = ([], tmap)
-stepFireballs (f:fs) tmap delta = case newF of
+moveFireballs :: [Fireball] -> Tilemap -> Float -> ([Fireball], Tilemap)
+moveFireballs [] tmap _         = ([], tmap)
+moveFireballs (f:fs) tmap delta = case newF of
     Nothing       -> (newFs, retTmap)
     Just fireball -> (fireball : newFs, retTmap)
   where
-    (newF, newTmap)  = stepFireball f tmap delta
-    (newFs, retTmap) = stepFireballs fs newTmap delta
+    (newF, newTmap)  = moveFireball f tmap delta
+    (newFs, retTmap) = moveFireballs fs newTmap delta
 
 --move fireball
-stepFireball :: Fireball -> Tilemap -> Float -> (Maybe Fireball, Tilemap)
-stepFireball f tmap delta = case cond of
+moveFireball :: Fireball -> Tilemap -> Float -> (Maybe Fireball, Tilemap)
+moveFireball f tmap delta = case cond of
     Free         -> (Just (f {fPos = (newX, newY)}), tmap)
     Blocked      -> (Nothing, tmap)
     Destructible -> (Nothing, removeDO tmap newCoord)
@@ -141,45 +155,6 @@ myCos :: Float -> Float -> Float
 myCos _ 0 = 1
 myCos a b = a/b
 
---need to move closer?
-moveEnemy :: Player -> Enemy -> Tilemap -> Float -> Enemy
-moveEnemy p e tmap delta
-    | (isPInRange p e) = e
-    | otherwise        = moveEnemy2 p e tmap delta
-
---moves Enemy to Player
-moveEnemy2 :: Player -> Enemy -> Tilemap -> Float -> Enemy
-moveEnemy2 p e tmap delta =
-    e {ePos = newCoord}
-  where
-    (px, py) = pPos p
-    (ex, ey) = ePos e
-    es       = eSpeed e
-    rx       = (px - ex)
-    ry       = (py - ey)
-    cosAlpha = myCos rx (sqrt ((rx * rx) + (ry * ry)))
-    sinAlpha = (sqrt (1 - (cosAlpha * cosAlpha))) * signum ry
-    newX     = ex + (delta * es * cosAlpha)
-    newY     = ey + (delta * es * sinAlpha)
-    newCoord = getNewCoord (ex, ey) (newX, newY) tmap
-
---Enemy deal Damage
-damageEnemy :: Player -> Enemy -> Float -> (Player, Enemy)
-damageEnemy p e delta
-    | isRange, isAReady = (p {pHp = newHp}, e {eASpeed = (Just cd, cd)})
-    | otherwise         = (p, e {eASpeed = (delay, cd)})
-  where
-    isRange   = isPInRange p e
-    newHp     = (pHp p) - (eDamage e)
-    (tmp, cd) = eASpeed e
-    delay     = case tmp of
-                Nothing   -> Nothing
-                Just time -> if (time - delta < 0) then Nothing
-                             else Just (time - delta)
-    isAReady  = case delay of
-                Nothing -> True
-                _       -> False
-
 --is player in vision
 isPInVision :: Player -> Enemy -> Bool
 isPInVision p e = result
@@ -202,27 +177,73 @@ isPInRange p e = result
     ry      = abs (py - ey)
     result  = (rx < er) && (ry < er)
 
---Enemy Perfet(NO) AI
---action if Agro or in vision(set Agro)
-stepEnemy :: Player -> Enemy -> Tilemap -> Float -> (Player, Enemy)
-stepEnemy p e tmap delta
-    | agro      = damageEnemy p (moveEnemy p e tmap delta) delta
-    | isVision  = damageEnemy p (moveEnemy p (e {eAgro = True}) tmap delta) delta
-    | otherwise = (p, e)
+--enemies movement
+moveEnemies :: Player -> [Enemy] -> Tilemap -> Float -> [Enemy]
+moveEnemies _ [] _ _            = []
+moveEnemies p (e:es) tmap delta = retE : restE
   where
-    isVision = isPInVision p e
-    agro     = eAgro e
+    retE  = moveEnemy p e tmap delta
+    restE = moveEnemies p es tmap delta
 
---Enemies Perfect(NO) AI
-stepEnemies :: Player -> [Enemy] -> Tilemap -> Float -> (Player, [Enemy])
-stepEnemies p [] _ _            = (p, [])
-stepEnemies p (e:es) tmap delta = (retP, newE : retE)
+--moveCheck
+moveEnemy :: Player -> Enemy -> Tilemap -> Float -> Enemy
+moveEnemy p e tmap delta
+    | isRange, agro   = retE --already near
+    | agro            = moveEnemy2 p retE tmap delta
+    | otherwise       = retE
   where
-  (newP, newE) = stepEnemy p e tmap delta
-  (retP, retE) = stepEnemies newP es tmap delta
+    isRange  = isPInRange p e
+    isVision = isPInVision p e
+    retE     = if isVision then e {eAgro = True}
+               else e
+    agro     = eAgro retE
+
+--moves Enemy to Player
+moveEnemy2 :: Player -> Enemy -> Tilemap -> Float -> Enemy
+moveEnemy2 p e tmap delta =
+    e {ePos = newCoord}
+  where
+    (px, py) = pPos p
+    (ex, ey) = ePos e
+    es       = eSpeed e
+    rx       = (px - ex)
+    ry       = (py - ey)
+    cosAlpha = myCos rx (sqrt ((rx * rx) + (ry * ry)))
+    sinAlpha = (sqrt (1 - (cosAlpha * cosAlpha))) * signum ry
+    newX     = ex + (delta * es * cosAlpha)
+    newY     = ey + (delta * es * sinAlpha)
+    newCoord = getNewCoord (ex, ey) (newX, newY) tmap
+
+--enemies attack phase
+damageEnemies :: Player -> [Enemy] -> Float -> (Player, [Enemy])
+damageEnemies p [] _         = (p, [])
+damageEnemies p (e:es) delta = (retP, newE : retE)
+  where
+    (newP, newE) = damageEnemy p e delta
+    (retP, retE) = damageEnemies newP es delta
+
+--Enemy deal Damage
+damageEnemy :: Player -> Enemy -> Float -> (Player, Enemy)
+damageEnemy p e delta
+    | isRange, isAReady, agro = (p {pHp = newHp}
+                              , e {eASpeed = (Just cd, cd)})
+    | otherwise               = (p, e {eASpeed = (delay, cd)})
+  where
+    isRange   = isPInRange p e
+    agro      = eAgro e
+    newHp     = (pHp p) - (eDamage e)
+    (tmp, cd) = eASpeed e
+    delay     = case tmp of
+                Nothing   -> Nothing
+                Just time -> if (time - delta < 0) then Nothing
+                             else Just (time - delta)
+    isAReady  = case delay of
+                Nothing -> True
+                _       -> False
 
 -----------------------------PLAYER_FUNCTIONS-------------------------------
 
+--whereToMove
 pMoveDir :: Control -> Float
 pMoveDir control = isForward - isBack
   where
@@ -233,6 +254,7 @@ pMoveDir control = isForward - isBack
                 False -> 0
                 True  -> 1
 
+--whereToMoveH
 pMoveDirH :: Control -> Float
 pMoveDirH control = isLeft - isRight
   where
@@ -243,6 +265,7 @@ pMoveDirH control = isLeft - isRight
                 False -> 0
                 True  -> 1
 
+--whereToTurn
 pTurnDir :: Control -> Float
 pTurnDir control = isRight - isLeft
   where
@@ -253,16 +276,18 @@ pTurnDir control = isRight - isLeft
                 False -> 0
                 True  -> 1
 
+--changePlayerPos
 movePlayer
   :: Player
   -> Tilemap
   -> Float
   -> Control
   -> Player
-movePlayer p
-  | pTurnAround p == Nothing = movePlayerControl p
-  | otherwise                = movePlayerTurn p
+movePlayer p tm delta control
+  | pTurnAround p == Nothing = movePlayerControl p tm delta control
+  | otherwise                = movePlayerTurn p delta
 
+--changePosByControl
 movePlayerControl
   :: Player
   -> Tilemap
@@ -288,14 +313,12 @@ movePlayerControl p tmap delta control =
     newCoord = getNewCoord (px, py) (tmpX, tmpY) tmap
     newA     = pa + (constPiF / 3 * delta * turn)
 
---move player 180
+--changePosByAnimation
 movePlayerTurn
   :: Player
-  -> Tilemap
   -> Float
-  -> Control
   -> Player
-movePlayerTurn p _ delta _ = 
+movePlayerTurn p delta =
     p {pRadian = newA, pTurnAround = resA (pTurnAround p)}
   where
     turnTime        = 0.3
@@ -306,6 +329,7 @@ movePlayerTurn p _ delta _ =
                           True  -> Nothing
                           False -> Just (val - turnA)
 
+--playerSpellCast
 castPlayer
   :: Player
   -> Float
