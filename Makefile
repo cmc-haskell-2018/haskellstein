@@ -14,6 +14,7 @@ MODULES_NAMES = Main Haskellstein \
  Haskellstein/Raycasting/Spritecaster \
  Haskellstein/Raycasting/Rayconsts \
  Haskellstein/Data \
+ Haskellstein/Picture \
  Haskellstein/CheckMap \
  Haskellstein/Initialize \
  Haskellstein/Interactions
@@ -56,8 +57,8 @@ force:
 
 run:
 	make all
-	LD_LIBRARY_PATH=lib ./$(OUTPUT_NAME) $(MAPSLOC)first_map.txt
+	./$(OUTPUT_NAME) $(MAPSLOC)first_map.txt
 
 run_random:
 	make all
-	LD_LIBRARY_PATH=lib ./$(OUTPUT_NAME) $(MAPSLOC)genmap*
+	./$(OUTPUT_NAME) $(MAPSLOC)genmap*

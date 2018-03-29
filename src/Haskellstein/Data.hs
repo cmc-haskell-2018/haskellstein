@@ -13,13 +13,13 @@ data FireballType = Small | Huge
 type ObjectTexture = Int
 
 data Player = Player
-  { pPos            :: Position
-  , pRadian         :: Float
-  , pHp             :: Int
-  , pSpeed          :: Float
-  , pASpeed         :: Cooldown
-  , pDamage         :: Int
-  , pTurnAroundCond :: Maybe Float
+  { pPos        :: Position
+  , pRadian     :: Float
+  , pHp         :: Int
+  , pSpeed      :: Float
+  , pASpeed     :: Cooldown
+  , pDamage     :: Int
+  , pTurnAround :: Maybe Float
   }
 
 data Fireball = Fireball
@@ -72,3 +72,6 @@ data Scene = Scene
     , sControl  :: Control
     , sDelta    :: Float
     }
+
+data GameEnd = Victory | Defeat | Continue
+    deriving (Eq)

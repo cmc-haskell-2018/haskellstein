@@ -5,6 +5,7 @@ import Haskellstein.Sftool
 import Haskellstein.Raycaster
 import Haskellstein.Initialize
 import Haskellstein.Data
+import Haskellstein.Picture
 import Haskellstein.Interactions
 
 start :: IO()
@@ -27,66 +28,77 @@ start = do
           (windowWidth, windowHeight, windowTitle,
             windowFrameLimit, scaleFactor)
           (wallTexturePath, enemyTexturePath, spriteTexturePath)
-        greatCycle (Just (createScene . createTilemap $ tilemap))
+        greatCycle (createScene . createTilemap $ tilemap)
                    stepScene
                    updateScene
-                   displayScene
+                   endCheck
+                   makePicture
 
 --GameLoop
 greatCycle
-  :: Maybe a --object
-  -> (a -> Maybe a) --stepObject
-  -> (a -> IO(a)) --updateObject
-  -> (a -> IO()) --drawObject
+  :: a --object
+  -> (a -> a) --stepObject
+  -> (a -> Control -> Float -> a) --getControlAndDelta
+  -> (a -> GameEnd) --checkEndCondition
+  -> (a -> Picture) --drawObject
   -> IO()
-greatCycle Nothing _ _ _                 = putStrLn "GameOver"
-greatCycle (Just scene) step update draw = do
-  draw scene
-  updatedScene <- update scene
-  greatCycle (step updatedScene) step update draw
+greatCycle scene step update end picture =
+  if ((end scene) == Victory) then putStrLn "Victory"
+  else if ((end scene) == Defeat) then putStrLn "Defeat"
+  else do
+      displayPicture $ picture $ scene
+      control      <- getControl
+      delta        <- getDelta
+      let newScene = step $ update scene control delta
+      greatCycle newScene step update end picture
 
 --visualizeScene
-displayScene :: Scene -> IO()
-displayScene scene = do
-  setHealthBarSize $ pHp $ sPlayer scene
-  drawScene scene
+displayPicture :: Picture -> IO()
+displayPicture picture = do
+  setHealthBarSize (piHp picture)
+  drawScene picture
   updateWorkspace
 
---includeInput
-updateScene :: Scene -> IO(Scene)
-updateScene scene = do
-  deltaTime     <- getDeltaTime
-  keyWState     <- getKeyPressed keyW
-  keyAState     <- getKeyPressed keyA
-  keySState     <- getKeyPressed keyS
-  keyDState     <- getKeyPressed keyD
-  keyQState     <- getKeyPressed keyQ
-  keyEState     <- getKeyPressed keyE
-  keySpaceState <- getKeyPressed keySpace
-  keyTurn       <- getKeyPressed keyI
-  let delta     = if (deltaTime > 0.1) then 0.1 else deltaTime
-  let newScene  = Scene
-                      (sPlayer scene)
-                      (sFireball scene)
-                      (sEnemy scene)
-                      (sTilemap scene)
-                      (Control
-                          (keyWState /= 0)
-                          (keyAState /= 0)
-                          (keySState /= 0)
-                          (keyDState /= 0)
-                          (keyQState /= 0)
-                          (keyEState /= 0)
-                          (keySpaceState /= 0)
-                          (keyTurn /= 0))
-                      delta
-  return newScene
+--read pushed keys
+getControl :: IO(Control)
+getControl = do
+  keyWState      <- getKeyPressed keyW
+  keyAState      <- getKeyPressed keyA
+  keySState      <- getKeyPressed keyS
+  keyDState      <- getKeyPressed keyD
+  keyQState      <- getKeyPressed keyQ
+  keyEState      <- getKeyPressed keyE
+  keySpaceState  <- getKeyPressed keySpace
+  keyTurn        <- getKeyPressed keyI
+  let newControl = Control
+                       (keyWState /= 0)
+                       (keyAState /= 0)
+                       (keySState /= 0)
+                       (keyDState /= 0)
+                       (keyQState /= 0)
+                       (keyEState /= 0)
+                       (keySpaceState /= 0)
+                       (keyTurn /= 0)
+  return newControl
+
+--get delta time
+getDelta :: IO(Float)
+getDelta = do
+  deltaTime <- getDeltaTime
+  let delta = if (deltaTime > 0.1) then 0.1 else deltaTime
+  return delta
+
+--addExternalData
+updateScene :: Scene -> Control -> Float -> Scene
+updateScene scene control delta = scene {sControl = control, sDelta = delta}
 
 --makeInteractions
-stepScene :: Scene -> Maybe Scene
-stepScene scene =
-  if (((pHp . sPlayer $ scene) <= 0) || (null . sEnemy $ scene))
-      then
-        Nothing
-      else
-        Just (doInteractions scene)
+endCheck :: Scene -> GameEnd
+endCheck scene =
+  if ((pHp . sPlayer $ scene) <= 0) then Defeat
+  else if (null . sEnemy $ scene) then Victory
+       else Continue
+
+--makeInteractions
+stepScene :: Scene -> Scene
+stepScene scene = doInteractions scene
