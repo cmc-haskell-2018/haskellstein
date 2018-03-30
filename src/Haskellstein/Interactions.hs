@@ -4,6 +4,7 @@ import Prelude
 import Haskellstein.Data
 import Haskellstein.CheckMap
 import Haskellstein.Initialize
+import Haskellstein.Texconsts
 
 constPiF :: Float
 constPiF = 3.141592
@@ -178,8 +179,10 @@ animationFireball f delta
 
 --swapFireballTexture
 swapFT :: ObjectTexture -> ObjectTexture
-swapFT 2 = 3
-swapFT _ = 2
+swapFT tex
+    | tex == fireballTex1 = fireballTex2
+    | tex == fireballTex2 = fireballTex1
+    | otherwise           = fireballTex1
 
 -------------------------------ENEMY_FUNCTIONS------------------------------
 
