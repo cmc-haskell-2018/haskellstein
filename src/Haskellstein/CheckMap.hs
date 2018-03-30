@@ -61,7 +61,7 @@ getNewCoord (px,py) (newX,newY) tmap =
 changeTextures :: Tilemap -> TexTimer -> Float -> (Tilemap, TexTimer)
 changeTextures tm t delta =
   case t of
-    Nothing  -> (map (map (chT)) tm, Just 1.2)
+    Nothing  -> (map (map (chT)) tm, Just texCooldown)
     Just val -> (tm, newt val)
 
     where
@@ -74,6 +74,5 @@ changeTextures tm t delta =
         "b00" -> "b01"
         "b01" -> "b02"
         "b02" -> "b03"
-        "b03" -> "b04"
-        "b04" -> "b00"
+        "b03" -> "b00"
         _     -> c
