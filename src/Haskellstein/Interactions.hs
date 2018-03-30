@@ -246,6 +246,13 @@ changeTexEnemies (e:es) delta = newE : retE
     newE = changeTexEnemy e delta
     retE = changeTexEnemies es delta
 
+--if tex is attackTex
+checkAttackTex :: ObjectTexture -> Bool
+checkAttackTex tex
+  | tex == meleeTexAttack = True
+  | tex == rangeTexAttack = True
+  | otherwise             = False
+
 -- change enemy texture
 changeTexEnemy :: Enemy -> Float -> Enemy
 changeTexEnemy e delta
@@ -257,7 +264,9 @@ changeTexEnemy e delta
                 Nothing   -> Nothing
                 Just time -> if (time - delta < 0) then Nothing
                              else Just (time - delta)
-    delay     = if (eAgro e) then delayTmp else tmp
+    delay     = if (eAgro e) && ((eMoved e) || checkAttackTex (eTex e))
+                  then delayTmp
+                  else tmp
 
 myCos :: Float -> Float -> Float
 myCos _ 0 = 1
@@ -302,14 +311,14 @@ moveEnemy p e tmap delta
   where
     isRange  = isPInRange p e
     isVision = isPInVision p e
-    retE     = if isVision then e {eAgro = True}
-               else e
+    retE     = if isVision then e {eAgro = True, eMoved = False}
+               else e {eMoved = False}
     agro     = eAgro retE
 
 --moves Enemy to Player
 moveEnemy2 :: Player -> Enemy -> Tilemap -> Float -> Enemy
 moveEnemy2 p e tmap delta =
-    e {ePos = newCoord}
+    e {ePos = newCoord, eMoved = True}
   where
     (px, py) = pPos p
     (ex, ey) = ePos e
@@ -334,9 +343,12 @@ damageEnemies p (e:es) delta = (retP, newE : retE)
 damageEnemy :: Player -> Enemy -> Float -> (Player, Enemy)
 damageEnemy p e delta
     | isRange, isAReady, agro = (p {pHp = newHp}
-                              , e {eASpeed = (Just cd, cd)})
+                              , e {eASpeed = (Just cd, cd)
+                                , eAnim = (Just (2 * cdA), cdA)
+                                , eTex = setAT (eTex e)})
     | otherwise               = (p, e {eASpeed = (delay, cd)})
   where
+    (_, cdA)  = eAnim e
     isRange   = isPInRange p e
     agro      = eAgro e
     newHp     = (pHp p) - (eDamage e)

@@ -45,6 +45,7 @@ data Enemy = Enemy
   , eVision :: Float
   , eAgro   :: Bool
   , eAnim   :: Cooldown
+  , eMoved  :: Bool
   }
 
 data CellCond = Blocked | Free | Destructible
