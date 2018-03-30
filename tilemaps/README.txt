@@ -25,6 +25,6 @@ START POSITIONS
 SPRITES
 {
   i** Item -- ** - item type
-  b** Background -- ** - texture number, b00 - level end
+  b** Background -- ** - texture number, b [00..04] - level end
   o** Object -- ** - texture number
 }
