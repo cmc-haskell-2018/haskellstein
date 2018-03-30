@@ -44,6 +44,7 @@ data Enemy = Enemy
   , eTex    :: ObjectTexture
   , eVision :: Float
   , eAgro   :: Bool
+  , eAnim   :: Cooldown
   }
 
 data CellCond = Blocked | Free | Destructible

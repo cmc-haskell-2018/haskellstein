@@ -31,6 +31,7 @@ createEnemy (y, x) Melee =
         meleeTex1 -- eTex
         7 -- eVision
         False -- eAgro
+        (Just 0.2, 0.2) -- eAnim
 --range
 createEnemy (y, x) Range =
     Enemy
@@ -45,6 +46,7 @@ createEnemy (y, x) Range =
         rangeTex1 -- eTex
         0.5 -- eVision
         False -- eAgro
+        (Just 0.2, 0.2) -- eAnim
 --spike
 createEnemy (y, x) Mage =
     Enemy
@@ -59,6 +61,7 @@ createEnemy (y, x) Mage =
         1 -- eTex
         32 -- eVision
         False -- eAgro
+        (Just 0.2, 0.2) -- eAnim
 
 createFireball
   :: Position

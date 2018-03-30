@@ -186,6 +186,37 @@ swapFT tex
 
 -------------------------------ENEMY_FUNCTIONS------------------------------
 
+--set attack texture
+setAT : ObjectTexture -> ObjectTexture
+setAT tex
+  | tex == meleeTex1 = meleeTexAttack
+  | tex == meleeTex2 = meleeTexAttack
+  | tex == meleeTex3 = meleeTexAttack
+  | tex == meleeTex4 = meleeTexAttack
+  | tex == rangeTex1 = rangeTexAttack
+  | tex == rangeTex2 = rangeTexAttack
+  | otherwise        = meleeTexAttack
+
+--swap enemy texture
+swapET :: ObjectTexture -> ObjectTexture
+swapET tex
+  | tex == meleeTexAttack = meleeTex1
+  | tex == rangeTexAttack = rangeTex1
+  | tex == meleeTex1      = meleeTex2
+  | tex == meleeTex2      = meleeTex3
+  | tex == meleeTex3      = meleeTex4
+  | tex == meleeTex4      = meleeTex1
+  | tex == rangeTex1      = rangeTex2
+  | tex == rangeTex2      = rangeTex1
+  | tex == meleeTexDeath1 = meleeTexDeath2
+  | tex == meleeTexDeath2 = meleeTexDeath3
+  | tex == meleeTexDeath3 = meleeTexDeath4
+  | tex == meleeTexDeath4 = meleeTexDeath4
+  | tex == rangeTexDeath1 = rangeTexDeath2
+  | tex == rangeTexDeath2 = rangeTexDeath3
+  | tex == rangeTexDeath3 = rangeTexDeath3
+  | otherwise             = meleeTex1
+
 myCos :: Float -> Float -> Float
 myCos _ 0 = 1
 myCos a b = a/b
