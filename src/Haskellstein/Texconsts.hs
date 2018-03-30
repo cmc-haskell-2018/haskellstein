@@ -19,7 +19,7 @@ rangeTexDeath :: Int
 rangeTexDeath = 1
 
 fireballTex1 :: Int
-fireballTex1 = 2
+fireballTex1 = 5
 
 fireballTex2 :: Int
-fireballTex2 = 3
+fireballTex2 = 6
