@@ -78,10 +78,8 @@ data Scene = Scene
     }
 
 data TexCond  = Phase1 | Phase2 | Phase3 | Phase4
-type TexTimer = Maybe Float
 
-texCooldown :: Float
-texCooldown = 1.2
+type TexTimer = Maybe Float
 
 data GameEnd = Victory | Defeat | Continue
     deriving (Eq)

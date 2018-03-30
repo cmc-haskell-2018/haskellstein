@@ -1,5 +1,8 @@
 module Haskellstein.Texconsts where
 
+texCooldown :: Float
+texCooldown = 0.15
+
 meleeTex1 :: Int
 meleeTex1 = 0
 

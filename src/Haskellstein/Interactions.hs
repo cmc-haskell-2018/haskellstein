@@ -35,7 +35,8 @@ sTexture :: Scene -> Scene
 sTexture scene =
     scene {sTextureCond = newTc, sTilemap = newTmap}
   where
-    (newTmap, newTc) = changeTextures (sTilemap scene) (sTextureCond scene)
+    (newTmap, newTc) = changeTextures (sTilemap scene)
+                                      (sTextureCond scene)
                                       (sDelta scene)
 
 --shell
@@ -199,7 +200,7 @@ swapFT tex
 -------------------------------ENEMY_FUNCTIONS------------------------------
 
 --set attack texture
-setAT : ObjectTexture -> ObjectTexture
+setAT :: ObjectTexture -> ObjectTexture
 setAT tex
   | tex == meleeTex1 = meleeTexAttack
   | tex == meleeTex2 = meleeTexAttack

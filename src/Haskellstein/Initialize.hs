@@ -31,7 +31,7 @@ createEnemy (y, x) Melee =
         meleeTex1 -- eTex
         7 -- eVision
         False -- eAgro
-        (Just 0.2, 0.2) -- eAnim
+        (Just texCooldown, texCooldown) -- eAnim
 --range
 createEnemy (y, x) Range =
     Enemy
@@ -46,7 +46,7 @@ createEnemy (y, x) Range =
         rangeTex1 -- eTex
         0.5 -- eVision
         False -- eAgro
-        (Just 0.2, 0.2) -- eAnim
+        (Just texCooldown, texCooldown) -- eAnim
 --spike
 createEnemy (y, x) Mage =
     Enemy
@@ -61,7 +61,7 @@ createEnemy (y, x) Mage =
         1 -- eTex
         32 -- eVision
         False -- eAgro
-        (Just 0.2, 0.2) -- eAnim
+        (Just texCooldown, texCooldown) -- eAnim
 
 createFireball
   :: Position
@@ -78,7 +78,7 @@ createFireball (x,y) a d =
         7.0 -- fSpeed
         Small -- fModel
         fireballTex1
-        (Just 0.15, 0.15)
+        (Just texCooldown, texCooldown)
 
 --split string by symbol
 splitString :: Char -> String -> (String, String)
