@@ -58,7 +58,7 @@ sDamageFireballs scene =
 
 --all actions of enemies
 doEnemies :: Scene -> Scene
-doEnemies = sDamageEnemies . sMoveEnemies
+doEnemies = sDamageEnemies . sMoveEnemies . sChangeTexEnemies
 
 --shell
 sMoveEnemies :: Scene -> Scene
@@ -78,6 +78,14 @@ sDamageEnemies scene =
     (newP, newE) = damageEnemies (sPlayer scene)
                                  (sEnemy scene)
                                  (sDelta scene)
+
+--shell
+sChangeTexEnemies :: Scene -> Scene
+sChangeTexEnemies scene =
+    scene {sEnemy = newE}
+  where
+    newE = changeTexEnemies (sEnemy scene)
+                            (sDelta scene)
 
 --all actions of player
 doPlayer :: Scene -> Scene
@@ -229,6 +237,27 @@ swapET tex
   | tex == rangeTexDeath2 = rangeTexDeath3
   | tex == rangeTexDeath3 = rangeTexDeath3
   | otherwise             = meleeTex1
+
+--change enemies texture
+changeTexEnemies :: [Enemy] -> Float -> [Enemy]
+changeTexEnemies [] _         = []
+changeTexEnemies (e:es) delta = newE : retE
+  where
+    newE = changeTexEnemy e delta
+    retE = changeTexEnemies es delta
+
+-- change enemy texture
+changeTexEnemy :: Enemy -> Float -> Enemy
+changeTexEnemy e delta
+    | delay == Nothing = e {eAnim = (Just cd, cd), eTex = (swapET (eTex e))}
+    | otherwise        = e {eAnim = (delay, cd)}
+  where
+    (tmp, cd) = eAnim e
+    delayTmp  = case tmp of
+                Nothing   -> Nothing
+                Just time -> if (time - delta < 0) then Nothing
+                             else Just (time - delta)
+    delay     = if (eAgro e) then delayTmp else tmp
 
 myCos :: Float -> Float -> Float
 myCos _ 0 = 1

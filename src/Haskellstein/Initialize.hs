@@ -46,7 +46,7 @@ createEnemy (y, x) Range =
         rangeTex1 -- eTex
         0.5 -- eVision
         False -- eAgro
-        (Just texCooldown, texCooldown) -- eAnim
+        (Just (2 * texCooldown), 2 * texCooldown) -- eAnim
 --spike
 createEnemy (y, x) Mage =
     Enemy
