@@ -68,13 +68,21 @@ data Control = Control
     }
 
 data Scene = Scene
-    { sPlayer   :: Player
-    , sFireball :: [Fireball]
-    , sEnemy    :: [Enemy]
-    , sTilemap  :: Tilemap
-    , sControl  :: Control
-    , sDelta    :: Float
+    { sPlayer          :: Player
+    , sFireball        :: [Fireball]
+    , sEnemy           :: [Enemy]
+    , sTilemap         :: Tilemap
+    , sControl         :: Control
+    , sDelta           :: Float
+    , sTextureCond     :: TexTimer
     }
+
+data TexCond  = Phase1 | Phase2 | Phase3 | Phase4
+type TexTimer = Maybe Float
+
+texCooldown :: Float
+texCooldown = 1.2
 
 data GameEnd = Victory | Defeat | Continue
     deriving (Eq)
+

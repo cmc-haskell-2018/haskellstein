@@ -13,7 +13,11 @@ constPiF = 3.141592
 
 --all interactions
 doInteractions :: Scene -> Scene
-doInteractions = doEnemies . doFireballs . doPlayer
+doInteractions = doTexture . doEnemies . doFireballs . doPlayer
+
+--all textures (in future)
+doTexture :: Scene -> Scene
+doTexture = sTexture
 
 --all actions of fireballs
 doFireballs :: Scene -> Scene
@@ -25,6 +29,14 @@ sAnimationFireballs scene = scene {sFireball = retF}
   where
     retF = animationFireballs (sFireball scene)
                               (sDelta scene)
+
+--shell - change textures only "b" objects now
+sTexture :: Scene -> Scene
+sTexture scene =
+    scene {sTextureCond = newTc, sTilemap = newTmap}
+  where
+    (newTmap, newTc) = changeTextures (sTilemap scene) (sTextureCond scene)
+                                      (sDelta scene)
 
 --shell
 sMoveFireballs :: Scene -> Scene

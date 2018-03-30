@@ -148,6 +148,7 @@ createScene tmap =
         edit
         (Control False False False False False False False False)
         0.00
+        (Just texCooldown)
   where
     rewrite p
         | head p == 'e' = "v00"
