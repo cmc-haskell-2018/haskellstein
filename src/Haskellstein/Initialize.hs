@@ -2,6 +2,7 @@ module Haskellstein.Initialize where
 
 import Prelude
 import Haskellstein.Data
+import Haskellstein.Texconsts
 
 createPlayer :: CellCoord -> Player
 createPlayer (y, x) =
@@ -27,7 +28,7 @@ createEnemy (y, x) Melee =
         2 -- eSpeed
         (Just 2, 2) -- eASpeed
         Melee -- eModel
-        0 -- eTex
+        meleeTex1 -- eTex
         7 -- eVision
         False -- eAgro
 --range
@@ -41,7 +42,7 @@ createEnemy (y, x) Range =
         3 -- eSpeed
         (Just 3, 3) -- eASpeed
         Range -- eModel
-        1 -- eTex
+        rangeTex1 -- eTex
         0.5 -- eVision
         False -- eAgro
 --spike
@@ -73,8 +74,8 @@ createFireball (x,y) a d =
         0.4 -- fRadius
         7.0 -- fSpeed
         Small -- fModel
-        2
-        (Just 0.1, 0.1)
+        fireballTex1
+        (Just 0.15, 0.15)
 
 --split string by symbol
 splitString :: Char -> String -> (String, String)
