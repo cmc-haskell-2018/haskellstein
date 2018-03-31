@@ -1,6 +1,6 @@
 # haskellstein
 
-<a href="https://imgflip.com/gif/276d9b"><img src="https://i.imgflip.com/276d9b.gif" title="made at imgflip.com"/></a>
+<a href="https://imgflip.com/gif/27i5b6"><img src="https://i.imgflip.com/27i5b6.gif" title="made at imgflip.com"/></a>
 
 First-person Shooter.
 
