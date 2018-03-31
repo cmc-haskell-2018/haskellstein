@@ -1,6 +1,8 @@
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
 module Haskellstein.Engine.Raycasting where
 
+import Data.Maybe
+
 type Vector = (Float, Float)
 
 type Point = (Float, Float)
@@ -33,7 +35,10 @@ data Camera = Camera
   } deriving (Show)
 
 -- | Ray direction.
-type Ray = Vector
+data Ray = Ray
+  { rayOrigin    :: Point   -- ^ Ray starting point.
+  , rayDirection :: Vector  -- ^ Ray direction. Can be non-normalised.
+  } deriving (Eq, Show)
 
 -- | Produce a specified number of rays for a camera.
 --
@@ -42,10 +47,10 @@ type Ray = Vector
 cameraRays :: Int -> Camera -> [Ray]
 cameraRays n camera
   | n < 0  = []
-  | n == 1 = [cameraDirection camera]
+  | n == 1 = [Ray (cameraPosition camera) (cameraDirection camera)]
   | otherwise  = map makeRay [0 .. n - 1]
   where
-    makeRay i = dir .+ (d .* plane)
+    makeRay i = Ray (cameraPosition camera) (dir .+ (d .* plane))
       where
         d = 2 * fromIntegral i / (fromIntegral n - 1) - 1
         dir = cameraDirection camera
@@ -65,8 +70,8 @@ pointToMapCoords (x, y) = (floor x, floor y)
 --
 -- >>> raySideDist (0.3, 0.6) (1, -1)
 -- (0.7,0.6)
-raySideDist :: Point -> Ray -> (Float, Float)
-raySideDist (x, y) (rx, ry) = (sideDistX, sideDistY)
+raySideDist :: Ray -> (Float, Float)
+raySideDist (Ray (x, y) (rx, ry)) = (sideDistX, sideDistY)
   where
     fx = x - fromIntegral (floor x)
     fy = y - fromIntegral (floor y)
@@ -79,21 +84,57 @@ raySideDist (x, y) (rx, ry) = (sideDistX, sideDistY)
       | ry < 0    = fy
       | otherwise = 1 - fy
 
+-- | Raycasting hit.
+data HitInfo = HitInfo
+  { hitSide     :: Side       -- ^ Which side was hit by the ray.
+  , hitCoords   :: MapCoords  -- ^ Coordinates of the hit cell.
+  , hitDistance :: Float      -- ^ Distance from ray origin to hit.
+  } deriving (Eq, Show)
+
+-- | An object that's been hit by a ray.
+data Hit a = Hit
+  { hitInfo   :: HitInfo  -- ^ Raycasting hit info.
+  , hitObject :: a        -- ^ An object.
+  } deriving (Eq, Show)
+
+-- | Side of a cell.
+data Side
+  = SideX  -- ^ A side that can be hit from the X axis.
+  | SideY  -- ^ A side that can be hit from the Y axis.
+  deriving (Eq, Show)
+
+-- | Compute a distance to a hit cell.
+--
+-- >>> rayCellHitDistance (Ray (0.4, 0.6) (1.23, -0.45)) SideY (7,-3)
+-- 7.567345
+rayCellHitDistance :: Ray -> Side -> MapCoords -> Float
+rayCellHitDistance (Ray (x, y) (rx, ry)) side (i, j) =
+  case side of
+    SideX -> r * (fromIntegral i - x + (1 - signum rx) / 2) / rx
+    SideY -> r * (fromIntegral j - y + (1 - signum ry) / 2) / ry
+  where
+    r = sqrt (rx^2 + ry^2)
+
 -- | Compute ray's path through a discrete 2D space.
 --
--- >>> take 10 $ rayPathFrom (0.3, 0.8) (1.2, 3.4)
--- [(0,0),(0,1),(0,2),(1,2),(1,3),(1,4),(1,5),(2,5),(2,6),(2,7)]
+-- NOTE: the path does not contain the starting cell.
 --
--- >>> take 10 $ rayPathFrom (0.3, 0.8) (1.2, -3.4)
--- [(0,0),(0,-1),(0,-2),(1,-2),(1,-3),(1,-4),(1,-5),(2,-5),(2,-6),(2,-7)]
+-- >>> take 9 $ map cellHitCoords $ rayPath (0.3, 0.8) (1.2, 3.4)
+-- [(0,1),(0,2),(1,2),(1,3),(1,4),(1,5),(2,5),(2,6),(2,7)]
 --
--- >>> take 10 $ rayPathFrom (0.4, -0.8) (1, 0)
--- [(0,-1),(1,-1),(2,-1),(3,-1),(4,-1),(5,-1),(6,-1),(7,-1),(8,-1),(9,-1)]
-rayPathFrom :: Point -> Ray -> [MapCoords]
-rayPathFrom point ray@(rx, ry) = go (dx * sideDistX, dy * sideDistY) startingCell
+-- >>> take 9 $ map cellHitCoords $ rayPath (0.3, 0.8) (1.2, -3.4)
+-- [(0,-1),(0,-2),(1,-2),(1,-3),(1,-4),(1,-5),(2,-5),(2,-6),(2,-7)]
+--
+-- >>> take 9 $ map cellHitCoords $ rayPath (0.4, -0.8) (1, 0)
+-- [(1,-1),(2,-1),(3,-1),(4,-1),(5,-1),(6,-1),(7,-1),(8,-1),(9,-1)]
+--
+-- >>> take 5 $ map cellHitSide $ rayPath (0.4, -0.8) (-1.32, 3.24)
+-- [SideY,SideX,SideY,SideY,SideX]
+rayPath :: Ray -> [HitInfo]
+rayPath ray@(Ray point (rx, ry)) = go (dx * sideDistX, dy * sideDistY) startingCell
   where
     startingCell = pointToMapCoords point
-    (sideDistX, sideDistY) = raySideDist point ray
+    (sideDistX, sideDistY) = raySideDist ray
 
     -- coefficients for X and Y axis movements
     (dx, dy) = (abs ry, abs rx)
@@ -103,9 +144,27 @@ rayPathFrom point ray@(rx, ry) = go (dx * sideDistX, dy * sideDistY) startingCel
     dj = floor (signum ry)
 
     -- infinite raycasting interation
-    go (sx, sy) (i, j) = (i, j) : coords
-      where
-        coords
-          | sx <= sy  = go (sx + dx, sy) (i + di, j)
-          | otherwise = go (sx, sy + dy) (i, j + dj)
+    go (sx, sy) (i, j)
+      | sx <= sy  = mkHitInfo SideX (i + di, j) : go (sx + dx, sy) (i + di, j)
+      | otherwise = mkHitInfo SideY (i, j + dj) : go (sx, sy + dy) (i, j + dj)
 
+    mkHitInfo side coords = HitInfo side coords (rayCellHitDistance ray side coords)
+
+-- | Cast a ray and collect all objects on its path.
+castRayWithMap
+  :: Int                      -- ^ Maximum ray path length (in cells).
+  -> (MapCoords -> Maybe a)   -- ^ Indexing function for map cells.
+  -> Ray                      -- ^ Ray.
+  -> [Hit a]                  -- ^ A list of objects the ray hits on its path.
+castRayWithMap n cellAt ray = mapMaybe f (take n (rayPath ray))
+  where
+    f info = Hit info <$> cellAt (hitCoords info)
+
+-- | Raycast using a 'Camera'.
+raycastWithMap
+  :: Int                      -- ^ Maximum ray path length (in cells).
+  -> Int                      -- ^ Number of rays.
+  -> (MapCoords -> Maybe a)   -- ^ Indexing function for map cells.
+  -> Camera                   -- ^ A camera.
+  -> [[Hit a]]                -- ^ A list of hits for every ray.
+raycastWithMap n w cellAt = map (castRayWithMap n cellAt) . cameraRays w
