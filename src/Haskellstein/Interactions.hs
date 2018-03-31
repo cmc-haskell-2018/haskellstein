@@ -229,6 +229,8 @@ setAT tex
   | tex == meleeTex4 = meleeTexAttack1
   | tex == rangeTex1 = rangeTexAttack
   | tex == rangeTex2 = rangeTexAttack
+  | tex == mageTex1  = mageTexAttack
+  | tex == mageTex2  = mageTexAttack
   | otherwise        = meleeTexAttack1
 
 --set death texture
@@ -238,10 +240,13 @@ setDT tex
   | tex == meleeTex2       = meleeTexDeath1
   | tex == meleeTex3       = meleeTexDeath1
   | tex == meleeTex4       = meleeTexDeath1
+  | tex == mageTex1        = mageTexDeath1
+  | tex == mageTex2        = mageTexDeath1
   | tex == rangeTex1       = rangeTexDeath1
   | tex == rangeTex2       = rangeTexDeath1
   | tex == meleeTexAttack1 = meleeTexDeath1
   | tex == meleeTexAttack2 = meleeTexDeath1
+  | tex == mageTexAttack   = mageTexDeath1
   | tex == rangeTexAttack  = rangeTexDeath1
   | otherwise              = meleeTexDeath1
 
@@ -251,12 +256,15 @@ swapET tex
   | tex == meleeTexAttack1 = meleeTexAttack2
   | tex == meleeTexAttack2 = meleeTex1
   | tex == rangeTexAttack  = rangeTex1
+  | tex == mageTexAttack   = mageTex1
   | tex == meleeTex1       = meleeTex2
   | tex == meleeTex2       = meleeTex3
   | tex == meleeTex3       = meleeTex4
   | tex == meleeTex4       = meleeTex1
   | tex == rangeTex1       = rangeTex2
   | tex == rangeTex2       = rangeTex1
+  | tex == mageTex1        = mageTex2
+  | tex == mageTex2        = mageTex1
   | tex == meleeTexDeath1  = meleeTexDeath2
   | tex == meleeTexDeath2  = meleeTexDeath3
   | tex == meleeTexDeath3  = meleeTexDeath4
@@ -264,6 +272,13 @@ swapET tex
   | tex == rangeTexDeath1  = rangeTexDeath2
   | tex == rangeTexDeath2  = rangeTexDeath3
   | tex == rangeTexDeath3  = rangeTexDeath3
+  | tex == mageTexDeath1   = mageTexDeath2
+  | tex == mageTexDeath2   = mageTexDeath3
+  | tex == mageTexDeath3   = mageTexDeath4
+  | tex == mageTexDeath4   = mageTexDeath5
+  | tex == mageTexDeath5   = mageTexDeath6
+  | tex == mageTexDeath6   = mageTexDeath7
+  | tex == mageTexDeath7   = mageTexDeath7
   | otherwise              = meleeTex1
 
 --change enemies texture
@@ -280,6 +295,7 @@ checkAttackTex tex
   | tex == meleeTexAttack2 = True
   | tex == meleeTexAttack1 = True
   | tex == rangeTexAttack  = True
+  | tex == mageTexAttack   = True
   | otherwise              = False
 
 --if tex is deathTex
@@ -292,6 +308,13 @@ checkDeathTex tex
   | tex == rangeTexDeath1 = True
   | tex == rangeTexDeath2 = True
   | tex == rangeTexDeath3 = True
+  | tex == mageTexDeath1  = True
+  | tex == mageTexDeath2  = True
+  | tex == mageTexDeath3  = True
+  | tex == mageTexDeath4  = True
+  | tex == mageTexDeath5  = True
+  | tex == mageTexDeath6  = True
+  | tex == mageTexDeath7  = True
   | otherwise             = False
 
 -- change enemy texture

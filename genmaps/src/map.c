@@ -16,12 +16,14 @@ int main()
 				printf("p00 ");
 			else{
 				int random = rand()%50;
-				if(random > 1)
+				if(random > 2)
 					printf("v00 ");
 				else if (random == 1)
 					printf("e01 ");
-				else
+				else if (random == 2)
 					printf("e02 ");
+				else
+					printf("e03 ");
 			}
 		printf("w01\n");
 	}

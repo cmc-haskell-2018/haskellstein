@@ -29,7 +29,7 @@ createEnemy (y, x) Melee =
         (Just 1.5, 1.5) -- eASpeed
         Melee -- eModel
         meleeTex1 -- eTex
-        5 -- eVision
+        4 -- eVision
         False -- eAgro
         (Just texCooldown, texCooldown) -- eAnim
         False -- eMoved
@@ -38,32 +38,32 @@ createEnemy (y, x) Range =
     Enemy
         (((fromIntegral x) + 0.5)
       , ((fromIntegral y) + 0.5)) -- ePos
-        7 -- eHp
+        5 -- eHp
         3 -- eDamage
-        1.3 -- eRange
+        1.2 -- eRange
         3 -- eSpeed
         (Just 2.5, 2.5) -- eASpeed
         Range -- eModel
         rangeTex1 -- eTex
-        4 -- eVision
+        3 -- eVision
         False -- eAgro
         (Just (1.5 * texCooldown), 1.5 * texCooldown) -- eAnim
         False -- eMoved
---spike
+--mage
 createEnemy (y, x) Mage =
     Enemy
         (((fromIntegral x) + 0.5)
       , ((fromIntegral y) + 0.5)) -- ePos
-        3 -- eHp
-        1 -- eDamage
-        1.5 -- eRange
-        0.8 -- eSpeed
-        (Just 2, 2) -- eASpeed
+        10 -- eHp
+        4 -- eDamage
+        1.2 -- eRange
+        2.5 -- eSpeed
+        (Just 2.5, 2.5) -- eASpeed
         Mage -- eModel
-        1 -- eTex
-        32 -- eVision
+        mageTex1 -- eTex
+        3 -- eVision
         False -- eAgro
-        (Just texCooldown, texCooldown) -- eAnim
+        (Just (1.5 * texCooldown), 1.5 * texCooldown) -- eAnim
         False -- eMoved
 
 createFireball

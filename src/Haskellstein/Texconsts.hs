@@ -3,6 +3,36 @@ module Haskellstein.Texconsts where
 texCooldown :: Float
 texCooldown = 0.15
 
+mageTex1 :: Int
+mageTex1 = 16
+
+mageTex2 :: Int
+mageTex2 = 17
+
+mageTexAttack :: Int
+mageTexAttack = 18
+
+mageTexDeath1 :: Int
+mageTexDeath1 = 19
+
+mageTexDeath2 :: Int
+mageTexDeath2 = 20
+
+mageTexDeath3 :: Int
+mageTexDeath3 = 21
+
+mageTexDeath4 :: Int
+mageTexDeath4 = 22
+
+mageTexDeath5 :: Int
+mageTexDeath5 = 23
+
+mageTexDeath6 :: Int
+mageTexDeath6 = 24
+
+mageTexDeath7 :: Int
+mageTexDeath7 = 25
+
 meleeTex1 :: Int
 meleeTex1 = 0
 
