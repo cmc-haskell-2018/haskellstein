@@ -1,4 +1,5 @@
-module Haskellstein where
+module Haskellstein (
+  run,
+) where
 
-run :: IO ()
-run = putStrLn "This project is not yet implemented"
+import Haskellstein.Engine

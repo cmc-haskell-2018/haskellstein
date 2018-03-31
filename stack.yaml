@@ -1,3 +1,6 @@
 resolver: lts-10.5
 packages:
 - '.'
+extra-deps:
+- git: https://github.com/fizruk/SFML.git
+  commit: 72d4c5f21c39a278a948edb34317f2bcfa38eb1c

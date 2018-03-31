@@ -15,8 +15,12 @@ cabal-version:       >=1.10
 library
   hs-source-dirs:      src
   ghc-options:         -Wall -fno-warn-type-defaults
-  exposed-modules:     Haskellstein
+  exposed-modules:
+    Haskellstein
+    Haskellstein.Engine
+    Haskellstein.Engine.Raycasting
   build-depends:       base >= 4.7 && < 5
+                     , SFML
   default-language:    Haskell2010
 
 executable haskellstein
