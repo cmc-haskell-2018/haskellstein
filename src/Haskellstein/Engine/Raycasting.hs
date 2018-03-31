@@ -3,8 +3,10 @@ module Haskellstein.Engine.Raycasting where
 
 import Data.Maybe
 
+-- | Vector in a 2D plane.
 type Vector = (Float, Float)
 
+-- | A point on a 2D plane.
 type Point = (Float, Float)
 
 -- | Vector addition.
@@ -33,6 +35,17 @@ data Camera = Camera
   , cameraPlane       :: Vector
     -- ^ Camera plane vector (always orthogonal to camera direction).
   } deriving (Show)
+
+rotateCamera :: Float -> Camera -> Camera
+rotateCamera theta camera = camera
+  { cameraDirection = rotate theta (cameraDirection camera)
+  , cameraPlane     = rotate theta (cameraPlane camera)
+  }
+
+moveCamera :: Float -> Camera -> Camera
+moveCamera d camera = camera
+  { cameraPosition = cameraPosition camera .+ (d .* cameraDirection camera)
+  }
 
 -- | Ray direction.
 data Ray = Ray
@@ -110,8 +123,8 @@ data Side
 rayCellHitDistance :: Ray -> Side -> MapCoords -> Float
 rayCellHitDistance (Ray (x, y) (rx, ry)) side (i, j) =
   case side of
-    SideX -> r * (fromIntegral i - x + (1 - signum rx) / 2) / rx
-    SideY -> r * (fromIntegral j - y + (1 - signum ry) / 2) / ry
+    SideX -> (fromIntegral i - x + (1 - signum rx) / 2) / rx
+    SideY -> (fromIntegral j - y + (1 - signum ry) / 2) / ry
   where
     r = sqrt (rx^2 + ry^2)
 
