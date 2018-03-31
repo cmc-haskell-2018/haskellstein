@@ -223,46 +223,48 @@ swapFT tex
 --set attack texture
 setAT :: ObjectTexture -> ObjectTexture
 setAT tex
-  | tex == meleeTex1 = meleeTexAttack
-  | tex == meleeTex2 = meleeTexAttack
-  | tex == meleeTex3 = meleeTexAttack
-  | tex == meleeTex4 = meleeTexAttack
+  | tex == meleeTex1 = meleeTexAttack1
+  | tex == meleeTex2 = meleeTexAttack1
+  | tex == meleeTex3 = meleeTexAttack1
+  | tex == meleeTex4 = meleeTexAttack1
   | tex == rangeTex1 = rangeTexAttack
   | tex == rangeTex2 = rangeTexAttack
-  | otherwise        = meleeTexAttack
+  | otherwise        = meleeTexAttack1
 
 --set death texture
 setDT :: ObjectTexture -> ObjectTexture
 setDT tex
-  | tex == meleeTex1      = meleeTexDeath1
-  | tex == meleeTex2      = meleeTexDeath1
-  | tex == meleeTex3      = meleeTexDeath1
-  | tex == meleeTex4      = meleeTexDeath1
-  | tex == rangeTex1      = rangeTexDeath1
-  | tex == rangeTex2      = rangeTexDeath1
-  | tex == meleeTexAttack = meleeTexDeath1
-  | tex == rangeTexAttack = rangeTexDeath1
-  | otherwise             = meleeTexDeath1
+  | tex == meleeTex1       = meleeTexDeath1
+  | tex == meleeTex2       = meleeTexDeath1
+  | tex == meleeTex3       = meleeTexDeath1
+  | tex == meleeTex4       = meleeTexDeath1
+  | tex == rangeTex1       = rangeTexDeath1
+  | tex == rangeTex2       = rangeTexDeath1
+  | tex == meleeTexAttack1 = meleeTexDeath1
+  | tex == meleeTexAttack2 = meleeTexDeath1
+  | tex == rangeTexAttack  = rangeTexDeath1
+  | otherwise              = meleeTexDeath1
 
 --swap enemy texture
 swapET :: ObjectTexture -> ObjectTexture
 swapET tex
-  | tex == meleeTexAttack = meleeTex1
-  | tex == rangeTexAttack = rangeTex1
-  | tex == meleeTex1      = meleeTex2
-  | tex == meleeTex2      = meleeTex3
-  | tex == meleeTex3      = meleeTex4
-  | tex == meleeTex4      = meleeTex1
-  | tex == rangeTex1      = rangeTex2
-  | tex == rangeTex2      = rangeTex1
-  | tex == meleeTexDeath1 = meleeTexDeath2
-  | tex == meleeTexDeath2 = meleeTexDeath3
-  | tex == meleeTexDeath3 = meleeTexDeath4
-  | tex == meleeTexDeath4 = meleeTexDeath4
-  | tex == rangeTexDeath1 = rangeTexDeath2
-  | tex == rangeTexDeath2 = rangeTexDeath3
-  | tex == rangeTexDeath3 = rangeTexDeath3
-  | otherwise             = meleeTex1
+  | tex == meleeTexAttack1 = meleeTexAttack2
+  | tex == meleeTexAttack2 = meleeTex1
+  | tex == rangeTexAttack  = rangeTex1
+  | tex == meleeTex1       = meleeTex2
+  | tex == meleeTex2       = meleeTex3
+  | tex == meleeTex3       = meleeTex4
+  | tex == meleeTex4       = meleeTex1
+  | tex == rangeTex1       = rangeTex2
+  | tex == rangeTex2       = rangeTex1
+  | tex == meleeTexDeath1  = meleeTexDeath2
+  | tex == meleeTexDeath2  = meleeTexDeath3
+  | tex == meleeTexDeath3  = meleeTexDeath4
+  | tex == meleeTexDeath4  = meleeTexDeath4
+  | tex == rangeTexDeath1  = rangeTexDeath2
+  | tex == rangeTexDeath2  = rangeTexDeath3
+  | tex == rangeTexDeath3  = rangeTexDeath3
+  | otherwise              = meleeTex1
 
 --change enemies texture
 changeTexEnemies :: [Enemy] -> Float -> [Enemy]
@@ -275,9 +277,10 @@ changeTexEnemies (e:es) delta = newE : retE
 --if tex is attackTex
 checkAttackTex :: ObjectTexture -> Bool
 checkAttackTex tex
-  | tex == meleeTexAttack = True
-  | tex == rangeTexAttack = True
-  | otherwise             = False
+  | tex == meleeTexAttack2 = True
+  | tex == meleeTexAttack1 = True
+  | tex == rangeTexAttack  = True
+  | otherwise              = False
 
 --if tex is deathTex
 checkDeathTex :: ObjectTexture -> Bool
@@ -396,7 +399,7 @@ damageEnemy :: Player -> Enemy -> Float -> (Player, Enemy)
 damageEnemy p e delta
     | isRange, isAReady, agro = (p {pHp = newHp}
                               , e {eASpeed = (Just cd, cd)
-                                , eAnim = (Just (2 * cdA), cdA)
+                                , eAnim = (Just (cdA), cdA)
                                 , eTex = setAT (eTex e)})
     | otherwise               = (p, e {eASpeed = (delay, cd)})
   where

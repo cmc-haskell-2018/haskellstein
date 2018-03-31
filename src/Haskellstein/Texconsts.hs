@@ -15,8 +15,11 @@ meleeTex3 = 8
 meleeTex4 :: Int
 meleeTex4 = 9
 
-meleeTexAttack :: Int
-meleeTexAttack = 10
+meleeTexAttack2 :: Int
+meleeTexAttack2 = 10
+
+meleeTexAttack1 :: Int
+meleeTexAttack1 = 15
 
 meleeTexDeath1 :: Int
 meleeTexDeath1 = 11
