@@ -76,6 +76,7 @@ data Scene = Scene
     , sControl         :: Control
     , sDelta           :: Float
     , sTextureCond     :: TexTimer
+    , sDeadEnemy       :: [Enemy]
     }
 
 data TexCond  = Phase1 | Phase2 | Phase3 | Phase4

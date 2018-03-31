@@ -19,6 +19,16 @@ doInteractions = doTexture . doEnemies . doFireballs . doPlayer
 doTexture :: Scene -> Scene
 doTexture = sTexture
 
+--shell - change textures only "b" objects now
+--Checkmap function
+sTexture :: Scene -> Scene
+sTexture scene =
+    scene {sTextureCond = newTc, sTilemap = newTmap}
+  where
+    (newTmap, newTc) = changeTextures (sTilemap scene)
+                                      (sTextureCond scene)
+                                      (sDelta scene)
+
 --all actions of fireballs
 doFireballs :: Scene -> Scene
 doFireballs = sAnimationFireballs . sMoveFireballs . sDamageFireballs
@@ -29,15 +39,6 @@ sAnimationFireballs scene = scene {sFireball = retF}
   where
     retF = animationFireballs (sFireball scene)
                               (sDelta scene)
-
---shell - change textures only "b" objects now
-sTexture :: Scene -> Scene
-sTexture scene =
-    scene {sTextureCond = newTc, sTilemap = newTmap}
-  where
-    (newTmap, newTc) = changeTextures (sTilemap scene)
-                                      (sTextureCond scene)
-                                      (sDelta scene)
 
 --shell
 sMoveFireballs :: Scene -> Scene
@@ -58,7 +59,10 @@ sDamageFireballs scene =
 
 --all actions of enemies
 doEnemies :: Scene -> Scene
-doEnemies = sDamageEnemies . sMoveEnemies . sChangeTexEnemies
+doEnemies = sDamageEnemies
+          . sMoveEnemies
+          . sChangeTexEnemies
+          . sExtractDeadEnemies
 
 --shell
 sMoveEnemies :: Scene -> Scene
@@ -82,10 +86,20 @@ sDamageEnemies scene =
 --shell
 sChangeTexEnemies :: Scene -> Scene
 sChangeTexEnemies scene =
-    scene {sEnemy = newE}
+    scene {sEnemy = newE, sDeadEnemy = newDE}
   where
-    newE = changeTexEnemies (sEnemy scene)
-                            (sDelta scene)
+    newE  = changeTexEnemies (sEnemy scene)
+                             (sDelta scene)
+    newDE = changeTexEnemies (sDeadEnemy scene)
+                             (sDelta scene)
+
+--shell
+sExtractDeadEnemies :: Scene -> Scene
+sExtractDeadEnemies scene =
+    scene {sEnemy = newE, sDeadEnemy = (newDE ++ oldDE)}
+  where
+    oldDE         = (sDeadEnemy scene)
+    (newE, newDE) = extractDeadEnemies (sEnemy scene)
 
 --all actions of player
 doPlayer :: Scene -> Scene
@@ -164,10 +178,9 @@ damageFireballs (f:fs) e = case newF of
 damageFireball :: Fireball -> [Enemy] -> (Maybe Fireball, [Enemy])
 damageFireball f []           = (Just f, [])
 damageFireball f (e:es)
-    | rx < r, ry < r, ehp > 0 = (Nothing --hit
-                              , e {eHp = ehp, eAgro = True} : es)
-    | rx < r, ry < r          = (Nothing, es) --kill
-    | otherwise               = (newF, e : retE) --miss
+    | rx < r, ry < r = (Nothing --hit
+                     , e {eHp = ehp, eAgro = True} : es)
+    | otherwise      = (newF, e : retE) --miss
   where
     (fx,fy)       = fPos f
     r             = fRadius f
@@ -218,6 +231,19 @@ setAT tex
   | tex == rangeTex2 = rangeTexAttack
   | otherwise        = meleeTexAttack
 
+--set death texture
+setDT :: ObjectTexture -> ObjectTexture
+setDT tex
+  | tex == meleeTex1      = meleeTexDeath1
+  | tex == meleeTex2      = meleeTexDeath1
+  | tex == meleeTex3      = meleeTexDeath1
+  | tex == meleeTex4      = meleeTexDeath1
+  | tex == rangeTex1      = rangeTexDeath1
+  | tex == rangeTex2      = rangeTexDeath1
+  | tex == meleeTexAttack = meleeTexDeath1
+  | tex == rangeTexAttack = rangeTexDeath1
+  | otherwise             = meleeTexDeath1
+
 --swap enemy texture
 swapET :: ObjectTexture -> ObjectTexture
 swapET tex
@@ -253,6 +279,18 @@ checkAttackTex tex
   | tex == rangeTexAttack = True
   | otherwise             = False
 
+--if tex is deathTex
+checkDeathTex :: ObjectTexture -> Bool
+checkDeathTex tex
+  | tex == meleeTexDeath1 = True
+  | tex == meleeTexDeath2 = True
+  | tex == meleeTexDeath3 = True
+  | tex == meleeTexDeath4 = True
+  | tex == rangeTexDeath1 = True
+  | tex == rangeTexDeath2 = True
+  | tex == rangeTexDeath3 = True
+  | otherwise             = False
+
 -- change enemy texture
 changeTexEnemy :: Enemy -> Float -> Enemy
 changeTexEnemy e delta
@@ -264,9 +302,23 @@ changeTexEnemy e delta
                 Nothing   -> Nothing
                 Just time -> if (time - delta < 0) then Nothing
                              else Just (time - delta)
-    delay     = if (eAgro e) && ((eMoved e) || checkAttackTex (eTex e))
+    delay     = if (eAgro e) && ((eMoved e)
+                                 || checkAttackTex (eTex e)
+                                 || checkDeathTex (eTex e))
                   then delayTmp
                   else tmp
+
+--split dead and alive enemies
+extractDeadEnemies :: [Enemy] -> ([Enemy], [Enemy])
+extractDeadEnemies [] = ([], [])
+extractDeadEnemies (e:es)
+    | isDead    = (newE, e {eTex = newTex, eAnim = (Just cd, cd)} : newDE)
+    | otherwise = (e : newE, newDE)
+  where
+    newTex        = setDT (eTex e)
+    (_, cd)       = eAnim e
+    isDead        = (eHp e) <= 0
+    (newE, newDE) = extractDeadEnemies es
 
 myCos :: Float -> Float -> Float
 myCos _ 0 = 1
