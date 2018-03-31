@@ -10,6 +10,9 @@ data EnemyType = Melee | Range | Mage
 data FireballType = Small | Frost
     deriving (Eq)
 
+data ColorTex = Red | Blue | Normal
+    deriving (Eq)
+
 type ObjectTexture = Int
 
 data Player = Player
@@ -31,6 +34,7 @@ data Fireball = Fireball
   , fModel  :: FireballType
   , fTex    :: ObjectTexture
   , fAnim   :: Cooldown
+  , fColor  :: ColorTex
   }
 
 data Enemy = Enemy
@@ -46,6 +50,7 @@ data Enemy = Enemy
   , eAgro   :: Bool
   , eAnim   :: Cooldown
   , eMoved  :: Bool
+  , eColor  :: ColorTex
   }
 
 data CellCond = Blocked | Free | Destructible
