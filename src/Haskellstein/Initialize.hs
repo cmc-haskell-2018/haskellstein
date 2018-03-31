@@ -2,6 +2,7 @@ module Haskellstein.Initialize where
 
 import Prelude
 import Haskellstein.Data
+import Haskellstein.Texconsts
 
 createPlayer :: CellCoord -> Player
 createPlayer (y, x) =
@@ -25,11 +26,13 @@ createEnemy (y, x) Melee =
         2 -- eDamage
         1 -- eRange
         2 -- eSpeed
-        (Just 2, 2) -- eASpeed
+        (Just 1.5, 1.5) -- eASpeed
         Melee -- eModel
-        0 -- eTex
-        7 -- eVision
+        meleeTex1 -- eTex
+        5 -- eVision
         False -- eAgro
+        (Just texCooldown, texCooldown) -- eAnim
+        False -- eMoved
 --range
 createEnemy (y, x) Range =
     Enemy
@@ -37,13 +40,15 @@ createEnemy (y, x) Range =
       , ((fromIntegral y) + 0.5)) -- ePos
         7 -- eHp
         3 -- eDamage
-        2 -- eRange
+        1.3 -- eRange
         3 -- eSpeed
-        (Just 3, 3) -- eASpeed
+        (Just 2.5, 2.5) -- eASpeed
         Range -- eModel
-        1 -- eTex
-        0.5 -- eVision
+        rangeTex1 -- eTex
+        4 -- eVision
         False -- eAgro
+        (Just (1.5 * texCooldown), 1.5 * texCooldown) -- eAnim
+        False -- eMoved
 --spike
 createEnemy (y, x) Mage =
     Enemy
@@ -58,6 +63,8 @@ createEnemy (y, x) Mage =
         1 -- eTex
         32 -- eVision
         False -- eAgro
+        (Just texCooldown, texCooldown) -- eAnim
+        False -- eMoved
 
 createFireball
   :: Position
@@ -66,15 +73,15 @@ createFireball
   -> Fireball
 createFireball (x,y) a d =
     Fireball
-        ((x + (0.4 * cos a))
-      , (y + (0.4 * sin a))) -- fPos
+        ((x + (0.25 * cos a))
+      , (y + (0.25 * sin a))) -- fPos
         a -- fRadian
         d -- fDamage
-        0.4 -- fRadius
+        0.25 -- fRadius
         7.0 -- fSpeed
         Small -- fModel
-        2
-        (Just 0.1, 0.1)
+        fireballTex1
+        (Just texCooldown, texCooldown)
 
 --split string by symbol
 splitString :: Char -> String -> (String, String)
@@ -144,6 +151,8 @@ createScene tmap =
         edit
         (Control False False False False False False False False)
         0.00
+        (Just texCooldown)
+        []
   where
     rewrite p
         | head p == 'e' = "v00"

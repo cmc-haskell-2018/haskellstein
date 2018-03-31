@@ -2,6 +2,7 @@ module Haskellstein.CheckMap where
 
 import Prelude
 import Haskellstein.Data
+import Haskellstein.Texconsts
 
 --specify step-on-cell perfomance
 specCellCond :: Tilemap -> CellCoord -> CellCond
@@ -57,3 +58,21 @@ getNewCoord (px,py) (newX,newY) tmap =
     ifX  = specCellCond tmap (floor py, floor newX)
     ifY  = specCellCond tmap (floor newY, floor px)
     ifXY = specCellCond tmap (floor newY, floor newX)
+
+--animation of tilemap cells
+changeTextures :: Tilemap -> TexTimer -> Float -> (Tilemap, TexTimer)
+changeTextures tm t delta =
+  case t of
+    Nothing  -> (map (map (chT)) tm, Just texCooldown)
+    Just val -> (tm, newt val)
+  where
+    newt val = case (val - delta) < 0 of
+      True  -> Nothing
+      False -> Just (val - delta)
+    chT :: TilemapCell -> TilemapCell
+    chT c = case c of
+      "b00" -> "b01"
+      "b01" -> "b02"
+      "b02" -> "b03"
+      "b03" -> "b00"
+      _     -> c

@@ -44,6 +44,8 @@ data Enemy = Enemy
   , eTex    :: ObjectTexture
   , eVision :: Float
   , eAgro   :: Bool
+  , eAnim   :: Cooldown
+  , eMoved  :: Bool
   }
 
 data CellCond = Blocked | Free | Destructible
@@ -67,13 +69,20 @@ data Control = Control
     }
 
 data Scene = Scene
-    { sPlayer   :: Player
-    , sFireball :: [Fireball]
-    , sEnemy    :: [Enemy]
-    , sTilemap  :: Tilemap
-    , sControl  :: Control
-    , sDelta    :: Float
+    { sPlayer          :: Player
+    , sFireball        :: [Fireball]
+    , sEnemy           :: [Enemy]
+    , sTilemap         :: Tilemap
+    , sControl         :: Control
+    , sDelta           :: Float
+    , sTextureCond     :: TexTimer
+    , sDeadEnemy       :: [Enemy]
     }
+
+data TexCond  = Phase1 | Phase2 | Phase3 | Phase4
+
+type TexTimer = Maybe Float
 
 data GameEnd = Victory | Defeat | Continue
     deriving (Eq)
+
