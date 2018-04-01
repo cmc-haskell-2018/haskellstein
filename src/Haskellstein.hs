@@ -5,8 +5,6 @@ import SFML.Window.Event
 import SFML.Window.Keyboard
 
 import Haskellstein.Engine
-import Haskellstein.Engine.Raycasting
-
 import Haskellstein.Player
 
 -- | Handle window events.

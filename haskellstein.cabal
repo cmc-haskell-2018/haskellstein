@@ -18,7 +18,13 @@ library
   exposed-modules:
     Haskellstein
     Haskellstein.Engine
+    Haskellstein.Engine.Camera
+    Haskellstein.Engine.Map
+    Haskellstein.Engine.Picture
     Haskellstein.Engine.Raycasting
+    Haskellstein.Engine.Render
+    Haskellstein.Engine.Settings
+    Haskellstein.Engine.Vector
     Haskellstein.Player
   build-depends:       base >= 4.7 && < 5
                      , SFML

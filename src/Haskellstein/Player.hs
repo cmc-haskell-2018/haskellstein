@@ -1,7 +1,8 @@
 module Haskellstein.Player where
 
 import Data.Function ((&))
-import Haskellstein.Engine.Raycasting
+import Haskellstein.Engine.Camera
+import Haskellstein.Engine.Vector
 
 -- | Player state.
 data Player = Player
