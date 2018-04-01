@@ -11,7 +11,8 @@ data Picture
 data EngineSettings = EngineSettings
   { engineWindowTitle     :: String
   , engineWindowSize      :: (Int, Int)
-  , engineBackgroundColor :: Color
+  , engineCeilingColor    :: Color
+  , engineFloorColor      :: Color
   , engineRaycasterDepth  :: Int
   }
 
@@ -19,7 +20,8 @@ defaultEngineSettings :: EngineSettings
 defaultEngineSettings = EngineSettings
   { engineWindowTitle     = "Default title"
   , engineWindowSize      = (640, 480)
-  , engineBackgroundColor = Color 0 0 0 255
+  , engineCeilingColor    = Color 32 32 32 255
+  , engineFloorColor      = Color 64 64 64 255
   , engineRaycasterDepth  = 1000
   }
 
@@ -39,23 +41,33 @@ play engineSettings initWorld worldMap worldCamera handleEvent updateWorld = do
             [SFDefaultStyle]
             (Just defaultContextSettings)
   timer <- createClock
-  loop timer wnd initWorld
+
+  Right ceilingRectangle <- createRectangleShape
+  setSize ceilingRectangle (Vec2f w (h / 2))
+  setFillColor ceilingRectangle (engineCeilingColor engineSettings)
+
+  loop timer wnd ceilingRectangle initWorld
   destroy wnd
   where
     (windowWidth, windowHeight) = engineWindowSize engineSettings
+    w = fromIntegral windowWidth
+    h = fromIntegral windowHeight
 
-    loop timer wnd world = do
-      clearRenderWindow wnd (engineBackgroundColor engineSettings)
-      renderLines wnd world
-      display wnd
+    loop timer wnd ceilingRectangle = go
+      where
+        go world = do
+          clearRenderWindow wnd (engineFloorColor engineSettings)
+          drawRectangle wnd ceilingRectangle Nothing
+          renderLines wnd world
+          display wnd
 
-      evt <- pollEvent wnd
-      dt <- asSeconds <$> restartClock timer
-      case evt of
-          Just SFEvtClosed -> return ()
-          Just event -> do
-            loop timer wnd (updateWorld dt (handleEvent event world))
-          _ -> loop timer wnd (updateWorld dt world)
+          evt <- pollEvent wnd
+          dt <- asSeconds <$> restartClock timer
+          case evt of
+              Just SFEvtClosed -> return ()
+              Just event -> do
+                go (updateWorld dt (handleEvent event world))
+              _ -> go (updateWorld dt world)
 
     renderLines wnd world =
       mapM_ (\(i, hs) -> mapM_ (renderWall i) (take 1 hs))
@@ -71,7 +83,6 @@ play engineSettings initWorld worldMap worldCamera handleEvent updateWorld = do
             , Vertex (Vec2f x (h / 2 + y)) wallColor (Vec2f texX (texH - 1))
             ] Lines (Just renderStates { texture = wallTexture })
           where
-            h = fromIntegral windowHeight
             y = h / 2 / hitDistance info
 
             texX = offset + hitPosition info * (texW - 1)
