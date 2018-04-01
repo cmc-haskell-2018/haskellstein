@@ -1,5 +1,6 @@
 module Haskellstein.Engine where
 
+import Control.Monad (when)
 import SFML.Graphics hiding (rotate)
 import SFML.Window hiding (x, y, windowWidth, windowHeight)
 
@@ -14,6 +15,7 @@ data EngineSettings = EngineSettings
   , engineCeilingColor    :: Color
   , engineFloorColor      :: Color
   , engineFramerateLimit  :: Maybe Int
+  , engineDisplayFPS      :: Bool
   , engineRaycasterDepth  :: Int
   }
 
@@ -24,6 +26,7 @@ defaultEngineSettings = EngineSettings
   , engineCeilingColor    = Color 32 32 32 255
   , engineFloorColor      = Color 64 64 64 255
   , engineFramerateLimit  = Just 60
+  , engineDisplayFPS      = False
   , engineRaycasterDepth  = 1000
   }
 
@@ -49,29 +52,36 @@ play engineSettings initWorld worldMap worldCamera handleEvent updateWorld = do
     Nothing  -> return ()
     Just fps -> setFramerateLimit wnd fps
 
+  Right courierFont <- fontFromFile "fonts/Courier.ttf"
+  Right fpsText <- createText
+  setTextFont fpsText courierFont
+
   timer <- createClock
 
   Right ceilingRectangle <- createRectangleShape
   setSize ceilingRectangle (Vec2f w (h / 2))
   setFillColor ceilingRectangle (engineCeilingColor engineSettings)
 
-  loop timer wnd ceilingRectangle initWorld
+  loop timer wnd ceilingRectangle fpsText initWorld
   destroy wnd
   where
     (windowWidth, windowHeight) = engineWindowSize engineSettings
     w = fromIntegral windowWidth
     h = fromIntegral windowHeight
 
-    loop timer wnd ceilingRectangle = go
+    loop timer wnd ceilingRectangle fpsText = go
       where
         go world = do
-          clearRenderWindow wnd (engineFloorColor engineSettings)
-          drawRectangle wnd ceilingRectangle Nothing
-          renderLines wnd world
-          display wnd
-
           evt <- pollEvent wnd
           dt <- asSeconds <$> restartClock timer
+
+          clearRenderWindow wnd (engineFloorColor engineSettings)
+          setTextString fpsText (show (1 / dt))
+          drawRectangle wnd ceilingRectangle Nothing
+          renderLines wnd world
+          when (engineDisplayFPS engineSettings) (drawText wnd fpsText Nothing)
+          display wnd
+
           case evt of
               Just SFEvtClosed -> return ()
               Just (SFEvtKeyPressed KeyEscape _ _ _ _) -> return ()
