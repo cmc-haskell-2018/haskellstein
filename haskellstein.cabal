@@ -19,6 +19,7 @@ library
     Haskellstein
     Haskellstein.Engine
     Haskellstein.Engine.Raycasting
+    Haskellstein.Player
   build-depends:       base >= 4.7 && < 5
                      , SFML
   default-language:    Haskell2010
