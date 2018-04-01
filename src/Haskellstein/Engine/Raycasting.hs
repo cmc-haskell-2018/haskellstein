@@ -3,49 +3,37 @@ module Haskellstein.Engine.Raycasting where
 import Data.Maybe
 
 import Haskellstein.Engine.Camera
-import Haskellstein.Engine.Map
+import Haskellstein.Engine.TileMap
 import Haskellstein.Engine.Vector
 
 -- * Raycasting
 
 -- | Raycast using a 'Camera' and a map.
-raycastWithMap
-  :: Int                      -- ^ Maximum ray path length (in cells).
-  -> Int                      -- ^ Number of rays.
-  -> (MapCoords -> Maybe a)   -- ^ Indexing function for map cells.
-  -> Camera                   -- ^ A camera.
-  -> [[Hit a]]                -- ^ A list of hits for every ray.
-raycastWithMap n w cellAt = map (castRayWithMap n cellAt) . cameraRays w
+raycastWithTileMap
+  :: Int        -- ^ Maximum ray path length (in tile).
+  -> Int        -- ^ Number of rays.
+  -> TileMap a  -- ^ A tile map.
+  -> Camera     -- ^ A camera.
+  -> [[Hit a]]  -- ^ A list of hits for every ray.
+raycastWithTileMap n w tm = map (castRayWithTileMap n tm) . cameraRays w
 
 -- | Cast a single ray and collect all objects on its path.
-castRayWithMap
-  :: Int                      -- ^ Maximum ray path length (in cells).
-  -> (MapCoords -> Maybe a)   -- ^ Indexing function for map cells.
-  -> Ray                      -- ^ Ray.
-  -> [Hit a]                  -- ^ A list of objects the ray hits on its path.
-castRayWithMap n cellAt ray = mapMaybe f (take n (rayPath ray))
+castRayWithTileMap
+  :: Int        -- ^ Maximum ray path length (in tiles).
+  -> TileMap a  -- ^ A tile map.
+  -> Ray        -- ^ Ray.
+  -> [Hit a]    -- ^ A list of objects the ray hits on its path.
+castRayWithTileMap n tm ray = mapMaybe f (take n (rayPath ray))
   where
-    f info = Hit info <$> cellAt (hitCoords info)
+    f info = Hit info <$> tileAt (hitCoords info) tm
 
 -- | Compute ray's path through a discrete 2D space.
 --
--- NOTE: the path does not contain the starting cell.
---
--- >>> take 9 $ map cellHitCoords $ rayPath (0.3, 0.8) (1.2, 3.4)
--- [(0,1),(0,2),(1,2),(1,3),(1,4),(1,5),(2,5),(2,6),(2,7)]
---
--- >>> take 9 $ map cellHitCoords $ rayPath (0.3, 0.8) (1.2, -3.4)
--- [(0,-1),(0,-2),(1,-2),(1,-3),(1,-4),(1,-5),(2,-5),(2,-6),(2,-7)]
---
--- >>> take 9 $ map cellHitCoords $ rayPath (0.4, -0.8) (1, 0)
--- [(1,-1),(2,-1),(3,-1),(4,-1),(5,-1),(6,-1),(7,-1),(8,-1),(9,-1)]
---
--- >>> take 5 $ map cellHitSide $ rayPath (0.4, -0.8) (-1.32, 3.24)
--- [SideY,SideX,SideY,SideY,SideX]
+-- NOTE: the path does not contain the starting tile.
 rayPath :: Ray -> [HitInfo]
 rayPath ray@(Ray point (rx, ry)) = go (dx * sideDistX, dy * sideDistY) startingCell
   where
-    startingCell = pointToMapCoords point
+    startingCell = pointToCoords point
     (sideDistX, sideDistY) = raySideDist ray
 
     -- coefficients for X and Y axis movements
@@ -64,10 +52,10 @@ rayPath ray@(Ray point (rx, ry)) = go (dx * sideDistX, dy * sideDistY) startingC
 
 -- | Raycasting hit.
 data HitInfo = HitInfo
-  { hitSide     :: Side       -- ^ Which side was hit by the ray.
-  , hitCoords   :: MapCoords  -- ^ Coordinates of the hit cell.
-  , hitDistance :: Float      -- ^ Distance from ray origin to hit.
-  , hitPosition :: Float      -- ^ Where exactly the wall was hit.
+  { hitSide     :: Side    -- ^ Which side was hit by the ray.
+  , hitCoords   :: Coords  -- ^ Coordinates of the hit tile.
+  , hitDistance :: Float   -- ^ Distance from ray origin to hit.
+  , hitPosition :: Float   -- ^ Where exactly the wall was hit.
   } deriving (Eq, Show)
 
 -- | An object that's been hit by a ray.
@@ -76,24 +64,24 @@ data Hit a = Hit
   , hitObject :: a        -- ^ An object.
   } deriving (Eq, Show)
 
--- | Side of a cell.
+-- | Side of a tile.
 data Side
   = SideX  -- ^ A side that can be hit from the X axis.
   | SideY  -- ^ A side that can be hit from the Y axis.
   deriving (Eq, Show)
 
--- | Compute hit info given 'Ray', hit 'Side' and hit cell coordinates.
-mkHitInfo :: Ray -> Side -> MapCoords -> HitInfo
+-- | Compute hit info given 'Ray', hit 'Side' and hit tile coordinates.
+mkHitInfo :: Ray -> Side -> Coords -> HitInfo
 mkHitInfo ray side coords = HitInfo side coords distance pos
   where
     distance = rayCellHitDistance ray side coords
     pos = rayHitPosition ray side distance
 
--- | Compute a distance to a hit cell.
+-- | Compute a distance to a hit tile.
 --
 -- >>> rayCellHitDistance (Ray (0.4, 0.6) (1.23, -0.45)) SideY (7,-3)
 -- 7.567345
-rayCellHitDistance :: Ray -> Side -> MapCoords -> Float
+rayCellHitDistance :: Ray -> Side -> Coords -> Float
 rayCellHitDistance (Ray (x, y) (rx, ry)) side (i, j) =
   case side of
     SideX -> (fromIntegral i - x + (1 - signum rx) / 2) / rx
@@ -141,7 +129,7 @@ cameraRays n camera
 fractionOf :: RealFrac a => a -> a
 fractionOf x = x - fromIntegral (floor x :: Int)
 
--- | Distances to the next cell boundaries along each coordinate.
+-- | Distances to the next tile boundaries along each coordinate.
 --
 -- >>> raySideDist (0.3, 0.6) (1, -1)
 -- (0.7,0.6)

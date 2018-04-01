@@ -1,9 +1,9 @@
 module Haskellstein.Engine (
   -- * Re-exports
   module Haskellstein.Engine.Camera,
-  module Haskellstein.Engine.Map,
   module Haskellstein.Engine.Picture,
   module Haskellstein.Engine.Settings,
+  module Haskellstein.Engine.TileMap,
 
   -- * Pure game interface
   play,
@@ -14,21 +14,21 @@ import SFML.Graphics hiding (rotate)
 import SFML.Window hiding (x, y, windowWidth, windowHeight)
 
 import Haskellstein.Engine.Camera
-import Haskellstein.Engine.Map
 import Haskellstein.Engine.Picture
 import Haskellstein.Engine.Render
 import Haskellstein.Engine.Settings
+import Haskellstein.Engine.TileMap
 
 -- | Play a game with raycasting rendering.
 --
 -- The game will exit on ESC.
 play
   :: EngineSettings
-  -> world                                  -- ^ Initial world state.
-  -> (world -> MapCoords -> Maybe Picture)  -- ^ World map.
-  -> (world -> Camera)                      -- ^ Player camera.
-  -> (SFEvent -> world -> world)            -- ^ Event handler.
-  -> (Float -> world -> world)              -- ^ Update function (to be called every frame).
+  -> world                        -- ^ Initial world state.
+  -> (world -> TileMap Picture)   -- ^ World tile map.
+  -> (world -> Camera)            -- ^ Player camera.
+  -> (SFEvent -> world -> world)  -- ^ Event handler.
+  -> (Float -> world -> world)    -- ^ Update function (to be called every frame).
   -> IO ()
 play engineSettings initWorld worldMap worldCamera handleEvent updateWorld = do
   -- create window

@@ -4,21 +4,21 @@ import SFML.Graphics
 import SFML.Window hiding (x, y, windowWidth, windowHeight)
 
 import Haskellstein.Engine.Camera
-import Haskellstein.Engine.Map
 import Haskellstein.Engine.Picture
 import Haskellstein.Engine.Raycasting
+import Haskellstein.Engine.TileMap
 
 -- | Render vertical lines produced by a raycaster.
 renderVerticalLines
-  :: RenderWindow                   -- ^ Window to render onto.
-  -> (Int, Int)                     -- ^ Screen size.
-  -> Int                            -- ^ Maximum raycasting depth (in cells).
-  -> Camera                         -- ^ Raycasting camera.
-  -> (MapCoords -> Maybe Picture)   -- ^ World map.
+  :: RenderWindow     -- ^ Window to render onto.
+  -> (Int, Int)       -- ^ Screen size.
+  -> Int              -- ^ Maximum raycasting depth (in cells).
+  -> Camera           -- ^ Raycasting camera.
+  -> TileMap Picture  -- ^ World map.
   -> IO ()
 renderVerticalLines wnd (windowWidth, windowHeight) depth camera m =
   mapM_ (\(i, hs) -> mapM_ (renderWall i) (take 1 hs))
-    (zip [0..] (raycastWithMap depth windowWidth m camera))
+    (zip [0..] (raycastWithTileMap depth windowWidth m camera))
   where
     h = fromIntegral windowHeight
 

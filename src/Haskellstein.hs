@@ -23,27 +23,22 @@ handleEvent (SFEvtKeyReleased KeyD _ _ _ _) = setPlayerRotation 0
 handleEvent _ = id
 
 -- | A sample map with 'Char' objects in map cells.
-sampleMap :: MapCoords -> Maybe Char
-sampleMap (i, j) = (xs !! j) !! i
-  where
-    xs = map (map f)
-      [ "#@#@#@#@#@#@#@#@#@"
-      , "#                #"
-      , "#@#@#@#          #"
-      , "#   #     #      #"
-      , "#   #     #      #"
-      , "#   #@#@#@# #@#@#@"
-      , "#      #         #"
-      , "#           #    #"
-      , "#@#@#@#@#@#@#@#@#@"
-      ]
-
-    f ' ' = Nothing
-    f c   = Just c
+sampleMap :: TileMap Char
+sampleMap = asciiTileMap
+  [ "#@#@#@#@#@#@#@#@#@"
+  , "#                #"
+  , "#@#@#@#          #"
+  , "#   #     #      #"
+  , "#   #     #      #"
+  , "#   #@#@#@# #@#@#@"
+  , "#      #         #"
+  , "#           #    #"
+  , "#@#@#@#@#@#@#@#@#@"
+  ]
 
 -- | Make a textured map from an ASCII map.
-makeWorldMap :: Texture -> (MapCoords -> Maybe Char) -> (MapCoords -> Maybe Picture)
-makeWorldMap wallTexture m = fmap f . m
+makeWorldMap :: Texture -> TileMap Char -> TileMap Picture
+makeWorldMap wallTexture = fmap f
   where
     f '#' = PictureTexture wallTexture 0  (64, 64)
     f _   = PictureTexture wallTexture 64 (64, 64)
