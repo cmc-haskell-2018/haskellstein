@@ -1,6 +1,6 @@
 module Haskellstein where
 
-import SFML.Graphics (Color(..), textureFromFile)
+import SFML.Graphics (textureFromFile)
 import SFML.Window.Event
 import SFML.Window.Keyboard
 
@@ -10,12 +10,12 @@ import Haskellstein.Engine.Raycasting
 run :: IO ()
 run = do
   Right wallTexture <- textureFromFile "textures/wall.png" Nothing
-  play title winSize bgColor raycasterDepth initWorld (worldMap wallTexture) worldCamera handleEvent updateWorld
+  play engineSettings initWorld (worldMap wallTexture) worldCamera handleEvent updateWorld
   where
-    title = "Haskellstein"
-    winSize = (640, 480)
-    bgColor = Color 32 32 32 255
-    raycasterDepth = 100
+    engineSettings = defaultEngineSettings
+      { engineWindowTitle = "Haskellstein"
+      , engineWindowSize  = (640, 480)
+      }
 
     initWorld = Camera (15, 1.5) dir plane
       where

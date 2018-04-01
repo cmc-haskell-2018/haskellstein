@@ -8,32 +8,44 @@ import Haskellstein.Engine.Raycasting
 data Picture
   = PictureTexture Texture Float (Float, Float)
 
+data EngineSettings = EngineSettings
+  { engineWindowTitle     :: String
+  , engineWindowSize      :: (Int, Int)
+  , engineBackgroundColor :: Color
+  , engineRaycasterDepth  :: Int
+  }
+
+defaultEngineSettings :: EngineSettings
+defaultEngineSettings = EngineSettings
+  { engineWindowTitle     = "Default title"
+  , engineWindowSize      = (640, 480)
+  , engineBackgroundColor = Color 0 0 0 255
+  , engineRaycasterDepth  = 1000
+  }
+
 -- | Play a game with raycasting rendering.
 play
-  :: String                                 -- ^ Window title.
-  -> (Int, Int)                             -- ^ Window size.
-  -> Color                                  -- ^ Background color.
-  -> Int                                    -- ^ Raycaster depth.
+  :: EngineSettings
   -> world                                  -- ^ Initial world state.
   -> (world -> MapCoords -> Maybe Picture)  -- ^ World map.
   -> (world -> Camera)                      -- ^ Player camera.
   -> (SFEvent -> world -> world)            -- ^ Event handler.
   -> (Float -> world -> world)              -- ^ Update function (to be called every frame).
   -> IO ()
-play title windowSize bgColor raycasterDepth initWorld worldMap worldCamera handleEvent updateWorld = do
+play engineSettings initWorld worldMap worldCamera handleEvent updateWorld = do
   wnd <- createRenderWindow
             (VideoMode windowWidth windowHeight 32)
-            title
+            (engineWindowTitle engineSettings)
             [SFDefaultStyle]
             (Just defaultContextSettings)
   timer <- createClock
   loop timer wnd initWorld
   destroy wnd
   where
-    (windowWidth, windowHeight) = windowSize
+    (windowWidth, windowHeight) = engineWindowSize engineSettings
 
     loop timer wnd world = do
-      clearRenderWindow wnd bgColor
+      clearRenderWindow wnd (engineBackgroundColor engineSettings)
       renderLines wnd world
       display wnd
 
@@ -47,8 +59,9 @@ play title windowSize bgColor raycasterDepth initWorld worldMap worldCamera hand
 
     renderLines wnd world =
       mapM_ (\(i, hs) -> mapM_ (renderWall i) (take 1 hs))
-        (zip [0..] (raycastWithMap raycasterDepth windowWidth sampleMap camera))
+        (zip [0..] (raycastWithMap depth windowWidth sampleMap camera))
       where
+        depth = engineRaycasterDepth engineSettings
         camera = worldCamera world
         sampleMap = worldMap world
 
