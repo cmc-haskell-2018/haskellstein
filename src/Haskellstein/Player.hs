@@ -3,7 +3,6 @@ module Haskellstein.Player where
 import Data.Function ((&))
 import Haskellstein.Engine.Camera
 import Haskellstein.Engine.TileMap
-import Haskellstein.Engine.Vector
 
 -- | Player state.
 data Player = Player
@@ -15,14 +14,14 @@ data Player = Player
 -- | Initialise 'Player'.
 initPlayer :: Player
 initPlayer = Player
-  { playerCamera = Camera (15, 1.5) dir plane
+  { playerCamera = initCamera position theta fov
   , playerRotation = 0
   , playerSpeed    = 0
   }
   where
-    theta = -0.3
-    dir = rotate theta (-1, 0)
-    plane = rotate (theta + pi/2) (-0.66, 0)
+    position = (15.5, 1.5)
+    theta    = pi - 0.3
+    fov      = pi / 2
 
 -- | Set 'Player' rotation speed.
 setPlayerRotation :: Float -> Player -> Player

@@ -5,11 +5,27 @@ import Haskellstein.Engine.TileMap
 
 -- | A camera for raycasting.
 data Camera = Camera
-  { cameraPosition    :: Vector   -- ^ Camera position.
+  { cameraPosition    :: Point    -- ^ Camera position.
   , cameraDirection   :: Vector   -- ^ Camera direction.
   , cameraPlane       :: Vector
     -- ^ Camera plane vector (always orthogonal to camera direction).
   } deriving (Show)
+
+-- | Initialise camera at a given point and direction angle
+-- and with a given field of view angle.
+initCamera
+  :: Point    -- ^ Camera position.
+  -> Float    -- ^ Direction angle (in radians).
+  -> Float    -- ^ Field of view angle (in radians, between 0 and 'pi')
+  -> Camera
+initCamera pos theta fov = Camera
+  { cameraPosition  = pos
+  , cameraDirection = dir
+  , cameraPlane     = plane
+  }
+  where
+    dir = rotate theta (1, 0)
+    plane = rotate theta (0, sin (fov/2))
 
 -- | Rotate camera by a given angle (in radians).
 rotateCamera :: Float -> Camera -> Camera
