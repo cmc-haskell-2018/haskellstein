@@ -1,4 +1,3 @@
-{-# OPTIONS_GHC -fno-warn-type-defaults #-}
 module Haskellstein.Engine.Raycasting where
 
 import Data.Maybe
@@ -79,6 +78,9 @@ type MapCoords = (Int, Int)
 pointToMapCoords :: Point -> MapCoords
 pointToMapCoords (x, y) = (floor x, floor y)
 
+fractionOf :: RealFrac a => a -> a
+fractionOf x = x - fromIntegral (floor x :: Int)
+
 -- | Distances to the next cell boundaries along each coordinate.
 --
 -- >>> raySideDist (0.3, 0.6) (1, -1)
@@ -86,8 +88,8 @@ pointToMapCoords (x, y) = (floor x, floor y)
 raySideDist :: Ray -> (Float, Float)
 raySideDist (Ray (x, y) (rx, ry)) = (sideDistX, sideDistY)
   where
-    fx = x - fromIntegral (floor x)
-    fy = y - fromIntegral (floor y)
+    fx = fractionOf x
+    fy = fractionOf y
 
     sideDistX
       | rx < 0    = fx
@@ -102,6 +104,7 @@ data HitInfo = HitInfo
   { hitSide     :: Side       -- ^ Which side was hit by the ray.
   , hitCoords   :: MapCoords  -- ^ Coordinates of the hit cell.
   , hitDistance :: Float      -- ^ Distance from ray origin to hit.
+  , hitPosition :: Float      -- ^ Where exactly the wall was hit.
   } deriving (Eq, Show)
 
 -- | An object that's been hit by a ray.
@@ -125,8 +128,6 @@ rayCellHitDistance (Ray (x, y) (rx, ry)) side (i, j) =
   case side of
     SideX -> (fromIntegral i - x + (1 - signum rx) / 2) / rx
     SideY -> (fromIntegral j - y + (1 - signum ry) / 2) / ry
-  where
-    r = sqrt (rx^2 + ry^2)
 
 -- | Compute ray's path through a discrete 2D space.
 --
@@ -158,10 +159,20 @@ rayPath ray@(Ray point (rx, ry)) = go (dx * sideDistX, dy * sideDistY) startingC
 
     -- infinite raycasting interation
     go (sx, sy) (i, j)
-      | sx <= sy  = mkHitInfo SideX (i + di, j) : go (sx + dx, sy) (i + di, j)
-      | otherwise = mkHitInfo SideY (i, j + dj) : go (sx, sy + dy) (i, j + dj)
+      | sx <= sy  = mkHitInfo ray SideX (i + di, j) : go (sx + dx, sy) (i + di, j)
+      | otherwise = mkHitInfo ray SideY (i, j + dj) : go (sx, sy + dy) (i, j + dj)
 
-    mkHitInfo side coords = HitInfo side coords (rayCellHitDistance ray side coords)
+mkHitInfo :: Ray -> Side -> MapCoords -> HitInfo
+mkHitInfo ray side coords = HitInfo side coords distance pos
+  where
+    distance = rayCellHitDistance ray side coords
+    pos = rayHitPosition ray side distance
+
+rayHitPosition :: Ray -> Side -> Float -> Float
+rayHitPosition (Ray (x, y) (rx, ry)) side distance =
+  case side of
+    SideX -> fractionOf (y + distance * ry)
+    SideY -> fractionOf (x + distance * rx)
 
 -- | Cast a ray and collect all objects on its path.
 castRayWithMap
