@@ -28,6 +28,8 @@ defaultEngineSettings = EngineSettings
   }
 
 -- | Play a game with raycasting rendering.
+--
+-- The game will exit on ESC.
 play
   :: EngineSettings
   -> world                                  -- ^ Initial world state.
@@ -72,6 +74,7 @@ play engineSettings initWorld worldMap worldCamera handleEvent updateWorld = do
           dt <- asSeconds <$> restartClock timer
           case evt of
               Just SFEvtClosed -> return ()
+              Just (SFEvtKeyPressed KeyEscape _ _ _ _) -> return ()
               Just event -> do
                 go (updateWorld dt (handleEvent event world))
               _ -> go (updateWorld dt world)
