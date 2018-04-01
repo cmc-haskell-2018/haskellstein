@@ -18,28 +18,32 @@ play
   -> (world -> MapCoords -> Maybe Picture)  -- ^ World map.
   -> (world -> Camera)                      -- ^ Player camera.
   -> (SFEvent -> world -> world)            -- ^ Event handler.
+  -> (Float -> world -> world)              -- ^ Update function (to be called every frame).
   -> IO ()
-play title windowSize bgColor raycasterDepth initWorld worldMap worldCamera handleEvent = do
+play title windowSize bgColor raycasterDepth initWorld worldMap worldCamera handleEvent updateWorld = do
   wnd <- createRenderWindow
             (VideoMode windowWidth windowHeight 32)
             title
             [SFDefaultStyle]
             (Just defaultContextSettings)
-  loop wnd initWorld
+  timer <- createClock
+  loop timer wnd initWorld
   destroy wnd
   where
     (windowWidth, windowHeight) = windowSize
 
-    loop wnd world = do
+    loop timer wnd world = do
       clearRenderWindow wnd bgColor
       renderLines wnd world
       display wnd
 
-      evt <- waitEvent wnd
+      evt <- pollEvent wnd
+      dt <- asSeconds <$> restartClock timer
       case evt of
           Just SFEvtClosed -> return ()
-          Just event -> loop wnd (handleEvent event world)
-          _ -> loop wnd world
+          Just event -> do
+            loop timer wnd (updateWorld dt (handleEvent event world))
+          _ -> loop timer wnd (updateWorld dt world)
 
     renderLines wnd world =
       mapM_ (\(i, hs) -> mapM_ (renderWall i) (take 1 hs))

@@ -10,14 +10,14 @@ import Haskellstein.Engine.Raycasting
 run :: IO ()
 run = do
   Right wallTexture <- textureFromFile "textures/wall.png" Nothing
-  play title winSize bgColor raycasterDepth initWorld (worldMap wallTexture) worldCamera handleEvent
+  play title winSize bgColor raycasterDepth initWorld (worldMap wallTexture) worldCamera handleEvent updateWorld
   where
     title = "Haskellstein"
     winSize = (640, 480)
     bgColor = Color 32 32 32 255
     raycasterDepth = 100
 
-    initWorld = Camera (16, 1.5) dir plane
+    initWorld = Camera (15, 1.5) dir plane
       where
         theta = -0.3
         dir = rotate theta (-1, 0)
@@ -31,6 +31,8 @@ run = do
     handleEvent (SFEvtKeyPressed KeyS _ _ _ _) = moveCamera (-0.1)
     handleEvent (SFEvtKeyPressed KeyD _ _ _ _) = rotateCamera 0.1
     handleEvent _ = id
+
+    updateWorld dt = moveCamera dt . rotateCamera (- dt)
 
     sampleMap wallTexture (i, j) = (xs !! j) !! i
       where
