@@ -2,6 +2,7 @@ module Haskellstein.Player where
 
 import Data.Function ((&))
 import Haskellstein.Engine.Camera
+import Haskellstein.Engine.TileMap
 import Haskellstein.Engine.Vector
 
 -- | Player state.
@@ -32,10 +33,10 @@ setPlayerSpeed :: Float -> Player -> Player
 setPlayerSpeed speed player = player { playerSpeed = speed }
 
 -- | Update 'Player': move and rotate.
-updatePlayer :: Float -> Player -> Player
-updatePlayer dt player = player { playerCamera = newCamera }
+updatePlayer :: TileMap a -> Float -> Player -> Player
+updatePlayer tileMap dt player = player { playerCamera = newCamera }
   where
     newCamera = playerCamera player
-      & moveCamera (dt * playerSpeed player)
+      & safeMoveCamera 0.1 tileMap (dt * playerSpeed player)
       & rotateCamera (dt * playerRotation player)
 

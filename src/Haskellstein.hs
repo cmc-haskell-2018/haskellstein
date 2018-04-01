@@ -47,13 +47,10 @@ run :: IO ()
 run = do
   Right wallTexture <- textureFromFile "textures/wall.png" Nothing
   setSmooth wallTexture True
-  play engineSettings initPlayer (worldMap wallTexture) playerCamera handleEvent updatePlayer
+  let tileMap = makeWorldMap wallTexture sampleMap
+  play engineSettings initPlayer (const tileMap) playerCamera handleEvent (updatePlayer tileMap)
   where
     engineSettings = defaultEngineSettings
       { engineWindowTitle = "Haskellstein"
       , engineWindowSize  = (640, 480)
-      , engineFramerateLimit = Nothing
       }
-
-    worldMap wallTexture _ = makeWorldMap wallTexture sampleMap
-
