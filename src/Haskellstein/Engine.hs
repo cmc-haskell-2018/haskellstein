@@ -13,6 +13,7 @@ data EngineSettings = EngineSettings
   , engineWindowSize      :: (Int, Int)
   , engineCeilingColor    :: Color
   , engineFloorColor      :: Color
+  , engineFramerateLimit  :: Maybe Int
   , engineRaycasterDepth  :: Int
   }
 
@@ -22,6 +23,7 @@ defaultEngineSettings = EngineSettings
   , engineWindowSize      = (640, 480)
   , engineCeilingColor    = Color 32 32 32 255
   , engineFloorColor      = Color 64 64 64 255
+  , engineFramerateLimit  = Just 60
   , engineRaycasterDepth  = 1000
   }
 
@@ -40,6 +42,11 @@ play engineSettings initWorld worldMap worldCamera handleEvent updateWorld = do
             (engineWindowTitle engineSettings)
             [SFDefaultStyle]
             (Just defaultContextSettings)
+
+  case engineFramerateLimit engineSettings of
+    Nothing  -> return ()
+    Just fps -> setFramerateLimit wnd fps
+
   timer <- createClock
 
   Right ceilingRectangle <- createRectangleShape
