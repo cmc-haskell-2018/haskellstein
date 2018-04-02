@@ -11,6 +11,7 @@ before_install:
 - cd ghc-8.4.1
 - ./configure
 - sudo make install
+- cd ..
 
 install:
 # Build dependencies
