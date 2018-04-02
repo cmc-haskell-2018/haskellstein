@@ -251,6 +251,10 @@ swapFT :: ObjectTexture -> ObjectTexture
 swapFT tex
     | tex == fireballTex1 = fireballTex2
     | tex == fireballTex2 = fireballTex1
+    | tex == fireballTex3 = fireballTex4
+    | tex == fireballTex4 = fireballTex3
+    | tex == fireballTex5 = fireballTex6
+    | tex == fireballTex6 = fireballTex5
     | otherwise           = fireballTex1
 
 -------------------------------ENEMY_FUNCTIONS------------------------------
@@ -501,7 +505,7 @@ damageEnemyRange p e delta
                               , e {eASpeed = (Just cd, cd)
                                 , eAnim = (Just (cdA), cdA)
                                 , eTex = setAT (eTex e)}
-                              , [createFireballEnemy pos a d])
+                              , [createFireballEnemy pos a d model])
     | otherwise               = (p, e {eASpeed = (delay, cd)}, [])
   where
     (_, cdA)  = eAnim e
@@ -511,6 +515,7 @@ damageEnemyRange p e delta
     d         = eDamage e
     pos       = ePos e
     a         = findAngle (pPos p) pos
+    model     = eModel e
     delay     = case tmp of
                 Nothing   -> Nothing
                 Just time -> if (time - delta < 0) then Nothing
@@ -589,7 +594,7 @@ movePlayerControl p tmap delta control =
     tmpY     = py + (step * delta * ps * sin pa)
                   + (stepH * delta * ps * sin (pa - constPiF / 2))
     newCoord = getNewCoord (px, py) (tmpX, tmpY) tmap
-    newA     = pa + (constPiF / 3 * delta * turn)
+    newA     = pa + (constPiF / 2 * delta * turn)
 
 --changePosByAnimation
 movePlayerTurn

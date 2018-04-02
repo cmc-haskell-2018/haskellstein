@@ -86,3 +86,15 @@ fireballTex1 = 5
 
 fireballTex2 :: Int
 fireballTex2 = 6
+
+fireballTex3 :: Int
+fireballTex3 = 8
+
+fireballTex4 :: Int
+fireballTex4 = 9
+
+fireballTex5 :: Int
+fireballTex5 = 10
+
+fireballTex6 :: Int
+fireballTex6 = 11

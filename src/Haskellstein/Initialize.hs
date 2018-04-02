@@ -91,8 +91,9 @@ createFireballEnemy
   :: Position
   -> Float -- angle to player
   -> Int -- damage
+  -> EnemyType
   -> Fireball
-createFireballEnemy pos a d =
+createFireballEnemy pos a d Range =
     Fireball
         pos
         a -- fRadian
@@ -100,7 +101,18 @@ createFireballEnemy pos a d =
         0.2 -- fRadius
         5.5 -- fSpeed
         Small -- fModel
-        fireballTex1
+        fireballTex3
+        (Just texCooldown, texCooldown)
+        Normal --color
+createFireballEnemy pos a d _ =
+    Fireball
+        pos
+        a -- fRadian
+        d -- fDamage
+        0.2 -- fRadius
+        5.5 -- fSpeed
+        Small -- fModel
+        fireballTex5
         (Just texCooldown, texCooldown)
         Normal --color
 
