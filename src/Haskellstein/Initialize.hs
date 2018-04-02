@@ -39,14 +39,14 @@ createEnemy (y, x) Range =
     Enemy
         (((fromIntegral x) + 0.5)
       , ((fromIntegral y) + 0.5)) -- ePos
-        5 -- eHp
-        3 -- eDamage
-        1.2 -- eRange
+        3 -- eHp
+        2 -- eDamage
+        7 -- eRange
         3 -- eSpeed
-        (Just 2.5, 2.5) -- eASpeed
+        (Just 1.7, 1.7) -- eASpeed
         Range -- eModel
         rangeTex1 -- eTex
-        3 -- eVision
+        4 -- eVision
         False -- eAgro
         (Just (1.5 * texCooldown), 1.5 * texCooldown) -- eAnim
         False -- eMoved
@@ -56,14 +56,14 @@ createEnemy (y, x) Mage =
     Enemy
         (((fromIntegral x) + 0.5)
       , ((fromIntegral y) + 0.5)) -- ePos
-        10 -- eHp
+        5 -- eHp
         4 -- eDamage
-        1.2 -- eRange
+        7 -- eRange
         2.5 -- eSpeed
-        (Just 2.5, 2.5) -- eASpeed
+        (Just 1.7, 1.7) -- eASpeed
         Mage -- eModel
         mageTex1 -- eTex
-        3 -- eVision
+        4 -- eVision
         False -- eAgro
         (Just (1.5 * texCooldown), 1.5 * texCooldown) -- eAnim
         False -- eMoved
@@ -82,6 +82,23 @@ createFireball (x,y) a d =
         d -- fDamage
         0.25 -- fRadius
         7.0 -- fSpeed
+        Small -- fModel
+        fireballTex1
+        (Just texCooldown, texCooldown)
+        Normal --color
+
+createFireballEnemy
+  :: Position
+  -> Float -- angle to player
+  -> Int -- damage
+  -> Fireball
+createFireballEnemy pos a d =
+    Fireball
+        pos
+        a -- fRadian
+        d -- fDamage
+        0.2 -- fRadius
+        5.5 -- fSpeed
         Small -- fModel
         fireballTex1
         (Just texCooldown, texCooldown)
@@ -156,6 +173,7 @@ createScene tmap =
         (Control False False False False False False False False)
         0.00
         (Just texCooldown)
+        []
         []
   where
     rewrite p

@@ -35,27 +35,35 @@ doFireballs = sAnimationFireballs . sMoveFireballs . sDamageFireballs
 
 --shell
 sAnimationFireballs :: Scene -> Scene
-sAnimationFireballs scene = scene {sFireball = retF}
+sAnimationFireballs scene = scene {sFireball = retF, sEnemyFireball = retEF}
   where
-    retF = animationFireballs (sFireball scene)
-                              (sDelta scene)
+    retF  = animationFireballs (sFireball scene)
+                               (sDelta scene)
+    retEF = animationFireballs (sEnemyFireball scene)
+                               (sDelta scene)
 
 --shell
 sMoveFireballs :: Scene -> Scene
 sMoveFireballs scene =
-    scene {sFireball = newF, sTilemap = newTmap}
+    scene {sFireball = newF, sTilemap = retTmap, sEnemyFireball = newEF}
   where
-    (newF, newTmap) = moveFireballs (sFireball scene)
-                                    (sTilemap scene)
-                                    (sDelta scene)
+    (newF, newTmap)  = moveFireballs (sFireball scene)
+                                     (sTilemap scene)
+                                     (sDelta scene)
+    (newEF, retTmap) = moveFireballs (sEnemyFireball scene)
+                                     newTmap
+                                     (sDelta scene)
 
 --shell
 sDamageFireballs :: Scene -> Scene
 sDamageFireballs scene =
-    scene {sFireball = newF, sEnemy = newE}
+    scene { sFireball = newF, sEnemy = newE, sPlayer = newP
+          , sEnemyFireball = newEF}
   where
-    (newF, newE) = damageFireballs (sFireball scene)
-                                   (sEnemy scene)
+    (newF, newE)  = damageFireballs (sFireball scene)
+                                    (sEnemy scene)
+    (newEF, newP) = damageEnemyFireballs (sEnemyFireball scene)
+                                         (sPlayer scene)
 
 --all actions of enemies
 doEnemies :: Scene -> Scene
@@ -77,11 +85,13 @@ sMoveEnemies scene =
 --shell
 sDamageEnemies :: Scene -> Scene
 sDamageEnemies scene =
-    scene {sPlayer = newP, sEnemy = newE}
+    scene { sPlayer        = newP
+          , sEnemy         = newE
+          , sEnemyFireball = newEF ++ (sEnemyFireball scene)}
   where
-    (newP, newE) = damageEnemies (sPlayer scene)
-                                 (sEnemy scene)
-                                 (sDelta scene)
+    (newP, newE, newEF) = damageEnemies (sPlayer scene)
+                                        (sEnemy scene)
+                                        (sDelta scene)
 
 --shell
 sChangeTexEnemies :: Scene -> Scene
@@ -190,6 +200,31 @@ damageFireball f (e:es)
     rx            = abs (fx - ex)
     ry            = abs (fy - ey)
     (newF, retE)  = damageFireball f es
+
+--check fireballs for hurting player
+damageEnemyFireballs :: [Fireball] -> Player -> ([Fireball], Player)
+damageEnemyFireballs [] p     = ([], p)
+damageEnemyFireballs (f:fs) p = case newF of
+    Nothing       -> (retLF, retP)
+    Just fireball -> (fireball : retLF, retP)
+  where
+    (newF, newP)   = damageEnemyFireball f p
+    (retLF, retP)  = damageEnemyFireballs fs newP
+
+--check fireball for hurting player
+damageEnemyFireball :: Fireball -> Player -> (Maybe Fireball, Player)
+damageEnemyFireball f p
+    | rx < r, ry < r = (Nothing --hit
+                     , p {pHp = php})
+    | otherwise      = (Just f, p) --miss
+  where
+    (fx,fy)       = fPos f
+    r             = fRadius f
+    fd            = fDamage f
+    (px,py)       = pPos p
+    php           = pHp p - fd
+    rx            = abs (fx - px)
+    ry            = abs (fy - py)
 
 --Animation of fireballs
 animationFireballs :: [Fireball] -> Float -> [Fireball]
@@ -317,6 +352,13 @@ checkDeathTex tex
   | tex == mageTexDeath7  = True
   | otherwise             = False
 
+--if enemy is range
+ifRangeType :: EnemyType -> Bool
+ifRangeType t
+  | t == Range = True
+  | t == Mage  = True
+  | otherwise  = False
+
 -- change enemy texture
 changeTexEnemy :: Enemy -> Float -> Enemy
 changeTexEnemy e delta
@@ -346,9 +388,19 @@ extractDeadEnemies (e:es)
     isDead        = (eHp e) <= 0
     (newE, newDE) = extractDeadEnemies es
 
+--dont zero devide
 myCos :: Float -> Float -> Float
 myCos _ 0 = 1
 myCos a b = a/b
+
+--find angle to player
+findAngle :: Position -> Position -> Float
+findAngle (px,py) (ex,ey) = a
+  where
+    rx       = (px - ex)
+    ry       = (py - ey)
+    cosAlpha = myCos rx (sqrt ((rx * rx) + (ry * ry)))
+    a        = (acos cosAlpha) * signum ry
 
 --is player in vision
 isPInVision :: Player -> Enemy -> Bool
@@ -410,27 +462,55 @@ moveEnemy2 p e tmap delta =
     newCoord = getNewCoord (ex, ey) (newX, newY) tmap
 
 --enemies attack phase
-damageEnemies :: Player -> [Enemy] -> Float -> (Player, [Enemy])
-damageEnemies p [] _         = (p, [])
-damageEnemies p (e:es) delta = (retP, newE : retE)
+damageEnemies :: Player -> [Enemy] -> Float -> (Player, [Enemy], [Fireball])
+damageEnemies p [] _         = (p, [], [])
+damageEnemies p (e:es) delta = (retP, newE : retE, newF ++ retF)
   where
-    (newP, newE) = damageEnemy p e delta
-    (retP, retE) = damageEnemies newP es delta
+    (newP, newE, newF) = if (ifRangeType $ eModel e)
+                         then damageEnemyRange p e delta
+                         else damageEnemy p e delta
+    (retP, retE, retF) = damageEnemies newP es delta
 
 --Enemy deal Damage
-damageEnemy :: Player -> Enemy -> Float -> (Player, Enemy)
+damageEnemy :: Player -> Enemy -> Float -> (Player, Enemy, [Fireball])
 damageEnemy p e delta
     | isRange, isAReady, agro = (p {pHp = newHp}
                               , e {eASpeed = (Just cd, cd)
                                 , eAnim = (Just (cdA), cdA)
-                                , eTex = setAT (eTex e)})
-    | otherwise               = (p, e {eASpeed = (delay, cd)})
+                                , eTex = setAT (eTex e)}
+                              , [])
+    | otherwise               = (p, e {eASpeed = (delay, cd)}, [])
   where
     (_, cdA)  = eAnim e
     isRange   = isPInRange p e
     agro      = eAgro e
     newHp     = (pHp p) - (eDamage e)
     (tmp, cd) = eASpeed e
+    delay     = case tmp of
+                Nothing   -> Nothing
+                Just time -> if (time - delta < 0) then Nothing
+                             else Just (time - delta)
+    isAReady  = case delay of
+                Nothing -> True
+                _       -> False
+
+--Range enemy cast
+damageEnemyRange :: Player -> Enemy -> Float -> (Player, Enemy, [Fireball])
+damageEnemyRange p e delta
+    | isRange, isAReady, agro = (p
+                              , e {eASpeed = (Just cd, cd)
+                                , eAnim = (Just (cdA), cdA)
+                                , eTex = setAT (eTex e)}
+                              , [createFireballEnemy pos a d])
+    | otherwise               = (p, e {eASpeed = (delay, cd)}, [])
+  where
+    (_, cdA)  = eAnim e
+    isRange   = isPInRange p e
+    agro      = eAgro e
+    (tmp, cd) = eASpeed e
+    d         = eDamage e
+    pos       = ePos e
+    a         = findAngle (pPos p) pos
     delay     = case tmp of
                 Nothing   -> Nothing
                 Just time -> if (time - delta < 0) then Nothing

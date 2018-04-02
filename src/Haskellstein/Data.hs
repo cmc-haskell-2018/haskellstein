@@ -74,14 +74,15 @@ data Control = Control
     }
 
 data Scene = Scene
-    { sPlayer          :: Player
-    , sFireball        :: [Fireball]
-    , sEnemy           :: [Enemy]
-    , sTilemap         :: Tilemap
-    , sControl         :: Control
-    , sDelta           :: Float
-    , sTextureCond     :: TexTimer
-    , sDeadEnemy       :: [Enemy]
+    { sPlayer        :: Player
+    , sFireball      :: [Fireball]
+    , sEnemy         :: [Enemy]
+    , sTilemap       :: Tilemap
+    , sControl       :: Control
+    , sDelta         :: Float
+    , sTextureCond   :: TexTimer
+    , sDeadEnemy     :: [Enemy]
+    , sEnemyFireball :: [Fireball]
     }
 
 data TexCond  = Phase1 | Phase2 | Phase3 | Phase4

@@ -14,19 +14,21 @@ data Picture = Picture
 makePicture :: Scene -> Picture
 makePicture scene = Picture sprites intmap camera hp
   where
-    spriteEnemy     = map getSpriteFromEnemy (sEnemy scene)
-    spriteDeadEnemy = map getSpriteFromEnemy (sDeadEnemy scene)
-    spriteFireball  = map getSpriteFromFireball (sFireball scene)
-    spriteObject    = tilemapToSprite (sTilemap scene) 0
-    sprites         = spriteEnemy
-                      ++ spriteFireball
-                      ++ spriteObject
-                      ++ spriteDeadEnemy
-    intmap          = tilemapToIntmap (sTilemap scene)
-    camera          = ( (realToFrac $ fst $ pPos $ sPlayer scene)
-                      , (realToFrac $ snd $ pPos $ sPlayer scene)
-                      , (realToFrac $ pRadian $ sPlayer scene))
-    hp              = pHp $ sPlayer scene
+    spriteEnemy      = map getSpriteFromEnemy (sEnemy scene)
+    spriteDeadEnemy  = map getSpriteFromEnemy (sDeadEnemy scene)
+    spriteFireballP  = map getSpriteFromFireball (sFireball scene)
+    spriteFireballE  = map getSpriteFromFireball (sEnemyFireball scene)
+    spriteFireball   = spriteFireballP ++ spriteFireballE
+    spriteObject     = tilemapToSprite (sTilemap scene) 0
+    sprites          = spriteEnemy
+                       ++ spriteFireball
+                       ++ spriteObject
+                       ++ spriteDeadEnemy
+    intmap           = tilemapToIntmap (sTilemap scene)
+    camera           = ( (realToFrac $ fst $ pPos $ sPlayer scene)
+                       , (realToFrac $ snd $ pPos $ sPlayer scene)
+                       , (realToFrac $ pRadian $ sPlayer scene))
+    hp               = pHp $ sPlayer scene
 
 --extractWalls
 tilemapToIntmap :: Tilemap -> [[Int]]
