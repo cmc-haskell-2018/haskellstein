@@ -4,7 +4,7 @@ type Position = (Float, Float) -- (x,y)
 
 type Cooldown = (Maybe Float, Float) --(current time, cooldown)
 
-data EnemyType = Melee | Range | Mage
+data EnemyType = Melee | Range | Mage | Demon
     deriving (Eq)
 
 data FireballType = Small | Frost

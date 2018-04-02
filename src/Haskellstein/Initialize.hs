@@ -57,7 +57,7 @@ createEnemy (y, x) Mage =
         (((fromIntegral x) + 0.5)
       , ((fromIntegral y) + 0.5)) -- ePos
         5 -- eHp
-        4 -- eDamage
+        3 -- eDamage
         7 -- eRange
         2.5 -- eSpeed
         (Just 1.7, 1.7) -- eASpeed
@@ -68,6 +68,25 @@ createEnemy (y, x) Mage =
         (Just (1.5 * texCooldown), 1.5 * texCooldown) -- eAnim
         False -- eMoved
         Normal --color
+
+--demon
+createEnemy (y, x) Demon =
+    Enemy
+        (((fromIntegral x) + 0.5)
+      , ((fromIntegral y) + 0.5)) -- ePos
+        7 -- eHp
+        4 -- eDamage
+        1 -- eRange
+        3.5 -- eSpeed
+        (Just 2, 2) -- eASpeed
+        Demon -- eModel
+        demonTex1 -- eTex
+        4 -- eVision
+        False -- eAgro
+        (Just (texCooldown), texCooldown) -- eAnim
+        False -- eMoved
+        Normal --color
+
 
 createFireball
   :: Position
@@ -110,7 +129,7 @@ createFireballEnemy pos a d _ =
         a -- fRadian
         d -- fDamage
         0.2 -- fRadius
-        5.5 -- fSpeed
+        6 -- fSpeed
         Small -- fModel
         fireballTex5
         (Just texCooldown, texCooldown)
@@ -159,7 +178,8 @@ findEnemies = findEnemies2 0
 genEnemy :: Int -> EnemyType
 genEnemy 1 = Melee
 genEnemy 2 = Range
-genEnemy _ = Mage
+genEnemy 3 = Mage
+genEnemy _ = Demon
 
 --help function
 findEnemies2 :: Int -> Tilemap -> [Enemy]
