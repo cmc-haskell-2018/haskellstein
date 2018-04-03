@@ -11,8 +11,8 @@ createPlayer (y, x) =
       , ((fromIntegral y) + 0.5)) -- pPos
         0 -- pRadian
         30 -- pHp
-        2.2 -- pSpeed
-        (Just 0.7, 0.7) -- pASpeed
+        2.5 -- pSpeed
+        (Just 0.5, 0.5) -- pASpeed
         1 -- pDamage
         Nothing
 
@@ -26,7 +26,7 @@ createEnemy (y, x) Melee =
         2 -- eDamage
         1 -- eRange
         2 -- eSpeed
-        (Just 1.5, 1.5) -- eASpeed
+        (Just 1.0, 1.0) -- eASpeed
         Melee -- eModel
         meleeTex1 -- eTex
         4 -- eVision
@@ -43,7 +43,7 @@ createEnemy (y, x) Range =
         2 -- eDamage
         7 -- eRange
         3 -- eSpeed
-        (Just 1.7, 1.7) -- eASpeed
+        (Just 1.0, 1.0) -- eASpeed
         Range -- eModel
         rangeTex1 -- eTex
         4 -- eVision
@@ -59,8 +59,8 @@ createEnemy (y, x) Mage =
         5 -- eHp
         3 -- eDamage
         7 -- eRange
-        2.5 -- eSpeed
-        (Just 1.7, 1.7) -- eASpeed
+        3 -- eSpeed
+        (Just 1, 1) -- eASpeed
         Mage -- eModel
         mageTex1 -- eTex
         4 -- eVision
@@ -76,9 +76,9 @@ createEnemy (y, x) Demon =
       , ((fromIntegral y) + 0.5)) -- ePos
         7 -- eHp
         4 -- eDamage
-        1 -- eRange
+        1.2 -- eRange
         3.5 -- eSpeed
-        (Just 2, 2) -- eASpeed
+        (Just 1.2, 1.2) -- eASpeed
         Demon -- eModel
         demonTex1 -- eTex
         4 -- eVision

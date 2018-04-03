@@ -309,7 +309,7 @@ swapET tex
   | tex == mageTexAttack   = mageTex1
   | tex == demonTexAttack1 = demonTexAttack2
   | tex == demonTexAttack2 = demonTexAttack3
-  | tex == demonTexAttack3 = demonTex1
+  | tex == demonTexAttack3 = demonTex3
   | tex == meleeTex1       = meleeTex2
   | tex == meleeTex2       = meleeTex3
   | tex == meleeTex3       = meleeTex4
