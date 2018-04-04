@@ -1,8 +1,8 @@
 W - Move forward
-A - Turn left
 S - Move backwards
-D - Turn right
-E - Move right
-Q - Move left
+A - Move left
+D - Move right
+RightArrow - Turn right
+LeftArrow  - Turn left
 I - Fast Turn Around
 Spacebar - Cast fireball
