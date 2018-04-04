@@ -64,11 +64,11 @@ type Tilemap = [[TilemapCell]]
 
 data Control = Control
     { cForward    :: Bool
-    , cLeftT      :: Bool
     , cBack       :: Bool
-    , cRightT     :: Bool
     , cLeftM      :: Bool
     , cRightM     :: Bool
+    , cLeftT      :: Bool
+    , cRightT     :: Bool
     , cSpace      :: Bool
     , cTurnAround :: Bool
     }
@@ -84,8 +84,6 @@ data Scene = Scene
     , sDeadEnemy     :: [Enemy]
     , sEnemyFireball :: [Fireball]
     }
-
-data TexCond  = Phase1 | Phase2 | Phase3 | Phase4
 
 type TexTimer = Maybe Float
 

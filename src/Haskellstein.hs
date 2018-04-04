@@ -63,17 +63,17 @@ displayPicture picture = do
 getControl :: IO(Control)
 getControl = do
   keyWState      <- getKeyPressed keyW
-  keyAState      <- getKeyPressed keyA
   keySState      <- getKeyPressed keyS
+  keyAState      <- getKeyPressed keyA
   keyDState      <- getKeyPressed keyD
-  keyQState      <- getKeyPressed keyQ
-  keyEState      <- getKeyPressed keyE
+  keyQState      <- getKeyPressed keyLeftArrow
+  keyEState      <- getKeyPressed keyRightArrow
   keySpaceState  <- getKeyPressed keySpace
   keyTurn        <- getKeyPressed keyI
   let newControl = Control
                        (keyWState /= 0)
-                       (keyAState /= 0)
                        (keySState /= 0)
+                       (keyAState /= 0)
                        (keyDState /= 0)
                        (keyQState /= 0)
                        (keyEState /= 0)
