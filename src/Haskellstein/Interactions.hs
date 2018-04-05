@@ -433,7 +433,10 @@ findAngle (px,py) (ex,ey) = a
     rx       = (px - ex)
     ry       = (py - ey)
     cosAlpha = myCos rx (sqrt ((rx * rx) + (ry * ry)))
-    a        = (acos cosAlpha) * signum ry
+    half     = if ((signum ry) == 0)
+               then 1
+               else (signum ry)
+    a        = (acos cosAlpha) * half
 
 --is player in vision
 isPInVision :: Player -> Enemy -> Bool
