@@ -81,11 +81,11 @@ keyS = 2
 keyD :: Int
 keyD = 3
 
-keyQ :: Int
-keyQ = 4
+keyLeftArrow :: Int
+keyLeftArrow = 4
 
-keyE :: Int
-keyE = 5
+keyRightArrow :: Int
+keyRightArrow = 5
 
 keyI :: Int
 keyI = 6

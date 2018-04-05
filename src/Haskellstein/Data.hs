@@ -4,7 +4,7 @@ type Position = (Float, Float) -- (x,y)
 
 type Cooldown = (Maybe Float, Float) --(current time, cooldown)
 
-data EnemyType = Melee | Range | Mage
+data EnemyType = Melee | Range | Mage | Demon
     deriving (Eq)
 
 data FireballType = Small | Frost
@@ -64,11 +64,11 @@ type Tilemap = [[TilemapCell]]
 
 data Control = Control
     { cForward    :: Bool
-    , cLeftT      :: Bool
     , cBack       :: Bool
-    , cRightT     :: Bool
     , cLeftM      :: Bool
     , cRightM     :: Bool
+    , cLeftT      :: Bool
+    , cRightT     :: Bool
     , cSpace      :: Bool
     , cTurnAround :: Bool
     }
@@ -84,8 +84,6 @@ data Scene = Scene
     , sDeadEnemy     :: [Enemy]
     , sEnemyFireball :: [Fireball]
     }
-
-data TexCond  = Phase1 | Phase2 | Phase3 | Phase4
 
 type TexTimer = Maybe Float
 

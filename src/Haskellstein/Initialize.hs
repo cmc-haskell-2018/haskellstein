@@ -11,8 +11,8 @@ createPlayer (y, x) =
       , ((fromIntegral y) + 0.5)) -- pPos
         0 -- pRadian
         30 -- pHp
-        2.2 -- pSpeed
-        (Just 0.7, 0.7) -- pASpeed
+        2.5 -- pSpeed
+        (Just 0.5, 0.5) -- pASpeed
         1 -- pDamage
         Nothing
 
@@ -26,7 +26,7 @@ createEnemy (y, x) Melee =
         2 -- eDamage
         1 -- eRange
         2 -- eSpeed
-        (Just 1.5, 1.5) -- eASpeed
+        (Just 1.0, 1.0) -- eASpeed
         Melee -- eModel
         meleeTex1 -- eTex
         4 -- eVision
@@ -43,7 +43,7 @@ createEnemy (y, x) Range =
         2 -- eDamage
         7 -- eRange
         3 -- eSpeed
-        (Just 1.7, 1.7) -- eASpeed
+        (Just 1.0, 1.0) -- eASpeed
         Range -- eModel
         rangeTex1 -- eTex
         4 -- eVision
@@ -57,10 +57,10 @@ createEnemy (y, x) Mage =
         (((fromIntegral x) + 0.5)
       , ((fromIntegral y) + 0.5)) -- ePos
         5 -- eHp
-        4 -- eDamage
+        3 -- eDamage
         7 -- eRange
-        2.5 -- eSpeed
-        (Just 1.7, 1.7) -- eASpeed
+        3 -- eSpeed
+        (Just 1, 1) -- eASpeed
         Mage -- eModel
         mageTex1 -- eTex
         4 -- eVision
@@ -68,6 +68,25 @@ createEnemy (y, x) Mage =
         (Just (1.5 * texCooldown), 1.5 * texCooldown) -- eAnim
         False -- eMoved
         Normal --color
+
+--demon
+createEnemy (y, x) Demon =
+    Enemy
+        (((fromIntegral x) + 0.5)
+      , ((fromIntegral y) + 0.5)) -- ePos
+        7 -- eHp
+        4 -- eDamage
+        1.2 -- eRange
+        3.5 -- eSpeed
+        (Just 1.2, 1.2) -- eASpeed
+        Demon -- eModel
+        demonTex1 -- eTex
+        4 -- eVision
+        False -- eAgro
+        (Just (texCooldown), texCooldown) -- eAnim
+        False -- eMoved
+        Normal --color
+
 
 createFireball
   :: Position
@@ -110,7 +129,7 @@ createFireballEnemy pos a d _ =
         a -- fRadian
         d -- fDamage
         0.2 -- fRadius
-        5.5 -- fSpeed
+        6 -- fSpeed
         Small -- fModel
         fireballTex5
         (Just texCooldown, texCooldown)
@@ -159,7 +178,8 @@ findEnemies = findEnemies2 0
 genEnemy :: Int -> EnemyType
 genEnemy 1 = Melee
 genEnemy 2 = Range
-genEnemy _ = Mage
+genEnemy 3 = Mage
+genEnemy _ = Demon
 
 --help function
 findEnemies2 :: Int -> Tilemap -> [Enemy]
