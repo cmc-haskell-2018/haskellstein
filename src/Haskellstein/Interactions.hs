@@ -70,7 +70,17 @@ doEnemies :: Scene -> Scene
 doEnemies = sDamageEnemies
           . sMoveEnemies
           . sChangeTexEnemies
+          . sSetAgroEnemies
           . sExtractDeadEnemies
+
+--shell
+sSetAgroEnemies :: Scene -> Scene
+sSetAgroEnemies scene =
+    scene {sEnemy = newE ++ agroE}
+  where
+    agroE  = extractAgroEnemies (sEnemy scene)
+    sleepE = extractSleepEnemies (sEnemy scene)
+    newE   = setAgroEnemies agroE sleepE
 
 --shell
 sMoveEnemies :: Scene -> Scene
@@ -420,6 +430,41 @@ extractDeadEnemies (e:es)
     (_, cd)       = eAnim e
     isDead        = (eHp e) <= 0
     (newE, newDE) = extractDeadEnemies es
+
+--take Agro enemies
+extractAgroEnemies :: [Enemy] -> [Enemy]
+extractAgroEnemies []     = []
+extractAgroEnemies (e:es) = if (eAgro e)
+                            then (e : extractAgroEnemies es)
+                            else (extractAgroEnemies es)
+
+--take sleep enemies
+extractSleepEnemies :: [Enemy] -> [Enemy]
+extractSleepEnemies []     = []
+extractSleepEnemies (e:es) = if (eAgro e)
+                            then (extractSleepEnemies es)
+                            else (e : extractSleepEnemies es)
+
+--agro enemies triger agro of sleep enemies
+setAgroEnemies :: [Enemy] -> [Enemy] -> [Enemy]
+setAgroEnemies [] sleepE     = sleepE
+setAgroEnemies (e:es) sleepE = retSleepE
+  where
+    newSleepE = setAgroEnemy e sleepE
+    retSleepE = setAgroEnemies es newSleepE
+
+--agro enemy triger agro of sleep enemies
+setAgroEnemy :: Enemy -> [Enemy] -> [Enemy]
+setAgroEnemy _ []       = []
+setAgroEnemy e (se:ses)
+    | ifSet     = se {eAgro = True} : (setAgroEnemy e ses)
+    | otherwise = se : (setAgroEnemy e ses)
+  where
+    (ex, ey)   = ePos e
+    (sex, sey) = ePos se
+    rx         = abs (ex - sex)
+    ry         = abs (ey - sey)
+    ifSet      = rx < eVision se && ry < eVision se
 
 --dont zero devide
 myCos :: Float -> Float -> Float
