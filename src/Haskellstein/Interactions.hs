@@ -533,11 +533,14 @@ damageEnemy p e delta
 --Range enemy cast
 damageEnemyRange :: Player -> Enemy -> Float -> (Player, Enemy, [Fireball])
 damageEnemyRange p e delta
-    | isRange, isAReady, agro = (p
-                              , e {eASpeed = (Just cd, cd)
-                                , eAnim = (Just (cdA), cdA)
-                                , eTex = setAT (eTex e)}
-                              , [createFireballEnemy pos a d model])
+    | isRange, isAReady, agro =
+        (p
+        , e {eASpeed = (Just cd, cd)
+          , eAnim = (Just (cdA), cdA)
+          , eTex = setAT (eTex e)}
+        , [createFireballEnemy pos a d model]
+       ++ [createFireballEnemy pos (a + (constPiF / 10)) d model]
+       ++ [createFireballEnemy pos (a - (constPiF / 10)) d model])
     | otherwise               = (p, e {eASpeed = (delay, cd)}, [])
   where
     (_, cdA)  = eAnim e
