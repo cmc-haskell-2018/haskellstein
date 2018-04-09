@@ -15,6 +15,7 @@ MODULES_NAMES = Main Haskellstein \
  Haskellstein/Raycasting/Rayconsts \
  Haskellstein/Data \
  Haskellstein/Texconsts \
+ Haskellstein/Texwork \
  Haskellstein/Picture \
  Haskellstein/CheckMap \
  Haskellstein/Initialize \
