@@ -96,7 +96,7 @@ updateScene scene control delta = scene {sControl = control, sDelta = delta}
 endCheck :: Scene -> GameEnd
 endCheck scene =
   if ((pHp . sPlayer $ scene) <= 0) then Defeat
-  else if (null . sEnemy $ scene) then Victory
+  else if (pExit . sPlayer $ scene) then Victory
        else Continue
 
 --makeInteractions

@@ -47,6 +47,17 @@ writeEmpty tm (n,m) = if head ((tm !! n) !! m) == 'd'
 takeCellStr :: Tilemap -> CellCoord -> String
 takeCellStr tmap (y,x) = (tmap !! y) !! x
 
+--exit pisition
+exitCell :: Tilemap -> CellCoord -> Bool
+exitCell tmap coord
+    | str == "b00" = True
+    | str == "b01" = True
+    | str == "b02" = True
+    | str == "b03" = True
+    | otherwise    = False
+  where
+    str = takeCellStr tmap coord
+
 --return move coords
 getNewCoord :: Position -> Position -> Tilemap -> Position
 getNewCoord (px,py) (newX,newY) tmap =

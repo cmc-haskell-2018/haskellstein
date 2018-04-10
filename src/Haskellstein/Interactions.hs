@@ -124,7 +124,7 @@ sExtractDeadEnemies scene =
 
 --all actions of player
 doPlayer :: Scene -> Scene
-doPlayer = sCastPlayer . sMovePlayer
+doPlayer = sExitPlayer . sCastPlayer . sMovePlayer
 
 --shell
 sMovePlayer :: Scene -> Scene
@@ -147,6 +147,11 @@ sCastPlayer scene = case isFireball of
     (newP, isFireball) = castPlayer (sPlayer scene)
                                     (sDelta scene)
                                     (sControl scene)
+
+--shell
+sExitPlayer :: Scene -> Scene
+sExitPlayer scene = scene {sPlayer = exitPlayer (sPlayer scene)
+                                                (sTilemap scene)}
 
 ------------------------FIREBALL_FUNCTIONS----------------------------------
 
@@ -601,3 +606,10 @@ castPlayer p delta control
                 Nothing -> True
                 _       -> False
     isAttack  = (cSpace control) && isAReady
+
+--set exit level status
+exitPlayer :: Player -> Tilemap -> Player
+exitPlayer p tmap = p {pExit = status}
+  where
+    (x, y) = pPos p
+    status = exitCell tmap (floor y, floor x)

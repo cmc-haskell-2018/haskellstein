@@ -23,6 +23,7 @@ data Player = Player
   , pASpeed     :: Cooldown
   , pDamage     :: Int
   , pTurnAround :: Maybe Float
+  , pExit       :: Bool
   }
 
 data Fireball = Fireball

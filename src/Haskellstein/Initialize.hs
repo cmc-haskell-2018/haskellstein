@@ -15,6 +15,7 @@ createPlayer (y, x) =
         (Just 0.5, 0.5) -- pASpeed
         1 -- pDamage
         Nothing
+        False
 
 createEnemy :: CellCoord -> EnemyType -> Enemy
 --melee
