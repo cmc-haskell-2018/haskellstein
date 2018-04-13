@@ -3,4 +3,4 @@ module Main where
 import Haskellstein
 
 main :: IO()
-main = start
+main = start 0

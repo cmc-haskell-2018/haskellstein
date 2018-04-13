@@ -8,11 +8,11 @@ import Haskellstein.Data
 import Haskellstein.Picture
 import Haskellstein.Interactions
 
-start :: IO()
-start = do
-    args <- getArgs
-    if null args then do
-        putStrLn "No file path"
+start :: Int -> IO()
+start turn = do
+    allargs <- getArgs
+    if length allargs <= turn then do
+        putStrLn "Victory"
     else do
         let
           windowWidth       = 800
@@ -23,16 +23,19 @@ start = do
           wallTexturePath   = "data/textures/wall.png"
           enemyTexturePath  = "data/textures/enemy1.png"
           spriteTexturePath = "data/textures/sprite1.png"
-        tilemap             <- readFile . head $ args
+          myarg             = allargs !! turn
+        tilemap             <- readFile myarg
         initWorkspace
           (windowWidth, windowHeight, windowTitle,
             windowFrameLimit, scaleFactor)
           (wallTexturePath, enemyTexturePath, spriteTexturePath)
-        greatCycle (createScene . createTilemap $ tilemap)
-                   stepScene
-                   updateScene
-                   endCheck
-                   makePicture
+        levelEnd <- greatCycle (createScene . createTilemap $ tilemap)
+                               stepScene
+                               updateScene
+                               endCheck
+                               makePicture
+        if levelEnd then start $ turn + 1
+        else putStrLn "Defeat"
 
 --GameLoop
 greatCycle
@@ -41,10 +44,10 @@ greatCycle
   -> (a -> Control -> Float -> a) --getControlAndDelta
   -> (a -> GameEnd) --checkEndCondition
   -> (a -> Picture) --drawObject
-  -> IO()
+  -> IO(Bool)
 greatCycle scene step update end picture =
-  if ((end scene) == Victory) then putStrLn "Victory"
-  else if ((end scene) == Defeat) then putStrLn "Defeat"
+  if ((end scene) == Victory) then return True
+  else if ((end scene) == Defeat) then return False
   else do
       displayPicture $ picture $ scene
       control      <- getControl
