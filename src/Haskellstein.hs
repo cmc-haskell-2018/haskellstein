@@ -14,28 +14,31 @@ start turn = do
     if length allargs <= turn then do
         putStrLn "Victory"
     else do
-        let
-          windowWidth       = 800
-          windowHeight      = 600
-          windowTitle       = "Haskellstein"
-          windowFrameLimit  = 100
-          scaleFactor       = 1
-          wallTexturePath   = "data/textures/wall.png"
-          enemyTexturePath  = "data/textures/enemy1.png"
-          spriteTexturePath = "data/textures/sprite1.png"
-          myarg             = allargs !! turn
-        tilemap             <- readFile myarg
-        initWorkspace
-          (windowWidth, windowHeight, windowTitle,
-            windowFrameLimit, scaleFactor)
-          (wallTexturePath, enemyTexturePath, spriteTexturePath)
-        levelEnd <- greatCycle (createScene . createTilemap $ tilemap)
-                               stepScene
-                               updateScene
-                               endCheck
-                               makePicture
+        let myarg = allargs !! turn
+        tilemap   <- readFile myarg
+        levelEnd  <- greatCycle (createScene . createTilemap $ tilemap)
+                                stepScene
+                                updateScene
+                                endCheck
+                                makePicture
         if levelEnd then start $ turn + 1
         else putStrLn "Defeat"
+
+windowInit :: IO()
+windowInit = do
+               let
+                 windowWidth       = 800
+                 windowHeight      = 600
+                 windowTitle       = "Haskellstein"
+                 windowFrameLimit  = 100
+                 scaleFactor       = 1
+                 wallTexturePath   = "data/textures/wall.png"
+                 enemyTexturePath  = "data/textures/enemy1.png"
+                 spriteTexturePath = "data/textures/sprite1.png"
+               initWorkspace
+                 (windowWidth, windowHeight, windowTitle,
+                   windowFrameLimit, scaleFactor)
+                 (wallTexturePath, enemyTexturePath, spriteTexturePath)
 
 --GameLoop
 greatCycle

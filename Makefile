@@ -62,8 +62,6 @@ run:
 	./$(OUTPUT_NAME) $(MAPSLOC)first_map.txt \
                      $(MAPSLOC)second_map.txt \
                      $(MAPSLOC)third_map.txt \
-	
-
 
 run_random:
 	make all
