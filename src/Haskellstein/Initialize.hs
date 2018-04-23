@@ -16,6 +16,8 @@ createPlayer (y, x) =
         1 -- pDamage
         Nothing
         False
+        False
+        Small
 
 createEnemy :: CellCoord -> EnemyType -> Enemy
 --melee
@@ -93,8 +95,9 @@ createFireball
   :: Position
   -> Float -- player angle
   -> Int -- damage
+  -> FireballType
   -> Fireball
-createFireball (x,y) a d =
+createFireball (x,y) a d Small =
     Fireball
         ((x + (0.35 * cos a))
       , (y + (0.35 * sin a))) -- fPos
@@ -104,6 +107,18 @@ createFireball (x,y) a d =
         7.0 -- fSpeed
         Small -- fModel
         fireballTex1
+        (Just texCooldown, texCooldown)
+        Normal --color
+createFireball (x,y) a d Elec =
+    Fireball
+        ((x + (0.35 * cos a))
+      , (y + (0.35 * sin a))) -- fPos
+        a -- fRadian
+        (d + 1) -- fDamage
+        0.35 -- fRadius
+        7.0 -- fSpeed
+        Elec -- fModel
+        fireballTex2
         (Just texCooldown, texCooldown)
         Normal --color
 

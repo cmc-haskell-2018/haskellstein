@@ -598,7 +598,8 @@ castPlayer p delta control
                   , Just (createFireball
                              (px, py)
                              pa
-                             pd))
+                             pd
+                             (pFType p)))
     | otherwise   = (p {pASpeed = (delay, cd)}, Nothing)
   where
     (px, py)  = pPos p
@@ -624,8 +625,10 @@ exitPlayer p tmap = p {pExit = status}
 --take items
 itemsPlayer :: Player -> Tilemap -> (Player, Tilemap)
 itemsPlayer p tmap
-    | potion    = (p {pHp = (pHp p) + 10}, newtmap)
-    | otherwise = (p, tmap)
+    | potion                = (p {pHp = (pHp p) + 10}, newPTmap)
+    | elec && not potion    = (p {pElec = True}, newETmap)
+    | otherwise             = (p, tmap)
   where
-    (x, y)            = pPos p
-    (newtmap, potion) = potionCell tmap (floor y, floor x)
+    (x, y)             = pPos p
+    (newPTmap, potion) = potionCell tmap (floor y, floor x)
+    (newETmap, elec)   = elecCell tmap (floor y, floor x)
