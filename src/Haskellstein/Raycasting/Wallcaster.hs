@@ -8,7 +8,7 @@ import Haskellstein.Raycasting.Rayconsts
 wallCast :: Camera -> [[Int]] -> IO([Double])
 wallCast cameraStats levelMap = do
   zBuffer <- traceRay 0 cameraStats levelMap []
-  pushDrawBuffer getLinesCount wallTexture
+  pushDrawBuffer getLinesCount wallTexture 0
   return zBuffer
 
 ----Rendering functions
