@@ -75,6 +75,8 @@ data Control = Control
     , cRightT     :: Bool
     , cSpace      :: Bool
     , cTurnAround :: Bool
+    , c1          :: Bool
+    , c2          :: Bool
     }
 
 data Scene = Scene

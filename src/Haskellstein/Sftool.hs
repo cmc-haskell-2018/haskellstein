@@ -114,6 +114,12 @@ keyI = 6
 keySpace :: Int
 keySpace = 7
 
+key1 :: Int
+key1 = 8
+
+key2 :: Int
+key2 = 9
+
 ----Color constants
 
 colorNone :: Int

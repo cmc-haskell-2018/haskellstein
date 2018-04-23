@@ -6,3 +6,5 @@ RightArrow - Turn right
 LeftArrow  - Turn left
 I - Fast Turn Around
 Spacebar - Cast fireball
+1 - small fireball
+2 - elec fireball

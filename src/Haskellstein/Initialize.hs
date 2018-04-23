@@ -120,7 +120,7 @@ createFireball (x,y) a d Elec =
         0.35 -- fRadius
         7.0 -- fSpeed
         Elec -- fModel
-        fireballTex2
+        fireballTex3
         (Just texCooldown, texCooldown)
         Normal --color
 
@@ -220,7 +220,7 @@ createScene tmap =
         []
         (findEnemies tmap)
         edit
-        (Control False False False False False False False False)
+        (Control False False False False False False False False False False)
         0.00
         (Just texCooldown)
         []

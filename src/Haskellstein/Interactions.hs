@@ -133,7 +133,11 @@ sBloodEnemies scene =
 
 --all actions of player
 doPlayer :: Scene -> Scene
-doPlayer = sItemsPlayer . sExitPlayer . sCastPlayer . sMovePlayer
+doPlayer = sItemsPlayer
+         . sExitPlayer
+         . sCastPlayer
+         . sMovePlayer
+         . sSelectFireball
 
 --shell
 sMovePlayer :: Scene -> Scene
@@ -168,6 +172,11 @@ sItemsPlayer scene = scene {sPlayer = newP, sTilemap = newTmap}
   where
     (newP, newTmap) = itemsPlayer (sPlayer scene)
                                   (sTilemap scene)
+
+--shell
+sSelectFireball :: Scene -> Scene
+sSelectFireball scene = scene {sPlayer = selectFireball (sPlayer scene)
+                                                        (sControl scene)}
 
 ------------------------FIREBALL_FUNCTIONS----------------------------------
 
@@ -662,3 +671,10 @@ itemsPlayer p tmap
     (x, y)             = pPos p
     (newPTmap, potion) = potionCell tmap (floor y, floor x)
     (newETmap, elec)   = elecCell tmap (floor y, floor x)
+
+--fireball chose
+selectFireball :: Player -> Control -> Player
+selectFireball p control
+    | (c1 control)              = p {pFType = Small}
+    | (c2 control) && (pElec p) = p {pFType = Elec}
+    | otherwise                 = p

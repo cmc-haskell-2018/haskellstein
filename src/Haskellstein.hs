@@ -80,6 +80,8 @@ getControl = do
   keyEState      <- getKeyPressed keyRightArrow
   keySpaceState  <- getKeyPressed keySpace
   keyTurn        <- getKeyPressed keyI
+  key1State      <- getKeyPressed key1
+  key2State      <- getKeyPressed key2
   let newControl = Control
                        (keyWState /= 0)
                        (keySState /= 0)
@@ -89,6 +91,8 @@ getControl = do
                        (keyEState /= 0)
                        (keySpaceState /= 0)
                        (keyTurn /= 0)
+                       (key1State /= 0)
+                       (key2State /= 0)
   return newControl
 
 --get delta time
