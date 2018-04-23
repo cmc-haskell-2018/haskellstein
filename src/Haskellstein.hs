@@ -8,31 +8,41 @@ import Haskellstein.Data
 import Haskellstein.Picture
 import Haskellstein.Interactions
 
-start :: IO()
-start = do
-    args <- getArgs
-    if null args then do
-        putStrLn "No file path"
+start :: Int -> IO()
+start turn = do
+    allargs <- getArgs
+    if length allargs <= turn then do
+        putStrLn "Victory"
     else do
-        let
-          windowWidth       = 800
-          windowHeight      = 600
-          windowTitle       = "Haskellstein"
-          windowFrameLimit  = 100
-          scaleFactor       = 1
-          wallTexturePath   = "data/textures/wall.png"
-          enemyTexturePath  = "data/textures/enemy1.png"
-          spriteTexturePath = "data/textures/sprite1.png"
-        tilemap             <- readFile . head $ args
-        initWorkspace
-          (windowWidth, windowHeight, windowTitle,
-            windowFrameLimit, scaleFactor)
-          (wallTexturePath, enemyTexturePath, spriteTexturePath)
-        greatCycle (createScene . createTilemap $ tilemap)
-                   stepScene
-                   updateScene
-                   endCheck
-                   makePicture
+        let myarg = allargs !! turn
+        tilemap   <- readFile myarg
+        levelEnd  <- greatCycle (createScene . createTilemap $ tilemap)
+                                stepScene
+                                updateScene
+                                endCheck
+                                makePicture
+        if levelEnd then start $ turn + 1
+        else putStrLn "Defeat"
+
+windowInit :: IO()
+windowInit = do
+               let
+                 windowWidth       = 800
+                 windowHeight      = 600
+                 windowTitle       = "Haskellstein"
+                 windowFrameLimit  = 100
+                 scaleFactor       = 1
+                 wallTexturePath   = "data/textures/wall.png"
+                 enemyTexturePath  = "data/textures/enemy1.png"
+                 spriteTexturePath = "data/textures/sprite1.png"
+                 shaderPath        = "data/shader.frag"
+                 fontPath          = "data/font.ttf"
+                 musicPath         = "data/music.ogg"
+               initWorkspace
+                 (windowWidth, windowHeight, windowTitle,
+                   windowFrameLimit, scaleFactor)
+                 (wallTexturePath, enemyTexturePath, spriteTexturePath)
+                 (shaderPath, fontPath, musicPath)
 
 --GameLoop
 greatCycle
@@ -41,10 +51,10 @@ greatCycle
   -> (a -> Control -> Float -> a) --getControlAndDelta
   -> (a -> GameEnd) --checkEndCondition
   -> (a -> Picture) --drawObject
-  -> IO()
+  -> IO(Bool)
 greatCycle scene step update end picture =
-  if ((end scene) == Victory) then putStrLn "Victory"
-  else if ((end scene) == Defeat) then putStrLn "Defeat"
+  if ((end scene) == Victory) then return True
+  else if ((end scene) == Defeat) then return False
   else do
       displayPicture $ picture $ scene
       control      <- getControl
@@ -70,6 +80,8 @@ getControl = do
   keyEState      <- getKeyPressed keyRightArrow
   keySpaceState  <- getKeyPressed keySpace
   keyTurn        <- getKeyPressed keyI
+  key1State      <- getKeyPressed key1
+  key2State      <- getKeyPressed key2
   let newControl = Control
                        (keyWState /= 0)
                        (keySState /= 0)
@@ -79,6 +91,8 @@ getControl = do
                        (keyEState /= 0)
                        (keySpaceState /= 0)
                        (keyTurn /= 0)
+                       (key1State /= 0)
+                       (key2State /= 0)
   return newControl
 
 --get delta time

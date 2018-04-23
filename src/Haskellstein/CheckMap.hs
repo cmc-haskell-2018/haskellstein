@@ -58,6 +58,23 @@ exitCell tmap coord
   where
     str = takeCellStr tmap coord
 
+--potion pisition
+potionCell :: Tilemap -> CellCoord -> (Tilemap, Bool)
+potionCell tmap coord
+    | str == "i04" = ((writeCondition tmap coord "v00"), True)
+    | otherwise    = (tmap, False)
+  where
+    str = takeCellStr tmap coord
+
+--elec pisition
+elecCell :: Tilemap -> CellCoord -> (Tilemap, Bool)
+elecCell tmap coord
+    | str == "i08" = ((writeCondition tmap coord "v00"), True)
+    | str == "i09" = ((writeCondition tmap coord "v00"), True)
+    | otherwise    = (tmap, False)
+  where
+    str = takeCellStr tmap coord
+
 --return move coords
 getNewCoord :: Position -> Position -> Tilemap -> Position
 getNewCoord (px,py) (newX,newY) tmap =

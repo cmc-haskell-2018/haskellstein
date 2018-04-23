@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 
 int lines_count;
 float delta_time;
@@ -13,6 +14,9 @@ sf::Vertex *vertices;
 sf::Texture *wall_texture;
 sf::Texture *enemy_texture;
 sf::Texture *sprite_texture;
+sf::Shader *shader;
+sf::Font *font;
+sf::Music *music;
 sf::RenderTexture *raycasting_texture;
 sf::Sprite *raycasting_scene;
 sf::Clock *timer;
@@ -22,7 +26,8 @@ sf::Clock *timer;
 
 void init_workspace(int w_width, int w_height, char *w_title,
 	int w_framerate_limit, int s_factor, char *wall_texture_path,
-	char *enemy_texture_path, char *sprite_texture_path)
+	char *enemy_texture_path, char *sprite_texture_path,
+	char *shader_path, char *font_path, char *music_path)
 {
 	lines_count = w_width / s_factor;
 	window_width = w_width;
@@ -38,6 +43,14 @@ void init_workspace(int w_width, int w_height, char *w_title,
 	enemy_texture->loadFromFile(enemy_texture_path);
 	sprite_texture = new sf::Texture();
 	sprite_texture->loadFromFile(sprite_texture_path);
+	shader = new sf::Shader();
+	shader->loadFromFile(shader_path, sf::Shader::Fragment);
+	font = new sf::Font();
+	font->loadFromFile(font_path);
+	music = new sf::Music();
+	music->openFromFile(music_path);
+	music->setLoop(true);
+	music->play();
 	raycasting_texture = new sf::RenderTexture();
 	raycasting_texture->create(lines_count, w_height);
 	raycasting_texture->display();
@@ -48,6 +61,11 @@ void init_workspace(int w_width, int w_height, char *w_title,
 
 	free(w_title);
 	free(wall_texture_path);
+	free(enemy_texture_path);
+	free(sprite_texture_path);
+	free(shader_path);
+	free(font_path);
+	free(music_path);
 }
 
 #define CEILING_COLOR 64
@@ -130,11 +148,25 @@ void draw_line(int chosen_line, int x, double height, int texture, int color)
 		sf::Color(color, color, color, MAX_COLOR);
 }
 
+#define THICKNESS_KOEF 4
+
+void draw_text(char *msg, int x, int y, int size)
+{
+	sf::Text text;
+	text.setFont(*font);
+	text.setString(msg);
+	text.setPosition(x, y);
+	text.setCharacterSize(size);
+	text.setOutlineThickness(size / THICKNESS_KOEF);
+	raycasting_texture->draw(text);
+	free(msg);
+}
+
 #define TEXTURE_TYPE_WALL 0
 #define TEXTURE_TYPE_ENEMY 1
 #define TEXTURE_TYPE_SPRITE 2
 
-void push_draw_buffer(int count, int texture_type)
+void push_draw_buffer(int count, int texture_type, int color_constant)
 {
 	sf::Texture *chosen_texture = 0;
 	switch(texture_type)
@@ -150,8 +182,9 @@ void push_draw_buffer(int count, int texture_type)
 			break;
 	}
 
+	shader->setUniform("color_constant", color_constant);
 	raycasting_texture->draw(vertices, count * VERTEX_COUNT, sf::Lines,
-		sf::RenderStates(chosen_texture));
+		sf::RenderStates(sf::BlendAlpha, sf::Transform::Identity, chosen_texture, shader));
 }
 
 int get_lines_count()
@@ -192,6 +225,8 @@ void set_health_bar_size(int size)
 #define KEY_RIGHT_ARROW 5
 #define KEY_I 6
 #define KEY_SPACE 7
+#define KEY_1 8
+#define KEY_2 9
 
 int get_key_pressed(int key_code)
 {
@@ -213,6 +248,10 @@ int get_key_pressed(int key_code)
 			return sf::Keyboard::isKeyPressed(sf::Keyboard::I);
 		case KEY_SPACE:
 			return sf::Keyboard::isKeyPressed(sf::Keyboard::Space);
+		case KEY_1:
+			return sf::Keyboard::isKeyPressed(sf::Keyboard::Num1);
+		case KEY_2:
+			return sf::Keyboard::isKeyPressed(sf::Keyboard::Num2);
 	}
 	return 0;
 }

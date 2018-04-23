@@ -27,7 +27,7 @@ MODULES = $(MODULES_NAMES:%=$(MODULES_PATH)/%.hs)
 SFTOOL_NAME = sftool
 SFTOOL_PATH = sftool
 LIBS = -l$(SFTOOL_NAME) -lsfml-graphics -lsfml-window \
-                        -lsfml-system -lstdc++
+                        -lsfml-system -lstdc++ -lsfml-audio
 
 #GAME_INPUT_FILES
 MAPSLOC = tilemaps/
@@ -59,7 +59,10 @@ force:
 
 run:
 	make all
-	./$(OUTPUT_NAME) $(MAPSLOC)first_map.txt
+	./$(OUTPUT_NAME) $(MAPSLOC)first_map.txt \
+                     $(MAPSLOC)second_map.txt \
+                     $(MAPSLOC)third_map.txt \
+                     $(MAPSLOC)fourth_map.txt \
 
 run_random:
 	make all
