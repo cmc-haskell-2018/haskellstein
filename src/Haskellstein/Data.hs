@@ -10,7 +10,7 @@ data EnemyType = Melee | Range | Mage | Demon
 data FireballType = Small | Elec
     deriving (Eq)
 
-data ColorTex = Red | Blue | Normal
+data ColorTex = Red | Green | Blue | Normal
     deriving (Eq)
 
 type ObjectTexture = Int
@@ -54,6 +54,7 @@ data Enemy = Enemy
   , eAnim   :: Cooldown
   , eMoved  :: Bool
   , eColor  :: ColorTex
+  , eBlood  :: Cooldown
   }
 
 data CellCond = Blocked | Free | Destructible

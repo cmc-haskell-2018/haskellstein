@@ -70,6 +70,7 @@ sDamageFireballs scene =
 doEnemies :: Scene -> Scene
 doEnemies = sDamageEnemies
           . sMoveEnemies
+          . sBloodEnemies
           . sChangeTexEnemies
           . sSetAgroEnemies
           . sExtractDeadEnemies
@@ -121,6 +122,14 @@ sExtractDeadEnemies scene =
   where
     oldDE         = (sDeadEnemy scene)
     (newE, newDE) = extractDeadEnemies (sEnemy scene)
+
+--shell
+sBloodEnemies :: Scene -> Scene
+sBloodEnemies scene =
+    scene {sEnemy = newE}
+  where
+    newE = bloodEnemies (sEnemy scene)
+                        (sDelta scene)
 
 --all actions of player
 doPlayer :: Scene -> Scene
@@ -212,9 +221,11 @@ damageFireball :: Fireball -> [Enemy] -> (Maybe Fireball, [Enemy])
 damageFireball f []           = (Just f, [])
 damageFireball f (e:es)
     | rx < r, ry < r = (Nothing --hit
-                     , e {eHp = ehp, eAgro = True} : es)
+                     , e {eHp = ehp, eAgro = True, eColor = Red,
+                          eBlood = (Just time, time)} : es)
     | otherwise      = (newF, e : retE) --miss
   where
+    (_, time)     = eBlood e
     (fx,fy)       = fPos f
     r             = fRadius f
     fd            = fDamage f
@@ -318,7 +329,7 @@ changeTexEnemy e delta
 extractDeadEnemies :: [Enemy] -> ([Enemy], [Enemy])
 extractDeadEnemies [] = ([], [])
 extractDeadEnemies (e:es)
-    | isDead    = (newE, e {eTex = newTex, eAnim = (Just cd, cd)} : newDE)
+    | isDead    = (newE, e {eTex = newTex, eAnim = (Just cd, cd), eColor = Normal} : newDE)
     | otherwise = (e : newE, newDE)
   where
     newTex        = setDT (eTex e)
@@ -498,6 +509,25 @@ damageEnemyRange p e delta
     isAReady  = case delay of
                 Nothing -> True
                 _       -> False
+
+--stop bleeding enemies
+bloodEnemies :: [Enemy] -> Float -> [Enemy]
+bloodEnemies e delta = map (bloodEnemy delta) e
+
+--stop bleed enemy
+bloodEnemy :: Float -> Enemy -> Enemy
+bloodEnemy delta e
+    | isBloodEnd = e {eColor = Normal, eBlood = (delay, cd)}
+    | otherwise  = e {eBlood = (delay, cd)}
+  where
+    (tmp, cd)   = eBlood e
+    delay       = case tmp of
+                  Nothing   -> Nothing
+                  Just time -> if (time - delta < 0) then Nothing
+                               else Just (time - delta)
+    isBloodEnd  = case delay of
+                  Nothing -> True
+                  _       -> False
 
 -----------------------------PLAYER_FUNCTIONS-------------------------------
 

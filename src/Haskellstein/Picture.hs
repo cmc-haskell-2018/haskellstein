@@ -2,6 +2,7 @@ module Haskellstein.Picture where
 
 import Haskellstein.Data
 import Haskellstein.Raycasting.Rayconsts
+import Haskellstein.Sftool
 
 data Picture = Picture
   { piSprite :: [Sprite]
@@ -59,16 +60,23 @@ strsToSprite (str : rest) y x
 createSpriteStr :: String -> Int -> Int -> Sprite
 createSpriteStr str y x = 
   ((fromIntegral x) + 0.5, (fromIntegral y) + 0.5,
-    read $ tail str, spriteTexture, 0, 0)
+    read $ tail str, spriteTexture, 0, 0, colorNone)
 
 --makeSpritesFromEnemy
 getSpriteFromEnemy :: Enemy -> Sprite
 getSpriteFromEnemy enemy =
   (realToFrac $ fst $ ePos enemy, realToFrac $ snd $ ePos enemy,
-    eTex enemy, enemyTexture, 0, 0)
+    eTex enemy, enemyTexture, 0, 0, colorToInt $ eColor $ enemy)
 
 --makeSpritesFromFireball
 getSpriteFromFireball :: Fireball -> Sprite
 getSpriteFromFireball fireball =
   (realToFrac $ fst $ fPos fireball, realToFrac $ snd $fPos fireball,
-    fTex fireball, spriteTexture, 0, 0)
+    fTex fireball, spriteTexture, 0, 0, colorToInt $ fColor $ fireball)
+
+--set color
+colorToInt :: ColorTex -> Int
+colorToInt color | color == Red    = colorRed
+                 | color == Green  = colorGreen
+                 | color == Blue   = colorBlue
+                 | otherwise       = colorNone

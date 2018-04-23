@@ -37,6 +37,7 @@ createEnemy (y, x) Melee =
         (Just texCooldown, texCooldown) -- eAnim
         False -- eMoved
         Normal --color
+        (Nothing, 0.2) --blood time
 --range
 createEnemy (y, x) Range =
     Enemy
@@ -54,6 +55,7 @@ createEnemy (y, x) Range =
         (Just (1.5 * texCooldown), 1.5 * texCooldown) -- eAnim
         False -- eMoved
         Normal --color
+        (Nothing, 0.2) --blood time
 --mage
 createEnemy (y, x) Mage =
     Enemy
@@ -71,7 +73,7 @@ createEnemy (y, x) Mage =
         (Just (1.5 * texCooldown), 1.5 * texCooldown) -- eAnim
         False -- eMoved
         Normal --color
-
+        (Nothing, 0.2) --blood time
 --demon
 createEnemy (y, x) Demon =
     Enemy
@@ -89,7 +91,7 @@ createEnemy (y, x) Demon =
         (Just (texCooldown), texCooldown) -- eAnim
         False -- eMoved
         Normal --color
-
+        (Nothing, 0.2) --blood time
 
 createFireball
   :: Position
