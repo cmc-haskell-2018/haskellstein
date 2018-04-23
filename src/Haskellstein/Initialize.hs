@@ -16,6 +16,8 @@ createPlayer (y, x) =
         1 -- pDamage
         Nothing
         False
+        False
+        Small
 
 createEnemy :: CellCoord -> EnemyType -> Enemy
 --melee
@@ -30,7 +32,7 @@ createEnemy (y, x) Melee =
         (Just 1.0, 1.0) -- eASpeed
         Melee -- eModel
         meleeTex1 -- eTex
-        4 -- eVision
+        3 -- eVision
         False -- eAgro
         (Just texCooldown, texCooldown) -- eAnim
         False -- eMoved
@@ -47,7 +49,7 @@ createEnemy (y, x) Range =
         (Just 1.0, 1.0) -- eASpeed
         Range -- eModel
         rangeTex1 -- eTex
-        4 -- eVision
+        3 -- eVision
         False -- eAgro
         (Just (1.5 * texCooldown), 1.5 * texCooldown) -- eAnim
         False -- eMoved
@@ -64,7 +66,7 @@ createEnemy (y, x) Mage =
         (Just 1, 1) -- eASpeed
         Mage -- eModel
         mageTex1 -- eTex
-        4 -- eVision
+        3 -- eVision
         False -- eAgro
         (Just (1.5 * texCooldown), 1.5 * texCooldown) -- eAnim
         False -- eMoved
@@ -82,7 +84,7 @@ createEnemy (y, x) Demon =
         (Just 1.2, 1.2) -- eASpeed
         Demon -- eModel
         demonTex1 -- eTex
-        4 -- eVision
+        3 -- eVision
         False -- eAgro
         (Just (texCooldown), texCooldown) -- eAnim
         False -- eMoved
@@ -93,17 +95,30 @@ createFireball
   :: Position
   -> Float -- player angle
   -> Int -- damage
+  -> FireballType
   -> Fireball
-createFireball (x,y) a d =
+createFireball (x,y) a d Small =
     Fireball
-        ((x + (0.25 * cos a))
-      , (y + (0.25 * sin a))) -- fPos
+        ((x + (0.35 * cos a))
+      , (y + (0.35 * sin a))) -- fPos
         a -- fRadian
         d -- fDamage
-        0.25 -- fRadius
+        0.35 -- fRadius
         7.0 -- fSpeed
         Small -- fModel
         fireballTex1
+        (Just texCooldown, texCooldown)
+        Normal --color
+createFireball (x,y) a d Elec =
+    Fireball
+        ((x + (0.35 * cos a))
+      , (y + (0.35 * sin a))) -- fPos
+        a -- fRadian
+        (d + 1) -- fDamage
+        0.35 -- fRadius
+        7.0 -- fSpeed
+        Elec -- fModel
+        fireballTex2
         (Just texCooldown, texCooldown)
         Normal --color
 

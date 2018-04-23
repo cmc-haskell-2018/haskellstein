@@ -124,7 +124,7 @@ sExtractDeadEnemies scene =
 
 --all actions of player
 doPlayer :: Scene -> Scene
-doPlayer = sExitPlayer . sCastPlayer . sMovePlayer
+doPlayer = sItemsPlayer . sExitPlayer . sCastPlayer . sMovePlayer
 
 --shell
 sMovePlayer :: Scene -> Scene
@@ -152,6 +152,13 @@ sCastPlayer scene = case isFireball of
 sExitPlayer :: Scene -> Scene
 sExitPlayer scene = scene {sPlayer = exitPlayer (sPlayer scene)
                                                 (sTilemap scene)}
+
+--shell
+sItemsPlayer :: Scene -> Scene
+sItemsPlayer scene = scene {sPlayer = newP, sTilemap = newTmap}
+  where
+    (newP, newTmap) = itemsPlayer (sPlayer scene)
+                                  (sTilemap scene)
 
 ------------------------FIREBALL_FUNCTIONS----------------------------------
 
@@ -591,7 +598,8 @@ castPlayer p delta control
                   , Just (createFireball
                              (px, py)
                              pa
-                             pd))
+                             pd
+                             (pFType p)))
     | otherwise   = (p {pASpeed = (delay, cd)}, Nothing)
   where
     (px, py)  = pPos p
@@ -613,3 +621,14 @@ exitPlayer p tmap = p {pExit = status}
   where
     (x, y) = pPos p
     status = exitCell tmap (floor y, floor x)
+
+--take items
+itemsPlayer :: Player -> Tilemap -> (Player, Tilemap)
+itemsPlayer p tmap
+    | potion                = (p {pHp = (pHp p) + 10}, newPTmap)
+    | elec && not potion    = (p {pElec = True}, newETmap)
+    | otherwise             = (p, tmap)
+  where
+    (x, y)             = pPos p
+    (newPTmap, potion) = potionCell tmap (floor y, floor x)
+    (newETmap, elec)   = elecCell tmap (floor y, floor x)

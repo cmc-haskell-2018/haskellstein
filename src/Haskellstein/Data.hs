@@ -7,7 +7,7 @@ type Cooldown = (Maybe Float, Float) --(current time, cooldown)
 data EnemyType = Melee | Range | Mage | Demon
     deriving (Eq)
 
-data FireballType = Small | Frost
+data FireballType = Small | Elec
     deriving (Eq)
 
 data ColorTex = Red | Blue | Normal
@@ -24,6 +24,8 @@ data Player = Player
   , pDamage     :: Int
   , pTurnAround :: Maybe Float
   , pExit       :: Bool
+  , pElec       :: Bool
+  , pFType      :: FireballType
   }
 
 data Fireball = Fireball
