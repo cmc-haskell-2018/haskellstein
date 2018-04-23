@@ -27,7 +27,7 @@ MODULES = $(MODULES_NAMES:%=$(MODULES_PATH)/%.hs)
 SFTOOL_NAME = sftool
 SFTOOL_PATH = sftool
 LIBS = -l$(SFTOOL_NAME) -lsfml-graphics -lsfml-window \
-                        -lsfml-system -lstdc++
+                        -lsfml-system -lstdc++ -lsfml-audio
 
 #GAME_INPUT_FILES
 MAPSLOC = tilemaps/

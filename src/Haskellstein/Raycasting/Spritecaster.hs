@@ -60,7 +60,7 @@ drawSprite (_, _, texture, spriteType, offset, distance) zBuffer = do
     (texture, distance)
     (spriteScreenX, spriteHeight, spriteWidth, spriteStartX, spriteEndX)
     spriteStartX 0 zBuffer
-  pushDrawBuffer stripeCount spriteType
+  pushDrawBuffer stripeCount spriteType 1
   where
     spriteScreenX :: Double
     spriteScreenX = ((fromIntegral getLinesCount) / 2)

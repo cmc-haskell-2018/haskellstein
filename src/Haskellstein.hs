@@ -35,10 +35,14 @@ windowInit = do
                  wallTexturePath   = "data/textures/wall.png"
                  enemyTexturePath  = "data/textures/enemy1.png"
                  spriteTexturePath = "data/textures/sprite1.png"
+                 shaderPath        = "data/shader.frag"
+                 fontPath          = "data/font.ttf"
+                 musicPath         = "data/music.ogg"
                initWorkspace
                  (windowWidth, windowHeight, windowTitle,
                    windowFrameLimit, scaleFactor)
                  (wallTexturePath, enemyTexturePath, spriteTexturePath)
+                 (shaderPath, fontPath, musicPath)
 
 --GameLoop
 greatCycle
