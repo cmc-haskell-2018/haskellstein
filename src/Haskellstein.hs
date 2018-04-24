@@ -5,24 +5,37 @@ import Haskellstein.Sftool
 import Haskellstein.Raycaster
 import Haskellstein.Initialize
 import Haskellstein.Data
+import Haskellstein.Map
 import Haskellstein.Picture
 import Haskellstein.Interactions
 
 start :: Int -> IO()
 start turn = do
     allargs <- getArgs
-    if length allargs <= turn then do
-        putStrLn "Victory"
+    let mode = read $ head allargs
+    if mode == Custom then do
+      if length allargs <= turn then do
+          putStrLn "Victory"
+      else do
+          let myarg = allargs !! turn
+          tilemap   <- readFile myarg
+          levelEnd  <- greatCycle (createScene . createTilemap $ tilemap)
+                                  stepScene
+                                  updateScene
+                                  endCheck
+                                  makePicture
+          if levelEnd then start $ turn + 1
+          else putStrLn "Defeat"
     else do
-        let myarg = allargs !! turn
-        tilemap   <- readFile myarg
-        levelEnd  <- greatCycle (createScene . createTilemap $ tilemap)
-                                stepScene
-                                updateScene
-                                endCheck
-                                makePicture
-        if levelEnd then start $ turn + 1
-        else putStrLn "Defeat"
+          tilemap   <- genTileMap defMapSize
+          levelEnd  <- greatCycle (createScene tilemap)
+                                  stepScene
+                                  updateScene
+                                  endCheck
+                                  makePicture
+          if levelEnd then putStrLn "Victory"
+          else putStrLn "Defeat"
+      
 
 windowInit :: IO()
 windowInit = do

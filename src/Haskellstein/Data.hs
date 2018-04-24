@@ -15,6 +15,9 @@ data ColorTex = Red | Blue | Normal
 
 type ObjectTexture = Int
 
+data MapMode = Custom | Generated
+  deriving (Eq,Show,Read)
+
 data Player = Player
   { pPos        :: Position
   , pRadian     :: Float

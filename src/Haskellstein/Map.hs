@@ -1,16 +1,21 @@
 module Haskellstein.Map where
 
 import Prelude hiding (Right,Left)
+import Data.List (delete)
 import Haskellstein.Data
 import Haskellstein.CheckMap
 import System.Random
+
+-- ! Approach !: Tilemap can be only square
 
 data Direction = Left | Right | Up | Down
   deriving (Eq,Show)
 
 -- | dont understand why Maybe doesnt contain getter function
+-- obviously you should avoid Nothing input
 getMaybeVal :: Maybe a -> a
 getMaybeVal (Just v) = v
+getMaybeVal Nothing  = undefined
 
 checkCount :: Int
 checkCount = 10
@@ -19,13 +24,18 @@ defMapSize :: Int
 defMapSize = 16
 
 wall :: String
-wall = "W"
+wall = "w00"
 
 gap :: String
-gap = "_"
+gap = "v00"
 
 printTileMap :: Tilemap -> IO ()
-printTileMap tm = mapM_ (print) tm
+printTileMap = mapM_ print
+
+printTileMap':: Tilemap -> IO ()
+printTileMap' tm = mapM_ (putStrLn . doubleChar . concat) tm
+  where
+    doubleChar = concatMap (\c -> ' ' : c : " ")
 
 -- | view: (example with size == 4)
 -- w00 w00 w00 w00
@@ -37,17 +47,25 @@ startMap size = modifyAtRectangle (\_ -> gap) (1,1) (size-2,size-2) s
   where
     s = replicate size $ replicate size wall
 
-genStartCoords :: (RandomGen g) => g -> Int -> ([CellCoord], g)
-genStartCoords gen size = (,) [coord1,coord2] g2 
+-- | take random elements from list with different values
+takeRandom :: (RandomGen g, Eq a) => g -> Int -> [a] -> [a]
+takeRandom _ _ [] = []
+takeRandom g count l = 
+  if count == 0
+  then []
+  else val : takeRandom g' (count-1) (delete val l)
   where
-    (c1,g1) = randomR (2, size - 3) gen
-    (c2,g2) = randomR (2, size - 3) g1
-    coord1 = (c1, size `div` 3)
-    coord2 = (c2, size - (size `div` 3))
+    (i,g') = randomR (0, length l - 1) g
+    val = l !! i
 
 freeAround :: Tilemap -> CellCoord -> Bool
 freeAround tm (y,x) = not $ any (== False)
-     [takeCellStr tm (h,w) /= wall | h <- [y-1 .. y+1], w <- [x-1 .. x+1]]
+     [takeCellStr tm (h,w) == gap | h <- [y-1 .. y+1], w <- [x-1 .. x+1]]
+
+-- | square around given cell
+aroundPlace :: CellCoord -> [CellCoord]
+aroundPlace (y,x) = 
+     delete (y,x) [(h,w) | h <- [y-1 .. y+1], w <- [x-1 .. x+1]]
 
 -- | i - counter, which decrease with every new check
 -- simple mechanism to avoid infinite loop
@@ -70,7 +88,7 @@ iterBuildWalls :: (RandomGen g) => (CellCoord, g) -> Int -> Int ->
                   Tilemap -> Tilemap
 iterBuildWalls (coord,gen) chainCount size tm =
   if chainCount == 0 || mNewCoord == Nothing
-  then newMap
+  then tm
   else iterBuildWalls (getMaybeVal mNewCoord, g)
                         (chainCount - 1) size newMap
   where
@@ -100,6 +118,14 @@ buildWalls gen fstCoord tmap = stepWalls gen fstCoord tmap
           | st == (y,x+1) = Right 
           | st == (y-1,x) = Down 
           | otherwise  = Up 
+        -- cond1 (X - cant go there)
+        -- _ _ _ _
+        -- _ W X W
+        -- _ W _ _
+        -- cond2 (X - cant go there)
+        -- _ _ _ _ W W
+        -- W W W W X _
+        -- W _ _ _ W W
         closerWall :: CellCoord -> Bool
         closerWall c@(y',x') = cond1 && cond2
           where
@@ -130,12 +156,66 @@ buildWalls gen fstCoord tmap = stepWalls gen fstCoord tmap
                   (tm !! (y' - 1)) !! (x' - 1) /= wall &&
                   (tm !! (y' - 1)) !! (x' + 1) /= wall
 
-genTileMap :: Int -> IO ()
+
+-- | size of Tilemap == length of any contained list
+gapPlaces :: Tilemap -> [CellCoord]
+gapPlaces tm = filter (\c -> takeCellStr tm c == gap) allcoords 
+  where
+    size = length tm
+    allcoords = [(h,w) | h <- [0 .. size - 1], w <- [0 .. size - 1]]
+
+placeSmthOnAnyFree :: (RandomGen g) => g -> TilemapCell ->
+                      Tilemap -> Tilemap
+placeSmthOnAnyFree gen obj tm = newMap 
+  where
+    gaps = gapPlaces tm 
+    i = fst $ randomR (0, length gaps - 1) gen
+    newMap = writeCondition tm (gaps !! i) obj
+    
+-- | length [TilemapCell] == length [CellCoord]
+placeOn :: [TilemapCell] -> [CellCoord] -> Tilemap -> Tilemap
+placeOn [] _ tm = tm
+placeOn _ [] tm = tm
+placeOn (tc:tcs) (c:cs) tm = placeOn tcs cs $ writeCondition tm c tc
+
+--------------------ENEMIES----------------------------------------------- 
+
+-- | it finds cell with freeAround == True and places stack of enemies here
+placeEnemyStack :: (RandomGen g) => g -> Tilemap -> Tilemap
+placeEnemyStack g tm =
+  if variations == []
+  then tm
+  else placeEnemiesInArea g'' count (variations !! i) tm
+  where
+    variations = filter (freeAround tm) (gapPlaces tm)
+    (i,g') = randomR (0, length variations - 1) g
+    (count,g'') = randomR (2, 4) g' -- count of possible enemies
+
+placeEnemiesInArea :: (RandomGen g) => g -> Int -> CellCoord ->
+                      Tilemap -> Tilemap
+placeEnemiesInArea g count c tm = placeOn enemies candidates tm 
+  where
+    g' = snd $ next g
+    candidates = takeRandom g' count $ aroundPlace c 
+    enemiesTypes = takeRandom g count list -- digits: like 4 in e04
+    enemies = map (\e -> "e0" ++ show e) enemiesTypes
+    list = foldr1 (++) (replicate count [1..4])
+
+-------------------------------------------------------------------------- 
+genTileMap :: Int -> IO (Tilemap)
 genTileMap size = do
+  -- build Walls
   gen <- newStdGen
   let
     { sMap = startMap size
     ; (mFstCoord, g) = genStartCoord gen size checkCount sMap
-    ; finMap = iterBuildWalls (getMaybeVal mFstCoord, g) 2 size sMap 
+    ; wallMap = iterBuildWalls (getMaybeVal mFstCoord, g) (size `div` 4)
+                                    size sMap 
     }
-  printTileMap finMap
+   -- place one enemy and player
+  gen2 <- newStdGen
+  gen3 <- newStdGen
+  let
+    { finMap = placeEnemyStack gen3 $ placeSmthOnAnyFree gen2 "p00" wallMap
+    }
+  return (finMap)

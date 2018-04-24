@@ -14,6 +14,7 @@ MODULES_NAMES = Main Haskellstein \
  Haskellstein/Raycasting/Spritecaster \
  Haskellstein/Raycasting/Rayconsts \
  Haskellstein/Data \
+ Haskellstein/Map  \
  Haskellstein/Texconsts \
  Haskellstein/Texwork \
  Haskellstein/Picture \
@@ -59,7 +60,7 @@ force:
 
 run:
 	make all
-	./$(OUTPUT_NAME) $(MAPSLOC)second_map.txt \
+	./$(OUTPUT_NAME) Generated $(MAPSLOC)second_map.txt \
                      $(MAPSLOC)first_map.txt
 run_random:
 	make all

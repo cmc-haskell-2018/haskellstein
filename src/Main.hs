@@ -5,4 +5,4 @@ import Haskellstein
 main :: IO()
 main = do
          windowInit
-         start 0
+         start 1
