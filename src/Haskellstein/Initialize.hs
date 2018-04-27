@@ -220,11 +220,14 @@ createScene tmap =
         []
         (findEnemies tmap)
         edit
-        (Control False False False False False False False False False False)
+        (Control False False False False False False False False False False False False False)
         0.00
         (Just texCooldown)
         []
         []
+        Menu
+        []
+        (MenuState 0 3 False (MenuTable True False False False True True) (Nothing, 0.13))
   where
     rewrite p
         | head p == 'e' = "v00"
