@@ -7,10 +7,10 @@ type Cooldown = (Maybe Float, Float) --(current time, cooldown)
 data EnemyType = Melee | Range | Mage | Demon
     deriving (Eq)
 
-data FireballType = Small | Frost
+data FireballType = Small | Elec
     deriving (Eq)
 
-data ColorTex = Red | Blue | Normal
+data ColorTex = Red | Green | Blue | Normal
     deriving (Eq)
 
 type ObjectTexture = Int
@@ -27,6 +27,8 @@ data Player = Player
   , pDamage     :: Int
   , pTurnAround :: Maybe Float
   , pExit       :: Bool
+  , pElec       :: Bool
+  , pFType      :: FireballType
   }
 
 data Fireball = Fireball
@@ -55,6 +57,7 @@ data Enemy = Enemy
   , eAnim   :: Cooldown
   , eMoved  :: Bool
   , eColor  :: ColorTex
+  , eBlood  :: Cooldown
   }
 
 data CellCond = Blocked | Free | Destructible
@@ -75,6 +78,8 @@ data Control = Control
     , cRightT     :: Bool
     , cSpace      :: Bool
     , cTurnAround :: Bool
+    , c1          :: Bool
+    , c2          :: Bool
     }
 
 data Scene = Scene

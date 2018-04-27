@@ -16,6 +16,8 @@ createPlayer (y, x) =
         1 -- pDamage
         Nothing
         False
+        False
+        Small
 
 createEnemy :: CellCoord -> EnemyType -> Enemy
 --melee
@@ -35,6 +37,7 @@ createEnemy (y, x) Melee =
         (Just texCooldown, texCooldown) -- eAnim
         False -- eMoved
         Normal --color
+        (Nothing, 0.2) --blood time
 --range
 createEnemy (y, x) Range =
     Enemy
@@ -52,6 +55,7 @@ createEnemy (y, x) Range =
         (Just (1.5 * texCooldown), 1.5 * texCooldown) -- eAnim
         False -- eMoved
         Normal --color
+        (Nothing, 0.2) --blood time
 --mage
 createEnemy (y, x) Mage =
     Enemy
@@ -69,7 +73,7 @@ createEnemy (y, x) Mage =
         (Just (1.5 * texCooldown), 1.5 * texCooldown) -- eAnim
         False -- eMoved
         Normal --color
-
+        (Nothing, 0.2) --blood time
 --demon
 createEnemy (y, x) Demon =
     Enemy
@@ -87,14 +91,15 @@ createEnemy (y, x) Demon =
         (Just (texCooldown), texCooldown) -- eAnim
         False -- eMoved
         Normal --color
-
+        (Nothing, 0.2) --blood time
 
 createFireball
   :: Position
   -> Float -- player angle
   -> Int -- damage
+  -> FireballType
   -> Fireball
-createFireball (x,y) a d =
+createFireball (x,y) a d Small =
     Fireball
         ((x + (0.35 * cos a))
       , (y + (0.35 * sin a))) -- fPos
@@ -104,6 +109,18 @@ createFireball (x,y) a d =
         7.0 -- fSpeed
         Small -- fModel
         fireballTex1
+        (Just texCooldown, texCooldown)
+        Normal --color
+createFireball (x,y) a d Elec =
+    Fireball
+        ((x + (0.35 * cos a))
+      , (y + (0.35 * sin a))) -- fPos
+        a -- fRadian
+        (d + 1) -- fDamage
+        0.35 -- fRadius
+        7.0 -- fSpeed
+        Elec -- fModel
+        fireballTex3
         (Just texCooldown, texCooldown)
         Normal --color
 
@@ -203,7 +220,7 @@ createScene tmap =
         []
         (findEnemies tmap)
         edit
-        (Control False False False False False False False False)
+        (Control False False False False False False False False False False)
         0.00
         (Just texCooldown)
         []

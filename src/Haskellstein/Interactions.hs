@@ -70,6 +70,7 @@ sDamageFireballs scene =
 doEnemies :: Scene -> Scene
 doEnemies = sDamageEnemies
           . sMoveEnemies
+          . sBloodEnemies
           . sChangeTexEnemies
           . sSetAgroEnemies
           . sExtractDeadEnemies
@@ -122,9 +123,21 @@ sExtractDeadEnemies scene =
     oldDE         = (sDeadEnemy scene)
     (newE, newDE) = extractDeadEnemies (sEnemy scene)
 
+--shell
+sBloodEnemies :: Scene -> Scene
+sBloodEnemies scene =
+    scene {sEnemy = newE}
+  where
+    newE = bloodEnemies (sEnemy scene)
+                        (sDelta scene)
+
 --all actions of player
 doPlayer :: Scene -> Scene
-doPlayer = sItemsPlayer . sExitPlayer . sCastPlayer . sMovePlayer
+doPlayer = sItemsPlayer
+         . sExitPlayer
+         . sCastPlayer
+         . sMovePlayer
+         . sSelectFireball
 
 --shell
 sMovePlayer :: Scene -> Scene
@@ -159,6 +172,11 @@ sItemsPlayer scene = scene {sPlayer = newP, sTilemap = newTmap}
   where
     (newP, newTmap) = itemsPlayer (sPlayer scene)
                                   (sTilemap scene)
+
+--shell
+sSelectFireball :: Scene -> Scene
+sSelectFireball scene = scene {sPlayer = selectFireball (sPlayer scene)
+                                                        (sControl scene)}
 
 ------------------------FIREBALL_FUNCTIONS----------------------------------
 
@@ -212,9 +230,11 @@ damageFireball :: Fireball -> [Enemy] -> (Maybe Fireball, [Enemy])
 damageFireball f []           = (Just f, [])
 damageFireball f (e:es)
     | rx < r, ry < r = (Nothing --hit
-                     , e {eHp = ehp, eAgro = True} : es)
+                     , e {eHp = ehp, eAgro = True, eColor = Red,
+                          eBlood = (Just time, time)} : es)
     | otherwise      = (newF, e : retE) --miss
   where
+    (_, time)     = eBlood e
     (fx,fy)       = fPos f
     r             = fRadius f
     fd            = fDamage f
@@ -318,7 +338,7 @@ changeTexEnemy e delta
 extractDeadEnemies :: [Enemy] -> ([Enemy], [Enemy])
 extractDeadEnemies [] = ([], [])
 extractDeadEnemies (e:es)
-    | isDead    = (newE, e {eTex = newTex, eAnim = (Just cd, cd)} : newDE)
+    | isDead    = (newE, e {eTex = newTex, eAnim = (Just cd, cd), eColor = Normal} : newDE)
     | otherwise = (e : newE, newDE)
   where
     newTex        = setDT (eTex e)
@@ -499,6 +519,25 @@ damageEnemyRange p e delta
                 Nothing -> True
                 _       -> False
 
+--stop bleeding enemies
+bloodEnemies :: [Enemy] -> Float -> [Enemy]
+bloodEnemies e delta = map (bloodEnemy delta) e
+
+--stop bleed enemy
+bloodEnemy :: Float -> Enemy -> Enemy
+bloodEnemy delta e
+    | isBloodEnd = e {eColor = Normal, eBlood = (delay, cd)}
+    | otherwise  = e {eBlood = (delay, cd)}
+  where
+    (tmp, cd)   = eBlood e
+    delay       = case tmp of
+                  Nothing   -> Nothing
+                  Just time -> if (time - delta < 0) then Nothing
+                               else Just (time - delta)
+    isBloodEnd  = case delay of
+                  Nothing -> True
+                  _       -> False
+
 -----------------------------PLAYER_FUNCTIONS-------------------------------
 
 --whereToMove
@@ -598,7 +637,8 @@ castPlayer p delta control
                   , Just (createFireball
                              (px, py)
                              pa
-                             pd))
+                             pd
+                             (pFType p)))
     | otherwise   = (p {pASpeed = (delay, cd)}, Nothing)
   where
     (px, py)  = pPos p
@@ -624,8 +664,17 @@ exitPlayer p tmap = p {pExit = status}
 --take items
 itemsPlayer :: Player -> Tilemap -> (Player, Tilemap)
 itemsPlayer p tmap
-    | potion    = (p {pHp = (pHp p) + 10}, newtmap)
-    | otherwise = (p, tmap)
+    | potion                = (p {pHp = (pHp p) + 10}, newPTmap)
+    | elec && not potion    = (p {pElec = True}, newETmap)
+    | otherwise             = (p, tmap)
   where
-    (x, y)            = pPos p
-    (newtmap, potion) = potionCell tmap (floor y, floor x)
+    (x, y)             = pPos p
+    (newPTmap, potion) = potionCell tmap (floor y, floor x)
+    (newETmap, elec)   = elecCell tmap (floor y, floor x)
+
+--fireball chose
+selectFireball :: Player -> Control -> Player
+selectFireball p control
+    | (c1 control)              = p {pFType = Small}
+    | (c2 control) && (pElec p) = p {pFType = Elec}
+    | otherwise                 = p

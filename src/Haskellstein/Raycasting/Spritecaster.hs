@@ -15,7 +15,7 @@ spriteCast (cameraX, cameraY, cameraAngle) spriteList zBuffer = do
   where
 
     calcSpriteDistance :: Sprite -> Sprite
-    calcSpriteDistance (spriteX, spriteY, texture, spriteType, _, _) =
+    calcSpriteDistance (spriteX, spriteY, texture, spriteType, _, _, color) =
       let
         spriteCameraX = spriteX - cameraX
         spriteCameraY = spriteY - cameraY
@@ -23,7 +23,7 @@ spriteCast (cameraX, cameraY, cameraAngle) spriteList zBuffer = do
         raw_off = (spriteCameraX * (sin angle) + spriteCameraY * (cos angle))
         offset = raw_off / halfRatio
         distance = spriteCameraX * (cos angle) + spriteCameraY * (-(sin angle))
-      in (spriteX, spriteY, texture, spriteType, offset, distance)
+      in (spriteX, spriteY, texture, spriteType, offset, distance, color)
 
 ----Rendering functions
 
@@ -43,7 +43,7 @@ deleteSprites (spriteHead : spriteTail)
   | otherwise = spriteHead : (deleteSprites spriteTail)
 
 getDistance :: Sprite -> Double
-getDistance (_, _, _, _, _, distance) = distance
+getDistance (_, _, _, _, _, distance, _) = distance
 
 drawSprites :: [Sprite] -> [Double] -> IO()
 drawSprites [] _ = do
@@ -55,12 +55,12 @@ drawSprites sprList zBuffer = do
 type SpriteInfo = (Double, Double, Double, Int, Int)
  
 drawSprite :: Sprite -> [Double] -> IO()
-drawSprite (_, _, texture, spriteType, offset, distance) zBuffer = do
+drawSprite (_, _, texture, spriteType, offset, distance, color) zBuffer = do
   stripeCount <- drawSpriteStripe
     (texture, distance)
     (spriteScreenX, spriteHeight, spriteWidth, spriteStartX, spriteEndX)
     spriteStartX 0 zBuffer
-  pushDrawBuffer stripeCount spriteType
+  pushDrawBuffer stripeCount spriteType color
   where
     spriteScreenX :: Double
     spriteScreenX = ((fromIntegral getLinesCount) / 2)

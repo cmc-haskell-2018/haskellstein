@@ -36,5 +36,5 @@ spriteMinDistance = 0.35
 --x, y, angle
 type Camera = (Double, Double, Double)
 
---x, y, texture, type, offset (tmp), distance (tmp)
-type Sprite = (Double, Double, Int, Int, Double, Double)
+--x, y, texture, type, offset (tmp), distance (tmp), color
+type Sprite = (Double, Double, Int, Int, Double, Double, Int)

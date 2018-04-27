@@ -48,10 +48,14 @@ windowInit = do
                  wallTexturePath   = "data/textures/wall.png"
                  enemyTexturePath  = "data/textures/enemy1.png"
                  spriteTexturePath = "data/textures/sprite1.png"
+                 shaderPath        = "data/shader.frag"
+                 fontPath          = "data/font.ttf"
+                 musicPath         = "data/music.ogg"
                initWorkspace
                  (windowWidth, windowHeight, windowTitle,
                    windowFrameLimit, scaleFactor)
                  (wallTexturePath, enemyTexturePath, spriteTexturePath)
+                 (shaderPath, fontPath, musicPath)
 
 --GameLoop
 greatCycle
@@ -89,6 +93,8 @@ getControl = do
   keyEState      <- getKeyPressed keyRightArrow
   keySpaceState  <- getKeyPressed keySpace
   keyTurn        <- getKeyPressed keyI
+  key1State      <- getKeyPressed key1
+  key2State      <- getKeyPressed key2
   let newControl = Control
                        (keyWState /= 0)
                        (keySState /= 0)
@@ -98,6 +104,8 @@ getControl = do
                        (keyEState /= 0)
                        (keySpaceState /= 0)
                        (keyTurn /= 0)
+                       (key1State /= 0)
+                       (key2State /= 0)
   return newControl
 
 --get delta time

@@ -5,18 +5,24 @@ import Foreign.C.String
 
 type WindowStats = (Int, Int, String, Int, Int)
 type TexturePaths = (String, String, String)
+type ExtraPaths = (String, String, String)
 type Line = (Int, Int, Double, Int, Int)
+type Text = (String, Int, Int, Int)
 
 ----Shell functions
 
-initWorkspace :: WindowStats -> TexturePaths -> IO()
+initWorkspace :: WindowStats -> TexturePaths -> ExtraPaths -> IO()
 initWorkspace
   (windowWidth, windowHeight, windowTitle, windowFrameLimit, windowScale)
-  (wallTexturePath, enemyTexturePath, spriteTexturePath) = do
+  (wallTexturePath, enemyTexturePath, spriteTexturePath)
+  (shaderPath, fontPath, musicPath) = do
   cWindowTitle       <- newCString windowTitle
   cWallTexturePath   <- newCString wallTexturePath
   cEnemyTexturePath  <- newCString enemyTexturePath
   cSpriteTexturePath <- newCString spriteTexturePath
+  cShaderPath        <- newCString shaderPath
+  cFontPath          <- newCString fontPath
+  cMusicPath         <- newCString musicPath
   cInitWorkspace
     (fromIntegral windowWidth)
     (fromIntegral windowHeight)
@@ -26,6 +32,9 @@ initWorkspace
     cWallTexturePath
     cEnemyTexturePath
     cSpriteTexturePath
+    cShaderPath
+    cFontPath
+    cMusicPath
 
 updateWorkspace :: IO()
 updateWorkspace = do
@@ -41,9 +50,12 @@ getKeyPressed chosenKey = do
   keyState <- cGetKeyPressed $ fromIntegral chosenKey
   return $ fromIntegral keyState
 
-pushDrawBuffer :: Int -> Int -> IO()
-pushDrawBuffer linesCount textureType = do
-  cPushDrawBuffer (fromIntegral linesCount) (fromIntegral textureType)
+pushDrawBuffer :: Int -> Int -> Int -> IO()
+pushDrawBuffer linesCount textureType colorConstant = do
+  cPushDrawBuffer
+    (fromIntegral linesCount)
+    (fromIntegral textureType)
+    (fromIntegral colorConstant)
 
 drawLine :: Line -> IO()
 drawLine (chosenLine, xCoord, height, texCoord, color) = do
@@ -53,6 +65,15 @@ drawLine (chosenLine, xCoord, height, texCoord, color) = do
     (realToFrac height)
     (fromIntegral texCoord)
     (fromIntegral color)
+
+drawText :: Text -> IO()
+drawText (msg, xCoord, yCoord, size) = do
+  cMsg <- newCString msg
+  cDrawText
+    cMsg
+    (fromIntegral xCoord)
+    (fromIntegral yCoord)
+    (fromIntegral size)
 
 getLinesCount :: Int
 getLinesCount = fromIntegral cGetLinesCount
@@ -93,10 +114,30 @@ keyI = 6
 keySpace :: Int
 keySpace = 7
 
+key1 :: Int
+key1 = 8
+
+key2 :: Int
+key2 = 9
+
+----Color constants
+
+colorNone :: Int
+colorNone = 0
+
+colorRed :: Int
+colorRed = 1
+
+colorGreen :: Int
+colorGreen = 2
+
+colorBlue :: Int
+colorBlue = 4
+
 ----FFI calls
 
 --Initing GUI workspace
-foreign import ccall "_Z14init_workspaceiiPciiS_S_S_" cInitWorkspace ::
+foreign import ccall "_Z14init_workspaceiiPciiS_S_S_S_S_S_" cInitWorkspace ::
   CInt --Window width
   -> CInt --Window height
   -> CString --Window title
@@ -105,6 +146,9 @@ foreign import ccall "_Z14init_workspaceiiPciiS_S_S_" cInitWorkspace ::
   -> CString --Wall texture path
   -> CString --Enemy texture path
   -> CString --Sprite texture path
+  -> CString --Shader path
+  -> CString --Font path
+  -> CString --Music path
   -> IO()
 
 --Updating GUI workspace
@@ -117,9 +161,10 @@ foreign import ccall "_Z14get_delta_timev" cGetDeltaTime :: IO(CFloat)
 foreign import ccall "_Z15get_key_pressedi" cGetKeyPressed :: CInt -> IO(Int)
 
 --Push chosen part of draw buffer
-foreign import ccall "_Z16push_draw_bufferii" cPushDrawBuffer ::
+foreign import ccall "_Z16push_draw_bufferiii" cPushDrawBuffer ::
   CInt --Lines count
   -> CInt --Texture type
+  -> CInt --Color constant
   -> IO()
 
 --Draw one line
@@ -129,6 +174,14 @@ foreign import ccall "_Z9draw_lineiidii" cDrawLine ::
   -> CDouble --Height
   -> CInt --Texture
   -> CInt --Color
+  -> IO()
+
+--Draw text
+foreign import ccall "_Z9draw_textPciii" cDrawText ::
+  CString --Msg text
+  -> CInt --X coord
+  -> CInt --Y coord
+  -> CInt --Size
   -> IO()
 
 --Get screen's line's count
