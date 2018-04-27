@@ -21,19 +21,22 @@ defMapSize :: Int
 defMapSize = 32
 
 player :: String
-player = "P"
+player = "p00"
 
 wall :: String
-wall = "W"
+wall = "w01"
 
 gap :: String
-gap = "_"
+gap = "v00"
 
 buff :: String
-buff = "I"
+buff = "i04"
+
+portal :: String
+portal = "b00"
 
 typeEnemy :: Int -> String
-typeEnemy e = "E"
+typeEnemy e = "e0" ++ show e
 
 printTileMap :: Tilemap -> IO ()
 printTileMap = mapM_ print
