@@ -21,16 +21,19 @@ defMapSize :: Int
 defMapSize = 32
 
 player :: String
-player = "p00"
+player = "P"
 
 wall :: String
-wall = "w00"
+wall = "W"
 
 gap :: String
-gap = "v00"
+gap = "_"
 
 buff :: String
-buff = "i04"
+buff = "I"
+
+typeEnemy :: Int -> String
+typeEnemy e = "E"
 
 printTileMap :: Tilemap -> IO ()
 printTileMap = mapM_ print
@@ -221,7 +224,7 @@ placeEnemiesInArea g count c tm = placeOn enemies candidates tm
     candidates = takeRandom g' count $ aroundPlace c 
     enemiesTypes = takeRandom g count list --digits: like 4 in e04
     list = ([1,2,3,4] :: [Int])
-    enemies = map (\e -> "e0" ++ show e) enemiesTypes
+    enemies = map (\e -> typeEnemy e) enemiesTypes
 
 -------------------------------------------------------------------------- 
 genTileMap :: Int -> IO (Tilemap)
