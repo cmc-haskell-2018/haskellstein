@@ -227,7 +227,7 @@ createScene tmap =
         []
         Game
         []
-        (MenuState 0 3 False (MenuTable True False False False True True) (Nothing, 0.2))
+        (MenuState 0 3 False (MenuTable False True True True True True) (Nothing, 0.2))
   where
     rewrite p
         | head p == 'e' = "v00"

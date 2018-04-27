@@ -17,7 +17,7 @@ start args = do
     else do
         tilemap      <- readFile $ head args
         let scene    = (createScene  (createTilemap tilemap)) {sArgs = args}
-        let newScene = if (argsLen == 4) then (scene {sState = Menu}) else scene
+        let newScene = if (argsLen == 4) then (setElemsInMenu (scene {sState = Menu}) ["RESUME","RESTART", "SAVE", "START"] [False, False, False, True]) else scene
         res  <- greatCycle newScene getScene stepScene updateScene
         let levelEnd = fst res
         let newArgs  = snd res
@@ -59,7 +59,7 @@ greatCycle scene get step update = do
   else if ((endCheck scn) == Defeat) then
     return (False, [])
   else if ((getState scn) == Game) then do
-          displayPicture $ makePicture scn
+          displayPicture (makePicture scn) True
           control      <- getControl
           delta        <- getDelta
           newScene <- step (sMenuState scn) (update scene control delta)
@@ -72,6 +72,7 @@ greatCycle scene get step update = do
             mtable       = mTable mstate
             newMState    = getMenuState (menuTable2list mtable) mstate control delta in
             do
+              displayPicture (makePicture scn) False
               displayMenu mtable newMState
               newScene <- step newMState $ update scene control delta
               greatCycle newScene get step update
@@ -129,18 +130,18 @@ getState :: Scene -> GameState
 getState scene = sState scene
 
 --visualizeScene
-displayPicture :: Picture -> IO()
-displayPicture picture = do
+displayPicture :: Picture -> Bool -> IO()
+displayPicture picture update = do
   setHealthBarSize (piHp picture)
   drawScene picture
-  updateWorkspace
+  if update then updateWorkspace else return ()
 
 --visualizeMenu
 displayMenu :: MenuTable -> MenuState -> IO()
 displayMenu mtable mstate = do
   setHealthBarSize 0
   displayText menuContent (menuTable2list mtable) (mIndex mstate) 0
-  drawText("Haskellstein v2.0", xOffset * 10, yOffset - 40, 35)
+  --drawText("Haskellstein v2.0", xOffset * 10, yOffset - 40, 35)
   updateWorkspace
 
 
