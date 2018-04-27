@@ -22,7 +22,6 @@ start args = do
                                 endCheck
                                 makePicture
                                 getState
-                                args
                                 getScene
         if levelEnd then start newArgs
         else putStrLn "Defeat"
@@ -55,10 +54,9 @@ greatCycle
   -> (a -> GameState) --checkEndCondition
   -> (a -> Picture) --drawObject
   -> (a -> GameState) --sceneState
-  -> [String] --args
   -> (a -> Scene) --scene
   -> IO(Bool)
-greatCycle scene step update end picture state args get =
+greatCycle scene step update end picture state get =
   if ((end scene) == Victory) then return True
   else if ((end scene) == Defeat) then return False
   else if ((state scene) == Game) then do
@@ -69,8 +67,8 @@ greatCycle scene step update end picture state args get =
             scn      = get scene in
             do
               newScene <- step (sMenuState scn) $ update scene control delta
-              greatCycle newScene step update end picture state args get
-  else do
+              greatCycle newScene step update end picture state get
+  else if ((state scene) == Menu) then do
           control      <- getControl
           delta        <- getDelta
           let
@@ -81,10 +79,17 @@ greatCycle scene step update end picture state args get =
             do
               displayMenu mtable newMState
               newScene <- step newMState $ update scene control delta
-              greatCycle newScene step update end picture state args get
+              greatCycle newScene step update end picture state get
+  else if ((state scene) == Textting) then do
+          return False
+  else do
+    return False
 
 --doMenuActions :: Control -> Scene
 --doMenuActions control =
+
+
+
 
 menuTable2list :: MenuTable -> [Bool]
 menuTable2list mtable =
@@ -100,7 +105,7 @@ getMenuState mtable mstate control delta =
     bound = length [ x| x <- mtable, x == True ] - 1
     currIdx = mIndex mstate
     newIdx  = updateIndex currIdx bound control
-    newDelay = ((Just (snd delay)), snd delay) in
+    newDelay = if (currIdx /= newIdx) then ((Just (snd delay)), snd delay) else (Nothing, snd delay) in
     mstate {mIndex = newIdx, mDelay = newDelay, mEnter = enter}
   else let newDelay = if (((getMaybeValue timer) - delta) <= 0.0) then (Nothing, snd delay) else (Just ((getMaybeValue timer) - delta), snd delay) in
     mstate {mDelay = newDelay, mEnter = enter}
@@ -163,9 +168,9 @@ displayText :: [String] -> [Bool] -> Int -> Int -> IO()
 displayText str agree idx line =
   if (and [((length agree) /= 0), (head agree)])  then do
       if idx == line then
-        drawText("*" ++ (head str), xOffset, yOffset + line * lineHeight, fontSize)
+        drawText("->" ++ (head str) ++ "<-", xOffset, yOffset + line * lineHeight, fontSize)
       else
-        drawText("-" ++ (head str), xOffset, yOffset + line * lineHeight, fontSize)
+        drawText((head str), xOffset, yOffset + line * lineHeight, fontSize)
       displayText (tail str) (tail agree) idx (line + 1)
   else if ((length agree) /= 0) then do
       displayText (tail str) (tail agree) idx line
@@ -260,16 +265,16 @@ changeScene scene melem =
   else if melem == "EXIT" then
     return scene {sState = Exit}
   else if melem == "RESTART" then do
-    newScene <- loadScene "toRestartScene.txt"
+    newScene <- loadScene ".toRestartScene.txt"
     return ((setElemsInMenu newScene ["RESUME","RESTART", "SAVE", "START"] [True, True, True, False]) {sState = Game})
   else if melem == "SAVE" then do
-    _ <- saveScene scene "savedScene.txt"
-    return scene
+    _ <- saveScene scene ".savedScene.txt"
+    return (setElemInMenu scene "LOAD" True)
   else if melem == "START" then do
-    _ <- saveScene scene "toRestartScene.txt"
+    _ <- saveScene scene ".toRestartScene.txt"
     return ((setElemsInMenu scene ["RESUME","RESTART", "SAVE", "START"] [True, True, True, False]) {sState = Game})
   else do
-    newScene <- loadScene "savedScene.txt"
+    newScene <- loadScene ".savedScene.txt"
     return ((setElemsInMenu newScene ["RESUME","RESTART", "SAVE", "START"] [True, True, True, False]) {sState = Game})
 
 

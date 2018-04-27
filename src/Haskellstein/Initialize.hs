@@ -225,9 +225,9 @@ createScene tmap =
         (Just texCooldown)
         []
         []
-        Menu
+        Game
         []
-        (MenuState 0 3 False (MenuTable True False False False True True) (Nothing, 0.13))
+        (MenuState 0 3 False (MenuTable True False False False False True) (Nothing, 0.2))
   where
     rewrite p
         | head p == 'e' = "v00"

@@ -119,5 +119,5 @@ menuContent =  ["START", "RESUME", "RESTART", "SAVE", "LOAD", "EXIT"]
 
 type TexTimer = Maybe Float
 
-data GameState = Menu | Game | Victory | Defeat | Exit
+data GameState = Menu | Game | Victory | Defeat | Textting | Exit
     deriving (Eq, Show, Read)
