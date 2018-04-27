@@ -14,15 +14,16 @@ start args = do
     if length args == 0 then do
         putStrLn "Victory"
     else do
-        let newArgs = tail args
-        tilemap   <- readFile $ head args
-        levelEnd  <- greatCycle (createScene  (createTilemap tilemap)) {sArgs = args}
+        tilemap      <- readFile $ head args
+        res  <- greatCycle (createScene  (createTilemap tilemap)) {sArgs = args}
                                 stepScene
                                 updateScene
                                 endCheck
                                 makePicture
                                 getState
                                 getScene
+        let levelEnd = fst res
+        let newArgs  = snd res
         if levelEnd then start newArgs
         else putStrLn "Defeat"
 
@@ -55,10 +56,10 @@ greatCycle
   -> (a -> Picture) --drawObject
   -> (a -> GameState) --sceneState
   -> (a -> Scene) --scene
-  -> IO(Bool)
+  -> IO((Bool, [String]))
 greatCycle scene step update end picture state get =
-  if ((end scene) == Victory) then return True
-  else if ((end scene) == Defeat) then return False
+  if ((end scene) == Victory) then return (True, (tail (sArgs (get scene))))
+  else if ((end scene) == Defeat) then return (False, [])
   else if ((state scene) == Game) then do
           displayPicture $ picture scene
           control      <- getControl
@@ -81,9 +82,9 @@ greatCycle scene step update end picture state get =
               newScene <- step newMState $ update scene control delta
               greatCycle newScene step update end picture state get
   else if ((state scene) == Textting) then do
-          return False
+          return (False, [])
   else do
-    return False
+    return (False, [])
 
 --doMenuActions :: Control -> Scene
 --doMenuActions control =
