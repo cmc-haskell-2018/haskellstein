@@ -11,17 +11,14 @@ import System.IO
 
 start :: [String] -> IO()
 start args = do
-    if length args == 0 then do
+    let argsLen = length args
+    if argsLen == 0 then do
         putStrLn "Victory"
     else do
         tilemap      <- readFile $ head args
-        res  <- greatCycle (createScene  (createTilemap tilemap)) {sArgs = args}
-                                stepScene
-                                updateScene
-                                endCheck
-                                makePicture
-                                getState
-                                getScene
+        let scene    = (createScene  (createTilemap tilemap)) {sArgs = args}
+        let newScene = if (argsLen == 4) then (scene {sState = Menu}) else scene
+        res  <- greatCycle newScene getScene stepScene updateScene
         let levelEnd = fst res
         let newArgs  = snd res
         if levelEnd then start newArgs
@@ -50,38 +47,35 @@ windowInit = do
 --GameLoop
 greatCycle
   :: a --object
-  -> (MenuState -> a -> IO(a)) --stepObject
-  -> (a -> Control -> Float -> a) --getControlAndDelta
-  -> (a -> GameState) --checkEndCondition
-  -> (a -> Picture) --drawObject
-  -> (a -> GameState) --sceneState
   -> (a -> Scene) --scene
+  -> (MenuState -> a -> IO(a)) --step
+  -> (a -> Control -> Float -> a) --updateScene
   -> IO((Bool, [String]))
-greatCycle scene step update end picture state get =
-  if ((end scene) == Victory) then return (True, (tail (sArgs (get scene))))
-  else if ((end scene) == Defeat) then return (False, [])
-  else if ((state scene) == Game) then do
-          displayPicture $ picture scene
+greatCycle scene get step update = do
+  let scn = get scene
+
+  if ((endCheck scn) == Victory) then
+    return (True, (tail (sArgs scn)))
+  else if ((endCheck scn) == Defeat) then
+    return (False, [])
+  else if ((getState scn) == Game) then do
+          displayPicture $ makePicture scn
+          control      <- getControl
+          delta        <- getDelta
+          newScene <- step (sMenuState scn) (update scene control delta)
+          greatCycle newScene get step update
+  else if ((getState scn) == Menu) then do
           control      <- getControl
           delta        <- getDelta
           let
-            scn      = get scene in
-            do
-              newScene <- step (sMenuState scn) $ update scene control delta
-              greatCycle newScene step update end picture state get
-  else if ((state scene) == Menu) then do
-          control      <- getControl
-          delta        <- getDelta
-          let
-            scn          = (get scene)
             mstate       = sMenuState scn
             mtable       = mTable mstate
             newMState    = getMenuState (menuTable2list mtable) mstate control delta in
             do
               displayMenu mtable newMState
               newScene <- step newMState $ update scene control delta
-              greatCycle newScene step update end picture state get
-  else if ((state scene) == Textting) then do
+              greatCycle newScene get step update
+  else if ((getState scn) == Textting) then do
           return (False, [])
   else do
     return (False, [])

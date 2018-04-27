@@ -225,7 +225,7 @@ createScene tmap =
         (Just texCooldown)
         []
         []
-        Menu
+        Game
         []
         (MenuState 0 3 False (MenuTable True False False False True True) (Nothing, 0.2))
   where
