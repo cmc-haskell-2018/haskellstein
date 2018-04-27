@@ -6,6 +6,9 @@ import Haskellstein.Data
 import Haskellstein.CheckMap
 import System.Random
 
+defCountOfLevels :: Int
+defCountOfLevels = 2
+
 -- ! Approach !: Tilemap can be only square
 
 data Direction = Left | Right | Up | Down
@@ -18,7 +21,7 @@ getMaybeVal (Just v) = v
 getMaybeVal Nothing  = undefined
 
 defMapSize :: Int
-defMapSize = 32
+defMapSize = 10
 
 player :: String
 player = "p00"
@@ -239,11 +242,13 @@ genTileMap size = do
     ; wallMap = iterBuildWalls g (size `div` 5) sMap 
     ; g' = snd $ next g
     ; g'' = snd $ next g'
+    ; g''' = snd $ next g''
     }
    -- place enemy stacks and player
   let
     { eCount = size `div` 5
-    ; finMap = placeEnemies g'' eCount $
+    ; finMap =  placeSmthOnAnyFree g''' portal $
+                placeEnemies g'' eCount $
                 placeSmthOnAnyFree g' player wallMap
     }
   return (finMap)

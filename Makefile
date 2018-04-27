@@ -64,5 +64,5 @@ run:
                      $(MAPSLOC)first_map.txt
 alex_run:
 	make all
-	LD_LIBRARY_PATH=lib ./$(OUTPUT_NAME) Custom $(MAPSLOC)fourth_map.txt \
+	LD_LIBRARY_PATH=lib ./$(OUTPUT_NAME) Generated $(MAPSLOC)fourth_map.txt \
                      $(MAPSLOC)first_map.txt $(MAPSLOC)third_map.txt

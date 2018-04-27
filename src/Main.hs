@@ -4,5 +4,5 @@ import Haskellstein
 
 main :: IO()
 main = do
-         windowInit
-         start 1
+ windowInit
+ startGame 1 3

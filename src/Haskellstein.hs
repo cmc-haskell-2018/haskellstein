@@ -9,32 +9,50 @@ import Haskellstein.Map
 import Haskellstein.Picture
 import Haskellstein.Interactions
 
-start :: Int -> IO()
-start turn = do
+-- | first parameter - turn - used in Custom mode
+-- second - countOfLevels - used in Generated mode
+startGame :: Int -> Int -> IO ()
+startGame turn countOfLevels = do
+ mode <- detectMode
+ case mode of
+  Custom -> startCustom turn
+  Generated -> startGenerated countOfLevels
+
+detectMode :: IO (MapMode)
+detectMode = do
+  allargs <- getArgs
+  let mode = read $ head allargs
+  return mode
+
+startCustom :: Int -> IO()
+startCustom turn = do
     allargs <- getArgs
-    let mode = read $ head allargs
-    if mode == Custom then do
-      if length allargs <= turn then do
-          putStrLn "Victory"
-      else do
-          let myarg = allargs !! turn
-          tilemap   <- readFile myarg
-          levelEnd  <- greatCycle (createScene . createTilemap $ tilemap)
-                                  stepScene
-                                  updateScene
-                                  endCheck
-                                  makePicture
-          if levelEnd then start $ turn + 1
-          else putStrLn "Defeat"
+    if length allargs <= turn then do
+        putStrLn "Victory"
     else do
-          tilemap   <- genTileMap defMapSize
-          levelEnd  <- greatCycle (createScene tilemap)
-                                  stepScene
-                                  updateScene
-                                  endCheck
-                                  makePicture
-          if levelEnd then putStrLn "Victory"
-          else putStrLn "Defeat"
+        let myarg = allargs !! turn
+        tilemap   <- readFile myarg
+        levelEnd  <- greatCycle (createScene . createTilemap $ tilemap)
+                                stepScene
+                                updateScene
+                                endCheck
+                                makePicture
+        if levelEnd then startCustom $ turn + 1
+        else putStrLn "Defeat"
+
+startGenerated :: Int -> IO()
+startGenerated countOfLevels = do
+  tilemap   <- genTileMap defMapSize
+  levelEnd  <- greatCycle (createScene tilemap)
+                          stepScene
+                          updateScene
+                          endCheck
+                          makePicture
+  if levelEnd
+  then if countOfLevels == 0
+       then putStrLn "Victory, you are the grandmaster champion!"
+       else startGenerated (countOfLevels - 1)
+  else putStrLn "Defeat, you need more practise"
       
 
 windowInit :: IO()
@@ -50,7 +68,7 @@ windowInit = do
                  spriteTexturePath = "data/textures/sprite1.png"
                  shaderPath        = "data/shader.frag"
                  fontPath          = "data/font.ttf"
-                 musicPath         = "data/music.ogg"
+                 musicPath         = "data/epic-sax-guy.ogg"
                initWorkspace
                  (windowWidth, windowHeight, windowTitle,
                    windowFrameLimit, scaleFactor)
