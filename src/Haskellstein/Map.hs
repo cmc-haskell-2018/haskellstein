@@ -21,7 +21,7 @@ getMaybeVal (Just v) = v
 getMaybeVal Nothing  = undefined
 
 defMapSize :: Int
-defMapSize = 10
+defMapSize = 32
 
 player :: String
 player = "p00"
