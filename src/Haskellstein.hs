@@ -7,7 +7,6 @@ import Haskellstein.Data
 import Haskellstein.Picture
 import Haskellstein.Interactions
 import Control.Concurrent (threadDelay)
-import System.IO
 
 start :: [String] -> IO()
 start args = do
@@ -21,8 +20,10 @@ start args = do
         res  <- greatCycle newScene getScene stepScene updateScene
         let levelEnd = fst res
         let newArgs  = snd res
-        if levelEnd then start newArgs
-        else putStrLn "Defeat"
+        if (levelEnd == Victory) then start newArgs
+        else putStrLn "Exit"
+
+
 
 windowInit :: IO()
 windowInit = do
@@ -50,14 +51,23 @@ greatCycle
   -> (a -> Scene) --scene
   -> (MenuState -> a -> IO(a)) --step
   -> (a -> Control -> Float -> a) --updateScene
-  -> IO((Bool, [String]))
+  -> IO((GameState, [String]))
 greatCycle scene get step update = do
   let scn = get scene
-
-  if ((endCheck scn) == Victory) then
-    return (True, (tail (sArgs scn)))
-  else if ((endCheck scn) == Defeat) then
-    return (False, [])
+  if ((getState scn) == Victory) then
+    return (Victory, (tail (sArgs scn)))
+  else if ((getState scn) == Defeat) then do
+    control      <- getControl
+    delta        <- getDelta
+    let
+      mstate       = (MenuState 0 3 False (MenuTable False False True False True True) (Nothing, 0.2))
+      mtable       = mTable mstate
+      newMState    = getMenuState (menuTable2list mtable) mstate control delta in
+      do
+        --displayPicture (makePicture scn) False
+        displayMenu mtable newMState
+        newScene <- step newMState $ update scene control delta
+        greatCycle newScene get step update
   else if ((getState scn) == Game) then do
           displayPicture (makePicture scn) True
           control      <- getControl
@@ -72,14 +82,14 @@ greatCycle scene get step update = do
             mtable       = mTable mstate
             newMState    = getMenuState (menuTable2list mtable) mstate control delta in
             do
-              displayPicture (makePicture scn) False
+              --displayPicture (makePicture scn) False
               displayMenu mtable newMState
               newScene <- step newMState $ update scene control delta
               greatCycle newScene get step update
-  else if ((getState scn) == Textting) then do
-          return (False, [])
+  else if ((getState scn) == Exit) then do
+          return (Exit, [])
   else do
-    return (False, [])
+    return (Textting, [])
 
 --doMenuActions :: Control -> Scene
 --doMenuActions control =
@@ -127,7 +137,10 @@ getScene scene = scene
 
 --getSceneState
 getState :: Scene -> GameState
-getState scene = sState scene
+getState scene =
+  if ((pHp . sPlayer $ scene) <= 0) then Defeat
+  else if (pExit . sPlayer $ scene) then Victory
+  else sState scene
 
 --visualizeScene
 displayPicture :: Picture -> Bool -> IO()
@@ -219,21 +232,13 @@ getDelta = do
 
 switchScene :: Scene -> Control -> Scene
 switchScene scene control =
-  if cMenu control then scene {sState = Menu} else if cGame control then scene {sState = Game} else scene
+  if cMenu control then scene {sState = Menu} else scene
 
 --addExternalData
 updateScene :: Scene -> Control -> Float -> Scene
 updateScene scene control delta =
   let newScene = switchScene scene control in
   if sState newScene == Menu then newScene {sControl = control, sDelta = 0} else newScene {sControl = control, sDelta = delta}
-
---makeInteractions
-endCheck :: Scene -> GameState
-endCheck scene =
-  if ((pHp . sPlayer $ scene) <= 0) then Defeat
-  else if (pExit . sPlayer $ scene) then Victory
-  else if ((sState scene) == Exit) then Defeat
-  else Game
 
 --makeInteractions
 stepScene :: MenuState -> Scene -> IO(Scene)
@@ -243,7 +248,6 @@ stepScene mstate scene =
   if enter then
     updateSceneFromMenu scene mstate
   else if sState scene == Game then return (doInteractions scene) else return (scene {sMenuState = mstate})
-
 
 updateSceneFromMenu :: Scene -> MenuState -> IO(Scene)
 updateSceneFromMenu scene mstate =
@@ -268,11 +272,11 @@ changeScene scene melem =
     return (setElemInMenu scene "LOAD" True)
   else if melem == "START" then do
     _ <- saveScene scene ".toRestartScene.txt"
+    _ <- saveScene scene ".savedScene.txt"
     return ((setElemsInMenu scene ["RESUME","RESTART", "SAVE", "START"] [True, True, True, False]) {sState = Game})
   else do
     newScene <- loadScene ".savedScene.txt"
     return ((setElemsInMenu newScene ["RESUME","RESTART", "SAVE", "START"] [True, True, True, False]) {sState = Game})
-
 
 setElemsInMenu :: Scene -> [String] -> [Bool] -> Scene
 setElemsInMenu scene keys vals =
@@ -284,11 +288,7 @@ setElemsInMenu scene keys vals =
 loadScene :: String -> IO(Scene)
 loadScene file = do
   scene <- readFile file  
-  return (read (preprocessing scene) :: Scene)
-
-preprocessing :: String -> String
-preprocessing str = str
-
+  return (read scene :: Scene)
 
 setElemInMenu :: Scene -> String -> Bool -> Scene
 setElemInMenu scene melem val =
@@ -313,7 +313,6 @@ changeTable mtable telem val =
     mtable {mLoad    = val}
   else
     mtable {mExit    = val}
-
 
 saveScene :: Scene -> String -> IO()
 saveScene scene file = do
