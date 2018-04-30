@@ -17,7 +17,7 @@ start args = do
         tilemap      <- readFile $ head args
         let scene    = (createScene  (createTilemap tilemap)) {sArgs = args}
         let newScene = if (argsLen == 4) then (setElemsInMenu (scene {sState = Menu}) ["RESUME","RESTART", "SAVE", "START"] [False, False, False, True]) else scene
-        res  <- greatCycle newScene getScene stepScene updateScene
+        res  <- greatCycle newScene getScene coolUpdateScene
         let levelEnd = fst res
         let newArgs  = snd res
         if (levelEnd == Victory) then start newArgs
@@ -49,72 +49,55 @@ windowInit = do
 greatCycle
   :: a --object
   -> (a -> Scene) --scene
-  -> (MenuState -> a -> IO(a)) --step
-  -> (a -> Control -> Float -> a) --updateScene
+  -> (a -> Control -> Float -> IO(a)) --updateScene
   -> IO((GameState, [String]))
-greatCycle scene get step update = do
+greatCycle scene get update = do
   let scn = get scene
   if ((getState scn) == Victory) then
     return (Victory, (tail (sArgs scn)))
-  else if ((getState scn) == Defeat) then do
-    control      <- getControl
-    delta        <- getDelta
-    let
-      mstate       = (MenuState 0 3 False (MenuTable False False True False True True) (Nothing, 0.2))
-      mtable       = mTable mstate
-      newMState    = getMenuState (menuTable2list mtable) mstate control delta in
-      do
-        --displayPicture (makePicture scn) False
-        displayMenu mtable newMState
-        newScene <- step newMState $ update scene control delta
-        greatCycle newScene get step update
-  else if ((getState scn) == Game) then do
+  else if ((sState scn) == Game) then do
           displayPicture (makePicture scn) True
           control      <- getControl
           delta        <- getDelta
-          newScene <- step (sMenuState scn) (update scene control delta)
-          greatCycle newScene get step update
-  else if ((getState scn) == Menu) then do
+          newScene     <- update scene control delta
+          greatCycle newScene get update
+  else if ((sState scn) == Menu) then do
           control      <- getControl
           delta        <- getDelta
           let
-            mstate       = sMenuState scn
-            mtable       = mTable mstate
-            newMState    = getMenuState (menuTable2list mtable) mstate control delta in
+            menuState       = sMenuState scn
+            menuTable       = sMenuTable scn in
             do
-              --displayPicture (makePicture scn) False
-              displayMenu mtable newMState
-              newScene <- step newMState $ update scene control delta
-              greatCycle newScene get step update
-  else if ((getState scn) == Exit) then do
+              displayMenu menuTable menuState
+              newScene     <- update scene control delta
+              greatCycle newScene get update
+  else if ((sState scn) == Exit) then do
           return (Exit, [])
   else do
-    return (Textting, [])
-
---doMenuActions :: Control -> Scene
---doMenuActions control =
-
-
-
+    return (Input, [])
 
 menuTable2list :: MenuTable -> [Bool]
-menuTable2list mtable =
-  [mStart mtable, mResume mtable, mRestart mtable, mSave mtable, mLoad mtable, mExit mtable]
+menuTable2list menuTable =
+  [mStart menuTable, mResume menuTable, mRestart menuTable, mSave menuTable, mLoad menuTable, mExit menuTable]
 
-getMenuState :: [Bool] -> MenuState -> Control -> Float -> MenuState
-getMenuState mtable mstate control delta =
+updateMenuState :: MenuState -> Control -> Float -> MenuState
+updateMenuState menuState control delta =
   let
-    delay = mDelay mstate
-    timer = fst delay
-    enter = cReturn control
-  in if (timer == Nothing) then let
-    bound = length [ x| x <- mtable, x == True ] - 1
-    currIdx = mIndex mstate
-    newIdx  = updateIndex currIdx bound control
-    newDelay = if (currIdx /= newIdx) then ((Just (snd delay)), snd delay) else (Nothing, snd delay) in
-    mstate {mIndex = newIdx, mDelay = newDelay, mEnter = enter}
-  else let newDelay = if (((getMaybeValue timer) - delta) <= 0.0) then (Nothing, snd delay) else (Just ((getMaybeValue timer) - delta), snd delay) in
-    mstate {mDelay = newDelay, mEnter = enter}
+    delay     = mDelay menuState
+    timer     = fst delay
+    timeBound = snd delay
+    newTime   = getMaybeValue timer - delta
+    enter     = cReturn control in
+  if (timer == Nothing) then
+    let
+      bound = mIndexBound menuState
+      currIdx = mIndex menuState
+      newIdx  = updateIndex currIdx bound control
+      newDelay = if (currIdx /= newIdx) then (Just timeBound, timeBound) else delay in
+    menuState {mIndex = newIdx, mDelay = newDelay, mEnter = enter}
+  else
+    let newDelay = if (newTime <= 0.0) then (Nothing, timeBound) else (Just newTime, timeBound) in
+  menuState {mDelay = newDelay, mEnter = enter}
 
 updateIndex :: Int -> Int -> Control -> Int
 updateIndex currIdx bound control =
@@ -122,9 +105,8 @@ updateIndex currIdx bound control =
     upShift = if cForward control then (-1) else 0
     downShift = if cBack control then 1 else 0
     shift = upShift + downShift
-    newIdx = currIdx + shift
-    agree = if and [(newIdx <= bound), (newIdx > -1)] then True else False in
-  if agree then newIdx else currIdx
+    newIdx = currIdx + shift in
+  if newIdx > bound then 0 else if newIdx < 0 then bound else newIdx
 
 getMaybeValue :: (Fractional a) => Maybe a -> a
 getMaybeValue Nothing = 0.0
@@ -151,9 +133,9 @@ displayPicture picture update = do
 
 --visualizeMenu
 displayMenu :: MenuTable -> MenuState -> IO()
-displayMenu mtable mstate = do
+displayMenu menuTable menuState = do
   setHealthBarSize 0
-  displayText menuContent (menuTable2list mtable) (mIndex mstate) 0
+  displayText menuContent (menuTable2list menuTable) (mIndex menuState)
   --drawText("Haskellstein v2.0", xOffset * 10, yOffset - 40, 35)
   updateWorkspace
 
@@ -165,31 +147,20 @@ yOffset :: Int
 yOffset = 45
 
 lineHeight :: Int
-lineHeight = 25
+lineHeight = 40
 
 fontSize :: Int
-fontSize = 20
+fontSize = 40
 
 columnSize :: Int
 columnSize = 7
-
-displayText :: [String] -> [Bool] -> Int -> Int -> IO()
-displayText str agree idx line =
-  if (and [((length agree) /= 0), (head agree)])  then do
-      if idx == line then
-        drawText("->" ++ (head str) ++ "<-", xOffset, yOffset + line * lineHeight, fontSize)
-      else
-        drawText((head str), xOffset, yOffset + line * lineHeight, fontSize)
-      displayText (tail str) (tail agree) idx (line + 1)
-  else if ((length agree) /= 0) then do
-      displayText (tail str) (tail agree) idx line
-  else do
-      return ()
-
-
-xor :: Bool -> Bool -> Bool
-xor True a    = not a
-xor False a   = a
+ 
+displayText :: [String] -> [Bool] -> Int -> IO()
+displayText content isPrint index =
+  let
+    toPrint  = zip [0 .. ] $ map (\(_, str) -> str) $ filter (\(x, _) -> x) $ zip isPrint content
+    function = \(idx, str) -> if (idx == index) then drawText ("->" ++ str ++ "<-", xOffset, yOffset + idx * lineHeight, fontSize) else drawText (str, xOffset, yOffset + idx * lineHeight, fontSize) in
+    mapM_ function toPrint
 
 --read pushed keys
 getControl :: IO(Control)
@@ -204,7 +175,7 @@ getControl = do
   keyTurn        <- getKeyPressed keyI
   key1State      <- getKeyPressed key1
   key2State      <- getKeyPressed key2
-  keyMState      <- getKeyPressed keyM
+  keymenuState      <- getKeyPressed keyM
   keyGState      <- getKeyPressed keyG
   keyReturnState <- getKeyPressed keyReturn
   let newControl = Control
@@ -218,7 +189,7 @@ getControl = do
                        (keyTurn /= 0)
                        (key1State /= 0)
                        (key2State /= 0)
-                       (keyMState /= 0)
+                       (keymenuState /= 0)
                        (keyGState /= 0)
                        (keyReturnState /= 0)
   return newControl
@@ -230,33 +201,41 @@ getDelta = do
   let delta = if (deltaTime > 0.1) then 0.1 else deltaTime
   return delta
 
-switchScene :: Scene -> Control -> Scene
-switchScene scene control =
-  if cMenu control then scene {sState = Menu} else scene
-
---addExternalData
-updateScene :: Scene -> Control -> Float -> Scene
-updateScene scene control delta =
-  let newScene = switchScene scene control in
-  if sState newScene == Menu then newScene {sControl = control, sDelta = 0} else newScene {sControl = control, sDelta = delta}
-
---makeInteractions
-stepScene :: MenuState -> Scene -> IO(Scene)
-stepScene mstate scene =
+coolUpdateScene :: Scene -> Control -> Float -> IO(Scene)
+coolUpdateScene scene control delta =
   let
-    enter = mEnter mstate in
-  if enter then
-    updateSceneFromMenu scene mstate
-  else if sState scene == Game then return (doInteractions scene) else return (scene {sMenuState = mstate})
+    sceneState = sState scene in
+  if (getState scene) == Defeat then
+    let
+      player    = sPlayer scene
+      newPlayer = player {pHp = 10}
+      newScene  = (setElemsInMenu scene ["RESUME", "SAVE"] [False, False]) {sPlayer = newPlayer} in
+    return (newScene {sState = Menu, sDelta = 0, sControl = control})
+  else if and [sceneState == Game, not (cMenu control)] then
+    return (doInteractions (scene {sControl = control, sDelta = delta}))
+  else if cMenu control then
+    return scene {sState = Menu}
+  else
+    let
+      newMenuState   = updateMenuState (sMenuState scene) control delta
+      menuTable      = menuTable2list $ sMenuTable scene 
+      enter          = mEnter newMenuState
+      index          = mIndex newMenuState
+      realIdx        = getIndexOfContent menuTable index 0
+      menuElem       = menuContent !! realIdx in
+      if enter then
+        changeScene scene menuElem
+      else
+        return scene {sMenuState = newMenuState}
 
-updateSceneFromMenu :: Scene -> MenuState -> IO(Scene)
-updateSceneFromMenu scene mstate =
-  let
-    index    = mIndex mstate
-    mtable   = menuTable2list (mTable mstate)
-    realIdx  = getIndexOfContent index mtable 0
-    menuElem = menuContent !! realIdx in
-    changeScene scene menuElem
+getIndexOfContent :: [Bool] -> Int -> Int -> Int
+getIndexOfContent menuTable idx realIdx =
+  if not (head menuTable) then
+    getIndexOfContent (tail menuTable) idx (realIdx + 1)
+  else if idx == 0 then
+    realIdx
+  else
+    getIndexOfContent (tail menuTable) (idx - 1) (realIdx + 1)
 
 changeScene :: Scene -> String -> IO(Scene)
 changeScene scene melem =
@@ -266,14 +245,15 @@ changeScene scene melem =
     return scene {sState = Exit}
   else if melem == "RESTART" then do
     newScene <- loadScene ".toRestartScene.txt"
-    return ((setElemsInMenu newScene ["RESUME","RESTART", "SAVE", "START"] [True, True, True, False]) {sState = Game})
+    return newScene
   else if melem == "SAVE" then do
     _ <- saveScene scene ".savedScene.txt"
     return (setElemInMenu scene "LOAD" True)
   else if melem == "START" then do
-    _ <- saveScene scene ".toRestartScene.txt"
-    _ <- saveScene scene ".savedScene.txt"
-    return ((setElemsInMenu scene ["RESUME","RESTART", "SAVE", "START"] [True, True, True, False]) {sState = Game})
+    let newScene = (setElemsInMenu scene ["RESUME","RESTART", "SAVE", "START"] [True, True, True, False]) {sState = Game}
+    _ <- saveScene newScene ".toRestartScene.txt"
+    _ <- saveScene newScene ".savedScene.txt"
+    return newScene
   else do
     newScene <- loadScene ".savedScene.txt"
     return ((setElemsInMenu newScene ["RESUME","RESTART", "SAVE", "START"] [True, True, True, False]) {sState = Game})
@@ -285,45 +265,40 @@ setElemsInMenu scene keys vals =
   else
     setElemsInMenu (setElemInMenu scene (head keys) (head vals)) (tail keys) (tail vals)
 
-loadScene :: String -> IO(Scene)
-loadScene file = do
-  scene <- readFile file  
-  return (read scene :: Scene)
-
 setElemInMenu :: Scene -> String -> Bool -> Scene
 setElemInMenu scene melem val =
   let
-    mstate = sMenuState scene
-    mtable = mTable mstate
-    newMtable = changeTable mtable melem val
-    newMstate = mstate {mTable = newMtable} in
-    scene {sMenuState = newMstate}
+    menuTable              = sMenuTable scene
+    (shift, newMenuTable)  = changeTable menuTable melem val
+    menuState              = sMenuState scene
+    newIndexBound          = mIndexBound menuState + shift
+    newMenuState           = menuState {mIndexBound = newIndexBound, mIndex = 0} in
+    scene {sMenuTable = newMenuTable, sMenuState = newMenuState}
 
-changeTable :: MenuTable -> String -> Bool -> MenuTable
-changeTable mtable telem val =
+
+changeTable :: MenuTable -> String -> Bool -> (Int, MenuTable)
+changeTable menuTable telem val =
+  let x = if val then 1 else (-1) in
   if telem == "START" then
-    mtable {mStart   = val}
+    (if mStart menuTable == val then 0 else x, menuTable {mStart   = val})
   else if telem == "RESUME" then
-    mtable {mResume  = val}
+    (if mResume menuTable == val then 0 else x, menuTable {mResume  = val})
   else if telem == "RESTART" then
-    mtable {mRestart = val}
+    (if mRestart menuTable == val then 0 else x, menuTable {mRestart = val})
   else if telem == "SAVE" then
-    mtable {mSave    = val}
+    (if mSave menuTable == val then 0 else x, menuTable {mSave    = val})
   else if telem == "LOAD" then
-    mtable {mLoad    = val}
+    (if mLoad menuTable == val then 0 else x, menuTable {mLoad    = val})
   else
-    mtable {mExit    = val}
+    (if mExit menuTable == val then 0 else x, menuTable {mExit    = val})
 
 saveScene :: Scene -> String -> IO()
 saveScene scene file = do
   writeFile file (show scene)
   threadDelay 500000
 
-getIndexOfContent :: Int -> [Bool] -> Int -> Int
-getIndexOfContent indx mtable realIdx =
-  if and [(head mtable), indx > 0] then
-    getIndexOfContent (indx - 1) (tail mtable) (realIdx + 1)
-  else if (head mtable) then
-    realIdx
-  else
-    getIndexOfContent indx (tail mtable) (realIdx + 1)
+loadScene :: String -> IO(Scene)
+loadScene file = do
+  scene <- readFile file  
+  return (read scene :: Scene)
+

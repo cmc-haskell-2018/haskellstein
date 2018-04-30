@@ -95,13 +95,13 @@ data Scene = Scene
     , sState         :: GameState
     , sArgs          :: [String]
     , sMenuState     :: MenuState
+    , sMenuTable     :: MenuTable
     } deriving (Show, Read)
 
 data MenuState = MenuState
     { mIndex           :: Int
     , mIndexBound      :: Int
     , mEnter           :: Bool
-    , mTable           :: MenuTable
     , mDelay           :: Cooldown
     } deriving (Show, Read)
 
@@ -119,5 +119,5 @@ menuContent =  ["START", "RESUME", "RESTART", "SAVE", "LOAD", "EXIT"]
 
 type TexTimer = Maybe Float
 
-data GameState = Menu | Game | Victory | Defeat | Textting | Exit
+data GameState = Menu | Game | Victory | Defeat | Input | Exit
     deriving (Eq, Show, Read)
