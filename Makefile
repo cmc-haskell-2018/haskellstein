@@ -19,7 +19,8 @@ MODULES_NAMES = Main Haskellstein \
  Haskellstein/Picture \
  Haskellstein/CheckMap \
  Haskellstein/Initialize \
- Haskellstein/Interactions
+ Haskellstein/Interactions \
+ Haskellstein/Map
 MODULES_PATH = src
 MODULES = $(MODULES_NAMES:%=$(MODULES_PATH)/%.hs)
 

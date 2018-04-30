@@ -77,7 +77,7 @@ greatCycle scene get update = do
 
 menuTable2list :: MenuTable -> [Bool]
 menuTable2list menuTable =
-  [mStart menuTable, mResume menuTable, mRestart menuTable, mSave menuTable, mLoad menuTable, mExit menuTable]
+  [mStart menuTable, mResume menuTable, mRestart menuTable, mSave menuTable, mLoad menuTable, mGenMap menuTable, mExit menuTable]
 
 updateMenuState :: MenuState -> Control -> Float -> MenuState
 updateMenuState menuState control delta =
@@ -146,10 +146,10 @@ yOffset :: Int
 yOffset = 45
 
 lineHeight :: Int
-lineHeight = 40
+lineHeight = 20
 
 fontSize :: Int
-fontSize = 40
+fontSize = 20
 
 columnSize :: Int
 columnSize = 7
@@ -259,7 +259,7 @@ changeScene scene melem =
   else do
     tilemap   <- genTileMap defMapSize
     let
-      newScene = (setElemsInMenu (createScene tilemap) ["RESUME","RESTART", "SAVE", "START"] [True, True, True, False]) {sState = Game}
+      newScene = (setElemsInMenu (createScene tilemap) ["RESUME","RESTART", "SAVE", "START", "GENERATE MAP"] [True, True, True, False, False]) {sState = Game}
     return newScene
 
 setElemsInMenu :: Scene -> [String] -> [Bool] -> Scene
@@ -293,8 +293,10 @@ changeTable menuTable telem val =
     (if mSave menuTable == val then 0 else x, menuTable {mSave    = val})
   else if telem == "LOAD" then
     (if mLoad menuTable == val then 0 else x, menuTable {mLoad    = val})
-  else
+  else if telem == "EXIT" then
     (if mExit menuTable == val then 0 else x, menuTable {mExit    = val})
+  else
+    (if mGenMap menuTable == val then 0 else x, menuTable {mGenMap  = val})
 
 saveScene :: Scene -> String -> IO()
 saveScene scene file = do
