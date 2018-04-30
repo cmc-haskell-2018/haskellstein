@@ -4,6 +4,7 @@ import Haskellstein.Sftool
 import Haskellstein.Raycaster
 import Haskellstein.Initialize
 import Haskellstein.Data
+import Haskellstein.Map
 import Haskellstein.Picture
 import Haskellstein.Interactions
 import Control.Concurrent (threadDelay)
@@ -22,8 +23,6 @@ start args = do
         let newArgs  = snd res
         if (levelEnd == Victory) then start newArgs
         else putStrLn "Exit"
-
-
 
 windowInit :: IO()
 windowInit = do
@@ -254,9 +253,14 @@ changeScene scene melem =
     _ <- saveScene newScene ".toRestartScene.txt"
     _ <- saveScene newScene ".savedScene.txt"
     return newScene
-  else do
+  else if melem == "LOAD" then do
     newScene <- loadScene ".savedScene.txt"
     return ((setElemsInMenu newScene ["RESUME","RESTART", "SAVE", "START"] [True, True, True, False]) {sState = Game})
+  else do
+    tilemap   <- genTileMap defMapSize
+    let
+      newScene = (setElemsInMenu (createScene tilemap) ["RESUME","RESTART", "SAVE", "START"] [True, True, True, False]) {sState = Game}
+    return newScene
 
 setElemsInMenu :: Scene -> [String] -> [Bool] -> Scene
 setElemsInMenu scene keys vals =

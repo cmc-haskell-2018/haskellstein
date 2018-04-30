@@ -26,3 +26,5 @@ tilemaps/**/*
 haskellstein
 src/Haskellstein/Menu.hs
 sftool/*.a
+lib/
+sftool/include

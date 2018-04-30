@@ -1,0 +1,31 @@
+# COMPILER INFO
+CXX = g++
+CXX_FLAGS = -Wall -O3
+
+# ARCHIVE INFO
+AR = ar
+AR_FLAGS = cr
+
+# LD INFO
+LD = ld
+LD_FLAGS = -r
+
+# BASIC INFO
+COMMON_NAME = sftool
+CPP_FILE_NAME = $(COMMON_NAME).cpp
+O_FILE_NAME = $(COMMON_NAME).o
+LIBRARY_NAME = lib$(COMMON_NAME).a
+
+# MAKEFILE INSTRUCTIONS
+all: $(LIBRARY_NAME)
+
+$(LIBRARY_NAME): $(CPP_FILE_NAME)
+	$(CXX) $(CXX_FLAGS) $(CPP_FILE_NAME) -c -o $(O_FILE_NAME)
+	$(AR) $(AR_FLAGS) $(LIBRARY_NAME) $(O_FILE_NAME)
+
+clean:
+	rm -f $(O_FILE_NAME) $(LIBRARY_NAME)
+
+rebuild:
+	make clean
+	make all

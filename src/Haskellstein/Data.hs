@@ -15,6 +15,9 @@ data ColorTex = Red | Green | Blue | Normal
 
 type ObjectTexture = Int
 
+data MapMode = Custom | Generated
+  deriving (Eq,Show,Read)
+
 data Player = Player
   { pPos        :: Position
   , pRadian     :: Float
@@ -111,11 +114,12 @@ data MenuTable = MenuTable
     , mRestart        :: Bool
     , mSave           :: Bool    
     , mLoad           :: Bool
+    , mGenMap         :: Bool
     , mExit           :: Bool
     } deriving (Show, Read)
 
 menuContent :: [String]
-menuContent =  ["START", "RESUME", "RESTART", "SAVE", "LOAD", "EXIT"]
+menuContent =  ["START", "RESUME", "RESTART", "SAVE", "LOAD", "GENERATE MAP", "EXIT"]
 
 type TexTimer = Maybe Float
 
