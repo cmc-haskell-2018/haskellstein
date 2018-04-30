@@ -27,7 +27,7 @@ player :: String
 player = "p00"
 
 wall :: String
-wall = "w01"
+wall = "w00"
 
 gap :: String
 gap = "v00"
@@ -180,9 +180,10 @@ gapSquarePlaces :: Tilemap -> [CellCoord]
 gapSquarePlaces [] = []
 gapSquarePlaces tm  = filter (freeAround tm) $ gapPlaces tm
 
+-- | it also returns chosen coord beside tilemap
 placeSmthOnAnyFree :: (RandomGen g) => g -> TilemapCell ->
-                      Tilemap -> Tilemap
-placeSmthOnAnyFree gen obj tm = newMap 
+                      Tilemap -> (Tilemap, CellCoord)
+placeSmthOnAnyFree gen obj tm = (newMap, gaps !! i)
   where
     gaps = gapPlaces tm 
     i = fst $ randomR (0, length gaps - 1) gen
@@ -218,8 +219,8 @@ placeEnemyStackAndBuff g tm =
     coord = variations !! i
     (i,g') = randomR (0, length variations - 1) g
     (c,g'') = randomR interv g' -- count of possible enemies    
-    interv = (2.0,4.0) :: (Float, Float)
-    count = floor c
+    interv = (1.0,3.0) :: (Float, Float)
+    count = round c
     mapWithEnemies = placeEnemiesInArea g'' count coord tm
 
 placeEnemiesInArea :: (RandomGen g) => g -> Int -> CellCoord ->
@@ -232,6 +233,22 @@ placeEnemiesInArea g count c tm = placeOn enemies candidates tm
     list = ([1,2,3,4] :: [Int])
     enemies = map (\e -> typeEnemy e) enemiesTypes
 
+--------------------PORTAL----------------------------------------------- 
+-- | place portal far enough from player 
+-- final position depends on 2-nd input parameter - length
+placePortal :: (RandomGen g) => g -> CellCoord -> Int ->
+               Tilemap -> Tilemap
+placePortal g plCoord leng tm =
+  if candidates /= []
+  then writeCondition tm (candidates !! i) portal
+  else placePortal g plCoord (leng - 1) tm
+  where
+    candidates = [c | c <- gapPlaces tm, far c plCoord]
+    far :: CellCoord -> CellCoord -> Bool
+    far (y1,x1) (y2,x2) =
+      sqrt (fromIntegral $ (y1-y2)*(y1-y2) + (x1-x2)*(x1-x2))
+        >= (fromIntegral leng)
+    i = fst $ randomR (0, length candidates - 1) g
 -------------------------------------------------------------------------- 
 genTileMap :: Int -> IO (Tilemap)
 genTileMap size = do
@@ -239,16 +256,15 @@ genTileMap size = do
   g <- newStdGen
   let
     { sMap = startMap size
-    ; wallMap = iterBuildWalls g (size `div` 5) sMap 
+    ; wallMap = iterBuildWalls g (size `div` 4) sMap 
     ; g' = snd $ next g
     ; g'' = snd $ next g'
-    ; g''' = snd $ next g''
     }
    -- place enemy stacks and player
   let
-    { eCount = size `div` 5
-    ; finMap =  placeSmthOnAnyFree g''' portal $
-                placeEnemies g'' eCount $
-                placeSmthOnAnyFree g' player wallMap
+    { eStacksCount = size `div` 5
+    ; (plMap,plCoord) = placeSmthOnAnyFree g' player wallMap
+    ; eMap = placeEnemies g'' eStacksCount plMap
+    ; finMap = placePortal g' plCoord (size) eMap
     }
   return (finMap)

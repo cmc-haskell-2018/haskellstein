@@ -11,12 +11,12 @@ import Haskellstein.Interactions
 
 -- | first parameter - turn - used in Custom mode
 -- second - countOfLevels - used in Generated mode
-startGame :: Int -> Int -> IO ()
-startGame turn countOfLevels = do
+startGame :: IO ()
+startGame = do
  mode <- detectMode
  case mode of
-  Custom -> startCustom turn
-  Generated -> startGenerated countOfLevels
+  Custom -> startCustom 1 -- ^ first index of tilemap in args
+  Generated -> startGenerated defCountOfLevels 
 
 detectMode :: IO (MapMode)
 detectMode = do
