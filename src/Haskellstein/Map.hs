@@ -1,7 +1,7 @@
 module Haskellstein.Map where
 
 import Prelude hiding (Right,Left)
-import Data.List (delete)
+import Data.List (delete, elemIndices)
 import Haskellstein.Data
 import Haskellstein.CheckMap
 import System.Random
@@ -26,20 +26,25 @@ defMapSize = 32
 player :: String
 player = "p00"
 
-wall :: String
-wall = "w00"
+-- | blocked wall
+bwall :: String
+bwall = "w00"
+
+-- | destructible wall
+dwall :: String
+dwall = "d02"
 
 gap :: String
 gap = "v00"
 
-buff :: String
-buff = "i04"
+buffs :: [String]
+buffs = ["i04","i08","i09"]
 
 portal :: String
 portal = "b00"
 
 typeEnemy :: Int -> String
-typeEnemy e = "e0" ++ show e
+typeEnemy e = "e" ++ show e
 
 printTileMap :: Tilemap -> IO ()
 printTileMap = mapM_ print
@@ -57,7 +62,7 @@ printTileMap' tm = mapM_ (putStrLn . doubleChar . concat) tm
 startMap :: Int -> Tilemap
 startMap size = modifyAtRectangle (\_ -> gap) (1,1) (size-2,size-2) s
   where
-    s = replicate size $ replicate size wall
+    s = replicate size $ replicate size bwall
 
 -- | take random elements from list with different values
 takeRandom :: (RandomGen g, Eq a) => g -> Int -> [a] -> [a]
@@ -74,7 +79,7 @@ freeAround :: Tilemap -> CellCoord -> Bool
 freeAround tm (y,x) = not $ any (== False)
      [takeCellStr tm (h,w) == gap | h <- [y-1 .. y+1], w <- [x-1 .. x+1]]
 
--- | square around given cell
+-- | square 3x3 around given cell without it
 aroundPlace :: CellCoord -> [CellCoord]
 aroundPlace (y,x) = 
      delete (y,x) [(h,w) | h <- [y-1 .. y+1], w <- [x-1 .. x+1]]
@@ -93,8 +98,9 @@ genStartCoord gen tm =
     (i,g1) = randomR (0, length squareGaps - 1) gen
     coord = squareGaps !! i
 
+--------------------WALLS----------------------------------------------- 
 
--- | algorithm of building chains of walls
+-- | algorithm of building chains of bwalls
 iterBuildWalls :: (RandomGen g) => g -> Int ->
                   Tilemap -> Tilemap
 iterBuildWalls gen chainCount tm =
@@ -105,7 +111,7 @@ iterBuildWalls gen chainCount tm =
     (mCoord,g) = genStartCoord gen tm 
     coord = getMaybeVal mCoord
     g' = snd $ next g
-    startStepWalls = writeCondition tm coord wall
+    startStepWalls = writeCondition tm coord bwall
     newMap = buildWalls g coord startStepWalls
 
 buildWalls :: (RandomGen g) => g -> CellCoord ->
@@ -116,12 +122,12 @@ buildWalls gen fstCoord tmap = stepWalls gen fstCoord tmap
                 Tilemap -> Tilemap
     stepWalls g (y,x) tm =
       if way /= []
-      then stepWalls g'' step $ writeCondition tm step wall
+      then stepWalls g'' step $ writeCondition tm step bwall
       else tm
       where
         variations = [(y,x-1),(y,x+1),(y-1,x),(y+1,x)]
         way = [(n,m) | (n,m) <- variations,
-                (tm !! n) !! m /= wall && closerWall (n,m)]
+                (tm !! n) !! m /= bwall && closerWall (n,m)]
         step = way !! i
         (i,g'') = randomR (0, length way - 1) g
         dir st
@@ -142,31 +148,41 @@ buildWalls gen fstCoord tmap = stepWalls gen fstCoord tmap
         closerWall c@(y',x') = cond1 && cond2
           where
             cond1
-              | dir c == Left = (tm !! y') !! (x'- 1) /= wall
-              | dir c == Right = (tm !! y') !! (x'+ 1) /= wall
-              | dir c == Up = (tm !! (y' + 1)) !! x' /= wall
-              | otherwise  = (tm !! (y' - 1)) !! x' /= wall
+              | dir c == Left = (tm !! y') !! (x'- 1) /= bwall
+              | dir c == Right = (tm !! y') !! (x'+ 1) /= bwall
+              | dir c == Up = (tm !! (y' + 1)) !! x' /= bwall
+              | otherwise  = (tm !! (y' - 1)) !! x' /= bwall
             cond2
               | dir c == Left =
-                  (tm !! (y' + 1)) !! x' /= wall &&
-                  (tm !! (y' - 1)) !! x' /= wall &&
-                  (tm !! (y' + 1)) !! (x' - 1) /= wall &&
-                  (tm !! (y' - 1)) !! (x' - 1) /= wall
+                  (tm !! (y' + 1)) !! x' /= bwall &&
+                  (tm !! (y' - 1)) !! x' /= bwall &&
+                  (tm !! (y' + 1)) !! (x' - 1) /= bwall &&
+                  (tm !! (y' - 1)) !! (x' - 1) /= bwall
               | dir c == Right =
-                  (tm !! (y' + 1)) !! x' /= wall &&
-                  (tm !! (y' - 1)) !! x' /= wall &&
-                  (tm !! (y' + 1)) !! (x' + 1) /= wall &&
-                  (tm !! (y' - 1)) !! (x' + 1) /= wall
+                  (tm !! (y' + 1)) !! x' /= bwall &&
+                  (tm !! (y' - 1)) !! x' /= bwall &&
+                  (tm !! (y' + 1)) !! (x' + 1) /= bwall &&
+                  (tm !! (y' - 1)) !! (x' + 1) /= bwall
               | dir c == Up =
-                  (tm !! y') !! (x' - 1) /= wall &&
-                  (tm !! y') !! (x' + 1) /= wall &&
-                  (tm !! (y' + 1)) !! (x' - 1) /= wall &&
-                  (tm !! (y' + 1)) !! (x' + 1) /= wall
+                  (tm !! y') !! (x' - 1) /= bwall &&
+                  (tm !! y') !! (x' + 1) /= bwall &&
+                  (tm !! (y' + 1)) !! (x' - 1) /= bwall &&
+                  (tm !! (y' + 1)) !! (x' + 1) /= bwall
               | otherwise  =
-                  (tm !! y') !! (x' - 1) /= wall &&
-                  (tm !! y') !! (x' + 1) /= wall &&
-                  (tm !! (y' - 1)) !! (x' - 1) /= wall &&
-                  (tm !! (y' - 1)) !! (x' + 1) /= wall
+                  (tm !! y') !! (x' - 1) /= bwall &&
+                  (tm !! y') !! (x' + 1) /= bwall &&
+                  (tm !! (y' - 1)) !! (x' - 1) /= bwall &&
+                  (tm !! (y' - 1)) !! (x' + 1) /= bwall
+
+-- | fill random count of random gaps between bwalls with dwalls
+fillGapsBetweenWalls :: (RandomGen g) => g -> Tilemap -> Tilemap
+fillGapsBetweenWalls g tm = placeOn (replicate count dwall) cells tm
+  where
+    gaps = gapBetweenWallsPlaces tm
+    (count,g') = randomR (1,(length gaps - 1) `div` 3) g
+    cells = takeRandom g' count gaps
+
+------------------------------------------------------------------------ 
 
 -- | size of Tilemap == length of any contained list
 gapPlaces :: Tilemap -> [CellCoord]
@@ -179,6 +195,25 @@ gapPlaces tm = filter (\c -> takeCellStr tm c == gap) allcoords
 gapSquarePlaces :: Tilemap -> [CellCoord]
 gapSquarePlaces [] = []
 gapSquarePlaces tm  = filter (freeAround tm) $ gapPlaces tm
+
+-- | gaps like this:
+-- _ _ _
+-- W _ W
+-- _ _ _
+gapBetweenWallsPlaces :: Tilemap -> [CellCoord]
+gapBetweenWallsPlaces tm =
+  [cell | cell <- gaps, cond1 cell || cond2 cell]
+  where
+    gaps = gapPlaces tm
+    cond1 (y,x) = takeCellStr tm (y-1,x) == bwall &&
+                  takeCellStr tm (y+1,x) == bwall &&
+                  takeCellStr tm (y,x-1) /= bwall &&
+                  takeCellStr tm (y,x+1) /= bwall
+
+    cond2 (y,x) = takeCellStr tm (y-1,x) /= bwall &&
+                  takeCellStr tm (y+1,x) /= bwall &&
+                  takeCellStr tm (y,x-1) == bwall &&
+                  takeCellStr tm (y,x+1) == bwall
 
 -- | it also returns chosen coord beside tilemap
 placeSmthOnAnyFree :: (RandomGen g) => g -> TilemapCell ->
@@ -194,6 +229,17 @@ placeOn :: [TilemapCell] -> [CellCoord] -> Tilemap -> Tilemap
 placeOn [] _ tm = tm
 placeOn _ [] tm = tm
 placeOn (tc:tcs) (c:cs) tm = placeOn tcs cs $ writeCondition tm c tc
+
+-- | place random count of buffs in different angles of the tilemap
+placeSecretBuffs :: (RandomGen g) => g -> Tilemap -> Tilemap
+placeSecretBuffs g tm = placeOn (takeRandom g'' count buffs) cells tm
+  where
+    gaps = [cell | cell <- gapPlaces tm,
+                   length (elemIndices bwall $ candidates cell) >= 7]
+    candidates cell = map (takeCellStr tm) (aroundPlace cell)
+    (count,g') = randomR (1,4) g
+    g'' = snd $ next g'
+    cells = takeRandom g' count gaps
 
 --------------------ENEMIES----------------------------------------------- 
 
@@ -213,7 +259,7 @@ placeEnemyStackAndBuff :: (RandomGen g) => g -> Tilemap -> Tilemap
 placeEnemyStackAndBuff g tm =
   if variations == []
   then tm
-  else writeCondition mapWithEnemies coord buff
+  else writeCondition mapWithEnemies coord (buffs !! 0)
   where
     variations = gapSquarePlaces tm 
     coord = variations !! i
@@ -256,15 +302,19 @@ genTileMap size = do
   g <- newStdGen
   let
     { sMap = startMap size
-    ; wallMap = iterBuildWalls g (size `div` 4) sMap 
+    ; bwallMap = iterBuildWalls g (size `div` 4) sMap 
     ; g' = snd $ next g
     ; g'' = snd $ next g'
+    ; g''' = snd $ next g''
+    ; g'''' = snd $ next g'''
     }
    -- place enemy stacks and player
   let
-    { eStacksCount = size `div` 5
-    ; (plMap,plCoord) = placeSmthOnAnyFree g' player wallMap
+    { eStacksCount = size `div` 4
+    ; (plMap,plCoord) = placeSmthOnAnyFree g' player bwallMap
     ; eMap = placeEnemies g'' eStacksCount plMap
-    ; finMap = placePortal g' plCoord (size) eMap
+    ; portalMap = placePortal g' plCoord (size) eMap
+    ; dMap = fillGapsBetweenWalls g''' portalMap
+    ; finMap = placeSecretBuffs g'''' dMap
     }
   return (finMap)
