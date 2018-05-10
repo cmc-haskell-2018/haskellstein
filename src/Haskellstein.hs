@@ -215,7 +215,7 @@ coolUpdateScene scene control delta =
   else
     let
       newMenuState   = updateMenuState (sMenuState scene) control delta
-      menuTable      = menuTable2list $ sMenuTable scene 
+      menuTable      = menuTable2list $ sMenuTable scene
       enter          = mEnter newMenuState
       index          = mIndex newMenuState
       realIdx        = getIndexOfContent menuTable index 0

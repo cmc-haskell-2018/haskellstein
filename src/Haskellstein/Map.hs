@@ -23,8 +23,8 @@ getMaybeVal Nothing  = undefined
 defMapSize :: Int
 defMapSize = 32
 
-player :: String
-player = "p00"
+playerString :: String
+playerString = "p00"
 
 -- | blocked wall
 bwall :: String
@@ -291,9 +291,9 @@ placePortal g plCoord leng tm =
   where
     candidates = [c | c <- gapPlaces tm, far c plCoord]
     far :: CellCoord -> CellCoord -> Bool
-    far (y1,x1) (y2,x2) =
-      sqrt (fromIntegral $ (y1-y2)*(y1-y2) + (x1-x2)*(x1-x2))
-        >= (fromIntegral leng)
+    far (y1,x1) (y2,x2) = a >= (leng * leng)
+      where
+        a = (y1-y2)*(y1-y2) + (x1-x2)*(x1-x2)
     i = fst $ randomR (0, length candidates - 1) g
 ----------------------------------------------------------------------------
 genTileMap :: Int -> IO (Tilemap)
@@ -311,7 +311,7 @@ genTileMap size = do
    -- place enemy stacks and player
   let
     { eStacksCount = size `div` 4
-    ; (plMap,plCoord) = placeSmthOnAnyFree g' player bwallMap
+    ; (plMap,plCoord) = placeSmthOnAnyFree g' playerString bwallMap
     ; eMap = placeEnemies g'' eStacksCount plMap
     ; portalMap = placePortal g' plCoord (size) eMap
     ; dMap = fillGapsBetweenWalls g''' portalMap
