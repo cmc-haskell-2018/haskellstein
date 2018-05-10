@@ -67,7 +67,7 @@ startMap size = modifyAtRectangle (\_ -> gap) (1,1) (size-2,size-2) s
 -- | take random elements from list with different values
 takeRandom :: (RandomGen g, Eq a) => g -> Int -> [a] -> [a]
 takeRandom _ _ [] = []
-takeRandom g count l = 
+takeRandom g count l =
   if count == 0
   then []
   else val : takeRandom g' (count-1) l
@@ -81,7 +81,7 @@ freeAround tm (y,x) = not $ any (== False)
 
 -- | square 3x3 around given cell without it
 aroundPlace :: CellCoord -> [CellCoord]
-aroundPlace (y,x) = 
+aroundPlace (y,x) =
      delete (y,x) [(h,w) | h <- [y-1 .. y+1], w <- [x-1 .. x+1]]
 
 
@@ -90,7 +90,7 @@ aroundPlace (y,x) =
 genStartCoord :: (RandomGen g) => g -> Tilemap ->
                   (Maybe CellCoord, g)
 genStartCoord gen tm =
-  if squareGaps /= [] 
+  if squareGaps /= []
   then (Just coord, g1)
   else (Nothing, g1)
   where
@@ -98,7 +98,7 @@ genStartCoord gen tm =
     (i,g1) = randomR (0, length squareGaps - 1) gen
     coord = squareGaps !! i
 
---------------------WALLS----------------------------------------------- 
+--------------------WALLS---------------------------------------------------
 
 -- | algorithm of building chains of bwalls
 iterBuildWalls :: (RandomGen g) => g -> Int ->
@@ -108,7 +108,7 @@ iterBuildWalls gen chainCount tm =
   then tm
   else iterBuildWalls g' (chainCount - 1) newMap
   where
-    (mCoord,g) = genStartCoord gen tm 
+    (mCoord,g) = genStartCoord gen tm
     coord = getMaybeVal mCoord
     g' = snd $ next g
     startStepWalls = writeCondition tm coord bwall
@@ -132,9 +132,9 @@ buildWalls gen fstCoord tmap = stepWalls gen fstCoord tmap
         (i,g'') = randomR (0, length way - 1) g
         dir st
           | st == (y,x-1) = Left
-          | st == (y,x+1) = Right 
-          | st == (y-1,x) = Down 
-          | otherwise  = Up 
+          | st == (y,x+1) = Right
+          | st == (y-1,x) = Down
+          | otherwise  = Up
         -- cond1 (X - cant go there)
         --          _ _ _ _ _
         --          _ _ W X W
@@ -182,11 +182,11 @@ fillGapsBetweenWalls g tm = placeOn (replicate count dwall) cells tm
     (count,g') = randomR (1,(length gaps - 1) `div` 3) g
     cells = takeRandom g' count gaps
 
------------------------------------------------------------------------- 
+----------------------------------------------------------------------------
 
 -- | size of Tilemap == length of any contained list
 gapPlaces :: Tilemap -> [CellCoord]
-gapPlaces tm = filter (\c -> takeCellStr tm c == gap) allcoords 
+gapPlaces tm = filter (\c -> takeCellStr tm c == gap) allcoords
   where
     size = length tm
     allcoords = [(h,w) | h <- [0 .. size - 1], w <- [0 .. size - 1]]
@@ -220,10 +220,10 @@ placeSmthOnAnyFree :: (RandomGen g) => g -> TilemapCell ->
                       Tilemap -> (Tilemap, CellCoord)
 placeSmthOnAnyFree gen obj tm = (newMap, gaps !! i)
   where
-    gaps = gapPlaces tm 
+    gaps = gapPlaces tm
     i = fst $ randomR (0, length gaps - 1) gen
     newMap = writeCondition tm (gaps !! i) obj
-    
+
 -- | length [TilemapCell] == length [CellCoord]
 placeOn :: [TilemapCell] -> [CellCoord] -> Tilemap -> Tilemap
 placeOn [] _ tm = tm
@@ -241,13 +241,13 @@ placeSecretBuffs g tm = placeOn (takeRandom g'' count buffs) cells tm
     g'' = snd $ next g'
     cells = takeRandom g' count gaps
 
---------------------ENEMIES----------------------------------------------- 
+--------------------ENEMIES-------------------------------------------------
 
 -- | Place enemies stacks
 -- also place one buff near every stack
 placeEnemies :: (RandomGen g) => g -> Int -> Tilemap -> Tilemap
 placeEnemies g count tm =
-  if mapWithNewStack == tm || count == 0 
+  if mapWithNewStack == tm || count == 0
   then tm
   else placeEnemies g' (count - 1)  mapWithNewStack
   where
@@ -261,26 +261,26 @@ placeEnemyStackAndBuff g tm =
   then tm
   else writeCondition mapWithEnemies coord (buffs !! 0)
   where
-    variations = gapSquarePlaces tm 
+    variations = gapSquarePlaces tm
     coord = variations !! i
     (i,g') = randomR (0, length variations - 1) g
-    (c,g'') = randomR interv g' -- count of possible enemies    
+    (c,g'') = randomR interv g' -- count of possible enemies
     interv = (1.0,3.0) :: (Float, Float)
     count = round c
     mapWithEnemies = placeEnemiesInArea g'' count coord tm
 
 placeEnemiesInArea :: (RandomGen g) => g -> Int -> CellCoord ->
                       Tilemap -> Tilemap
-placeEnemiesInArea g count c tm = placeOn enemies candidates tm 
+placeEnemiesInArea g count c tm = placeOn enemies candidates tm
   where
     g' = snd $ next g
-    candidates = takeRandom g' count $ aroundPlace c 
+    candidates = takeRandom g' count $ aroundPlace c
     enemiesTypes = takeRandom g count list --digits: like 4 in e04
     list = ([1,2,3,4] :: [Int])
     enemies = map (\e -> typeEnemy e) enemiesTypes
 
---------------------PORTAL----------------------------------------------- 
--- | place portal far enough from player 
+--------------------PORTAL--------------------------------------------------
+-- | place portal far enough from player
 -- final position depends on 2-nd input parameter - length
 placePortal :: (RandomGen g) => g -> CellCoord -> Int ->
                Tilemap -> Tilemap
@@ -295,14 +295,14 @@ placePortal g plCoord leng tm =
       sqrt (fromIntegral $ (y1-y2)*(y1-y2) + (x1-x2)*(x1-x2))
         >= (fromIntegral leng)
     i = fst $ randomR (0, length candidates - 1) g
--------------------------------------------------------------------------- 
+----------------------------------------------------------------------------
 genTileMap :: Int -> IO (Tilemap)
 genTileMap size = do
   -- build Walls
   g <- newStdGen
   let
     { sMap = startMap size
-    ; bwallMap = iterBuildWalls g (size `div` 4) sMap 
+    ; bwallMap = iterBuildWalls g (size `div` 4) sMap
     ; g' = snd $ next g
     ; g'' = snd $ next g'
     ; g''' = snd $ next g''

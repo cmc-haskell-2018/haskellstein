@@ -1,6 +1,6 @@
 # COMPILER INFO
 GHC = ghc
-GHC_FLAGS = -Wall
+GHC_FLAGS = -Wall -dynamic
 
 # BASIC INFO
 TARGET_NAME = game

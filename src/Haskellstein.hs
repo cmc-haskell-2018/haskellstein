@@ -111,7 +111,6 @@ getMaybeValue :: (Fractional a) => Maybe a -> a
 getMaybeValue Nothing = 0.0
 getMaybeValue (Just x)  = x
 
-
 --getScene
 getScene :: Scene -> Scene
 getScene scene = scene
@@ -138,7 +137,6 @@ displayMenu menuTable menuState = do
   --drawText("Haskellstein v2.0", xOffset * 10, yOffset - 40, 35)
   updateWorkspace
 
-
 xOffset :: Int
 xOffset = 20
 
@@ -153,7 +151,7 @@ fontSize = 20
 
 columnSize :: Int
 columnSize = 7
- 
+
 displayText :: [String] -> [Bool] -> Int -> IO()
 displayText content isPrint index =
   let
@@ -174,7 +172,7 @@ getControl = do
   keyTurn        <- getKeyPressed keyI
   key1State      <- getKeyPressed key1
   key2State      <- getKeyPressed key2
-  keymenuState      <- getKeyPressed keyM
+  keymenuState   <- getKeyPressed keyM
   keyGState      <- getKeyPressed keyG
   keyReturnState <- getKeyPressed keyReturn
   let newControl = Control
@@ -279,7 +277,6 @@ setElemInMenu scene melem val =
     newMenuState           = menuState {mIndexBound = newIndexBound, mIndex = 0} in
     scene {sMenuTable = newMenuTable, sMenuState = newMenuState}
 
-
 changeTable :: MenuTable -> String -> Bool -> (Int, MenuTable)
 changeTable menuTable telem val =
   let x = if val then 1 else (-1) in
@@ -305,5 +302,5 @@ saveScene scene file = do
 
 loadScene :: String -> IO(Scene)
 loadScene file = do
-  scene <- readFile file  
+  scene <- readFile file
   return (read scene :: Scene)

@@ -31,7 +31,7 @@ modifyAt i f ls
 {-# INLINE modifyAt #-}
 
 -- | updateCellFunction depends only on CellCoord (simple way)
-modifyAtRectangle :: (CellCoord -> TilemapCell) -> 
+modifyAtRectangle :: (CellCoord -> TilemapCell) ->
                      CellCoord -> CellCoord ->
                      Tilemap -> Tilemap
 modifyAtRectangle f (x1,y1) (x2,y2) tm = applyTillRange range tm

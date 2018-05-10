@@ -112,7 +112,7 @@ data MenuTable = MenuTable
     { mStart          :: Bool
     , mResume         :: Bool
     , mRestart        :: Bool
-    , mSave           :: Bool    
+    , mSave           :: Bool
     , mLoad           :: Bool
     , mGenMap         :: Bool
     , mExit           :: Bool
