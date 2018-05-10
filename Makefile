@@ -50,12 +50,10 @@ clean:
 	rm -f $(MODULES_PATH)/Haskellstein/Raycasting/*.hi
 	rm -f $(MAPSLOC)genmap*
 	cd sftool; make clean
-	cd genmaps; make clean
 
 force:
 	make clean
 	cd sftool; make all
-	cd genmaps; make run
 	make all
 
 run:
