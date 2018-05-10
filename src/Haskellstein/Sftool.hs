@@ -120,7 +120,6 @@ key1 = 8
 key2 :: Int
 key2 = 9
 
-
 keyM :: Int
 keyM = 10
 
@@ -129,7 +128,6 @@ keyG = 11
 
 keyReturn :: Int
 keyReturn = 12
-
 ----Color constants
 
 colorNone :: Int

@@ -64,7 +64,3 @@ run:
                      $(MAPSLOC)second_map.txt \
                      $(MAPSLOC)third_map.txt \
                      $(MAPSLOC)fourth_map.txt \
-
-run_random:
-	make all
-	./$(OUTPUT_NAME) $(MAPSLOC)genmap*

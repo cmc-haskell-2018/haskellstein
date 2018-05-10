@@ -307,4 +307,3 @@ loadScene :: String -> IO(Scene)
 loadScene file = do
   scene <- readFile file  
   return (read scene :: Scene)
-
