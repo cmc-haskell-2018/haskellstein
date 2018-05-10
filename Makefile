@@ -1,6 +1,6 @@
 # COMPILER INFO
 GHC = ghc
-GHC_FLAGS = -Wall -dynamic
+GHC_FLAGS = -Wall
 
 # BASIC INFO
 TARGET_NAME = game
@@ -14,13 +14,13 @@ MODULES_NAMES = Main Haskellstein \
  Haskellstein/Raycasting/Spritecaster \
  Haskellstein/Raycasting/Rayconsts \
  Haskellstein/Data \
- Haskellstein/Map  \
  Haskellstein/Texconsts \
  Haskellstein/Texwork \
  Haskellstein/Picture \
  Haskellstein/CheckMap \
  Haskellstein/Initialize \
- Haskellstein/Interactions
+ Haskellstein/Interactions \
+ Haskellstein/Map
 MODULES_PATH = src
 MODULES = $(MODULES_NAMES:%=$(MODULES_PATH)/%.hs)
 
@@ -28,7 +28,7 @@ MODULES = $(MODULES_NAMES:%=$(MODULES_PATH)/%.hs)
 SFTOOL_NAME = sftool
 SFTOOL_PATH = sftool
 LIBS = -l$(SFTOOL_NAME) -lsfml-graphics -lsfml-window \
-                        -lsfml-system -lstdc++ -lsfml-audio -Llib
+                        -lsfml-system -lstdc++ -lsfml-audio
 
 #GAME_INPUT_FILES
 MAPSLOC = tilemaps/
@@ -60,9 +60,7 @@ force:
 
 run:
 	make all
-	./$(OUTPUT_NAME) Generated $(MAPSLOC)second_map.txt \
-                     $(MAPSLOC)first_map.txt
-alex_run:
-	make all
-	LD_LIBRARY_PATH=lib ./$(OUTPUT_NAME) Generated $(MAPSLOC)fourth_map.txt \
-                     $(MAPSLOC)first_map.txt $(MAPSLOC)third_map.txt
+	./$(OUTPUT_NAME) $(MAPSLOC)first_map.txt \
+                     $(MAPSLOC)second_map.txt \
+                     $(MAPSLOC)third_map.txt \
+                     $(MAPSLOC)fourth_map.txt \

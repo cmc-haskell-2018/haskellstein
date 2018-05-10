@@ -227,6 +227,9 @@ void set_health_bar_size(int size)
 #define KEY_SPACE 7
 #define KEY_1 8
 #define KEY_2 9
+#define KEY_M 10
+#define KEY_G 11
+#define KEY_RETURN 12
 
 int get_key_pressed(int key_code)
 {
@@ -252,6 +255,12 @@ int get_key_pressed(int key_code)
 			return sf::Keyboard::isKeyPressed(sf::Keyboard::Num1);
 		case KEY_2:
 			return sf::Keyboard::isKeyPressed(sf::Keyboard::Num2);
+		case KEY_M:
+			return sf::Keyboard::isKeyPressed(sf::Keyboard::M);
+		case KEY_G:
+			return sf::Keyboard::isKeyPressed(sf::Keyboard::G);
+		case KEY_RETURN:
+			return sf::Keyboard::isKeyPressed(sf::Keyboard::Return);
 	}
 	return 0;
 }

@@ -1,8 +1,10 @@
 module Main where
 
+import System.Environment
 import Haskellstein
 
 main :: IO()
 main = do
- windowInit
- startGame
+         windowInit
+         args <- getArgs
+         start args

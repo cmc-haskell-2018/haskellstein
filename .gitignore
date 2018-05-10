@@ -20,5 +20,11 @@ lib/libc/build
 cabal.project.local
 .DS_Store
 data/.DS_Store
+.*
+genmaps/**/*
+tilemaps/**/*
+haskellstein
+src/Haskellstein/Menu.hs
+sftool/*.a
 lib/
 sftool/include
