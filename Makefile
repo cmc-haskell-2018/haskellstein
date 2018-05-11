@@ -19,7 +19,8 @@ MODULES_NAMES = Main Haskellstein \
  Haskellstein/Picture \
  Haskellstein/CheckMap \
  Haskellstein/Initialize \
- Haskellstein/Interactions
+ Haskellstein/Interactions \
+ Haskellstein/Map
 MODULES_PATH = src
 MODULES = $(MODULES_NAMES:%=$(MODULES_PATH)/%.hs)
 
@@ -49,12 +50,10 @@ clean:
 	rm -f $(MODULES_PATH)/Haskellstein/Raycasting/*.hi
 	rm -f $(MAPSLOC)genmap*
 	cd sftool; make clean
-	cd genmaps; make clean
 
 force:
 	make clean
 	cd sftool; make all
-	cd genmaps; make run
 	make all
 
 run:
@@ -63,7 +62,3 @@ run:
                      $(MAPSLOC)second_map.txt \
                      $(MAPSLOC)third_map.txt \
                      $(MAPSLOC)fourth_map.txt \
-
-run_random:
-	make all
-	./$(OUTPUT_NAME) $(MAPSLOC)genmap*

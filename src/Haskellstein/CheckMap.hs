@@ -30,7 +30,19 @@ modifyAt i f ls
     go _ []     = []
 {-# INLINE modifyAt #-}
 
---change cell followed coordinates
+-- | updateCellFunction depends only on CellCoord (simple way)
+modifyAtRectangle :: (CellCoord -> TilemapCell) ->
+                     CellCoord -> CellCoord ->
+                     Tilemap -> Tilemap
+modifyAtRectangle f (x1,y1) (x2,y2) tm = applyTillRange range tm
+  where
+    range = [(n,m) | n <- [x1..x2], m <- [y1..y2]]
+    applyTillRange :: [CellCoord] -> Tilemap -> Tilemap
+    applyTillRange [] tm' = tm'
+    applyTillRange (x:xs) tm' = applyTillRange xs
+                              (writeCondition tm' x (f x))
+
+-- | change cell followed coordinates (height,width)
 writeCondition :: Tilemap -> CellCoord -> String -> Tilemap
 writeCondition tm (n,m) str = modifyAt n (changeCell) tm
     where
