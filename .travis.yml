@@ -17,7 +17,7 @@ before_install:
 - ghc Setup.hs
 - ./Setup configure
 - ./Setup build
-- ./Setup install
+- sudo ./Setup install
 - cd ..
 
 install:
