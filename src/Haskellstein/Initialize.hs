@@ -227,8 +227,8 @@ createScene tmap =
         []
         Game
         []
-        (MenuState 0 5 False (Nothing, 0.2))
-        (MenuTable False True True True True True True)
+        (MenuState 0 6 False (Nothing, 0.2))
+        (MenuTable False True True True True True True True)
         []
   where
     rewrite p

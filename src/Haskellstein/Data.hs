@@ -113,6 +113,7 @@ data MenuTable = MenuTable
     { mStart          :: Bool
     , mResume         :: Bool
     , mRestart        :: Bool
+    , mRestartLvl     :: Bool
     , mSave           :: Bool    
     , mLoad           :: Bool
     , mGenMap         :: Bool
@@ -120,7 +121,7 @@ data MenuTable = MenuTable
     } deriving (Show, Read)
 
 menuContent :: [String]
-menuContent =  ["START", "RESUME", "RESTART", "SAVE", "LOAD", "GENERATE MAP", "EXIT"]
+menuContent =  ["START", "RESUME", "RESTART", "RESTART_LVL", "SAVE", "LOAD", "GENERATE MAP", "EXIT"]
 
 type TexTimer = Maybe Float
 

@@ -17,7 +17,7 @@ start args initArgs = do
     else do
         tilemap      <- readFile $ head args
         let scene    = (createScene  (createTilemap tilemap)) {sArgs = args, sInitialArgs = initArgs}
-        let newScene = if (argsLen == 4) then (setElemsInMenu (scene {sState = Menu}) ["RESUME","RESTART", "SAVE", "START"] [False, False, False, True]) else scene
+        let newScene = if (argsLen == 4) then (setElemsInMenu (scene {sState = Menu}) ["RESUME","RESTART","RESTART_LVL","SAVE", "START"] [False, False, False, False, True]) else scene
         res  <- greatCycle newScene getScene coolUpdateScene
         let levelEnd = fst res
         let argss  = snd res
@@ -79,7 +79,7 @@ greatCycle scene get update = do
 
 menuTable2list :: MenuTable -> [Bool]
 menuTable2list menuTable =
-  [mStart menuTable, mResume menuTable, mRestart menuTable, mSave menuTable, mLoad menuTable, mGenMap menuTable, mExit menuTable]
+  [mStart menuTable, mResume menuTable, mRestart menuTable, mRestartLvl menuTable, mSave menuTable, mLoad menuTable, mGenMap menuTable, mExit menuTable]
 
 updateMenuState :: MenuState -> Control -> Float -> MenuState
 updateMenuState menuState control delta =
@@ -142,16 +142,16 @@ displayMenu menuTable menuState = do
 
 
 xOffset :: Int
-xOffset = 20
+xOffset = 150
 
 yOffset :: Int
-yOffset = 45
+yOffset = 100
 
 lineHeight :: Int
-lineHeight = 20
+lineHeight = 50
 
 fontSize :: Int
-fontSize = 20
+fontSize = 40
 
 columnSize :: Int
 columnSize = 7
@@ -249,21 +249,25 @@ changeScene scene melem =
     let initArg = sInitialArgs scene
     let player = sPlayer scene
     return scene {sArgs = ["dsfds"] ++ initArg, sPlayer = (player {pExit = True}), sState = Game}
+  else if melem == "RESTART_LVL" then do
+    let arg = sArgs scene
+    let player = sPlayer scene
+    return scene {sArgs = ["dsfds"] ++ arg, sPlayer = (player {pExit = True}), sState = Game}
   else if melem == "SAVE" then do
     _ <- saveScene scene ".savedScene.txt"
     return (setElemInMenu scene "LOAD" True)
   else if melem == "START" then do
-    let newScene = (setElemsInMenu scene ["RESUME","RESTART", "SAVE", "START"] [True, True, True, False]) {sState = Game}
+    let newScene = (setElemsInMenu scene ["RESUME","RESTART", "RESTART_LVL", "SAVE", "START"] [True, True, True, True, False]) {sState = Game}
     _ <- saveScene newScene ".toRestartScene.txt"
     _ <- saveScene newScene ".savedScene.txt"
     return newScene
   else if melem == "LOAD" then do
     newScene <- loadScene ".savedScene.txt"
-    return ((setElemsInMenu newScene ["RESUME","RESTART", "SAVE", "START"] [True, True, True, False]) {sState = Game})
+    return ((setElemsInMenu newScene ["RESUME","RESTART", "RESTART_LVL", "SAVE", "START"] [True, True, True, True, False]) {sState = Game})
   else do
     tilemap   <- genTileMap defMapSize
     let
-      newScene = (setElemsInMenu (createScene tilemap) ["RESUME","RESTART", "SAVE", "START", "GENERATE MAP"] [True, True, True, False, False]) {sState = Game}
+      newScene = (setElemsInMenu (createScene tilemap) ["RESUME","RESTART", "RESTART_LVL", "SAVE", "START", "GENERATE MAP"] [True, True, True, True, False, False]) {sState = Game}
     return newScene
 
 setElemsInMenu :: Scene -> [String] -> [Bool] -> Scene
