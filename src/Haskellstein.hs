@@ -297,6 +297,8 @@ changeTable menuTable telem val =
     (if mResume menuTable == val then 0 else x, menuTable {mResume  = val})
   else if telem == "RESTART" then
     (if mRestart menuTable == val then 0 else x, menuTable {mRestart = val})
+  else if telem == "RESTART_LVL" then
+    (if mRestartLvl menuTable == val then 0 else x, menuTable {mRestartLvl = val})
   else if telem == "SAVE" then
     (if mSave menuTable == val then 0 else x, menuTable {mSave    = val})
   else if telem == "LOAD" then
