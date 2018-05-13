@@ -99,6 +99,7 @@ data Scene = Scene
     , sArgs          :: [String]
     , sMenuState     :: MenuState
     , sMenuTable     :: MenuTable
+    , sInitialArgs    :: [String]
     } deriving (Show, Read)
 
 data MenuState = MenuState

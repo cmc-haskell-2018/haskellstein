@@ -7,4 +7,4 @@ main :: IO()
 main = do
          windowInit
          args <- getArgs
-         start args
+         start args args

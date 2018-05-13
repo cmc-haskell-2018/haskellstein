@@ -9,19 +9,21 @@ import Haskellstein.Picture
 import Haskellstein.Interactions
 import Control.Concurrent (threadDelay)
 
-start :: [String] -> IO()
-start args = do
+start :: [String] -> [String]-> IO()
+start args initArgs = do
     let argsLen = length args
     if argsLen == 0 then do
         putStrLn "Victory"
     else do
         tilemap      <- readFile $ head args
-        let scene    = (createScene  (createTilemap tilemap)) {sArgs = args}
+        let scene    = (createScene  (createTilemap tilemap)) {sArgs = args, sInitialArgs = initArgs}
         let newScene = if (argsLen == 4) then (setElemsInMenu (scene {sState = Menu}) ["RESUME","RESTART", "SAVE", "START"] [False, False, False, True]) else scene
         res  <- greatCycle newScene getScene coolUpdateScene
         let levelEnd = fst res
-        let newArgs  = snd res
-        if (levelEnd == Victory) then start newArgs
+        let argss  = snd res
+        let newArgs = fst argss
+        let initArgs = snd argss
+        if (levelEnd == Victory) then start newArgs initArgs
         else putStrLn "Exit"
 
 windowInit :: IO()
@@ -49,11 +51,11 @@ greatCycle
   :: a --object
   -> (a -> Scene) --scene
   -> (a -> Control -> Float -> IO(a)) --updateScene
-  -> IO((GameState, [String]))
+  -> IO((GameState, ([String], [String])))
 greatCycle scene get update = do
   let scn = get scene
   if ((getState scn) == Victory) then
-    return (Victory, (tail (sArgs scn)))
+    return (Victory, ((tail (sArgs scn)), sInitialArgs scn))
   else if ((sState scn) == Game) then do
           displayPicture (makePicture scn) True
           control      <- getControl
@@ -71,9 +73,9 @@ greatCycle scene get update = do
               newScene     <- update scene control delta
               greatCycle newScene get update
   else if ((sState scn) == Exit) then do
-          return (Exit, [])
+          return (Exit, ([], []))
   else do
-    return (Input, [])
+    return (Input, ([], []))
 
 menuTable2list :: MenuTable -> [Bool]
 menuTable2list menuTable =
@@ -243,8 +245,10 @@ changeScene scene melem =
   else if melem == "EXIT" then
     return scene {sState = Exit}
   else if melem == "RESTART" then do
-    newScene <- loadScene ".toRestartScene.txt"
-    return newScene
+    --newScene <- loadScene ".toRestartScene.txt"
+    let initArg = sInitialArgs scene
+    let player = sPlayer scene
+    return scene {sArgs = ["dsfds"] ++ initArg, sPlayer = (player {pExit = True}), sState = Game}
   else if melem == "SAVE" then do
     _ <- saveScene scene ".savedScene.txt"
     return (setElemInMenu scene "LOAD" True)
@@ -305,6 +309,6 @@ saveScene scene file = do
 
 loadScene :: String -> IO(Scene)
 loadScene file = do
-  scene <- readFile file  
+  scene <- readFile file
   return (read scene :: Scene)
 

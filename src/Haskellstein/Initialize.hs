@@ -229,6 +229,7 @@ createScene tmap =
         []
         (MenuState 0 5 False (Nothing, 0.2))
         (MenuTable False True True True True True True)
+        []
   where
     rewrite p
         | head p == 'e' = "v00"
