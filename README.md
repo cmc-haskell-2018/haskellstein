@@ -8,7 +8,7 @@ First-person Shooter.
 
 Using [SFML](https://www.sfml-dev.org/download/sfml/2.4.2/)
 
-Using Glasgow Haskell Compiler
+Using Glasgow Haskell Compiler && random package
 
 Using GNU MAKE
 
